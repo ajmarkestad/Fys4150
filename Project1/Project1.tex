@@ -1,0 +1,165 @@
+%%%%
+\documentclass[a4paper,11pt]{article}
+%%%%
+%%%%
+%PACKAGES______________________________________________________________________________________
+\usepackage{simplewick} %Allows Wick Notation
+\usepackage{slashed} %Allows feynman slash notation 
+\usepackage{graphicx} % graphics, pictures, figures
+\usepackage{verbatim} % importing numerical scripts
+\usepackage{multicol, float} % placing floats in right places
+\usepackage{algpseudocode} % no idea...
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb} %needed if not using mathdesign
+\usepackage{amsmath}
+\usepackage[OT1]{fontenc}
+\usepackage{lmodern} %gfsartemisia, times, boisik, et cetera
+\usepackage{braket} %dirac notation
+\usepackage[cm]{fullpage} % for fulpage style
+\usepackage{bm} % boldface vectors
+\usepackage{float} % placing floats
+\usepackage{relsize} % for \mathlarger command
+\usepackage{mathrsfs} %?
+\usepackage{textgreek} % cb-greek class
+\usepackage{sectsty} % for centering sections
+\usepackage{textcomp } % for nr. symbol
+\usepackage[usenames, dvipsnames]{color} % defining own colors
+\usepackage{type1cm} % scalable fonts
+\usepackage{lettrine} % larger first letter in paragraph.
+\usepackage{background} % used for top page text
+%\usepackage{niceframe} % for old-school double frame
+\usepackage{tikz} % figure config/ creation
+%\usepackage{bbold}
+%\usepackage{swrule} % for fancy line
+%\usepackage{pdfpages} % for importing pdf
+%\usepackage{subfigure} % for subfigures
+%%%%
+%%%% SET-UP NEEDED FOR FURTHER PACKAGES
+%%%%
+\definecolor{hyperclrblue}{RGB}{30,90,125} %Definind own color ; blue
+\definecolor{hyperclrorng}{RGB}{210,100,45}%Definind own color
+\definecolor{hyperclrgreen}{RGB}{60,120,20}%Definind own color
+\usepackage[colorlinks = true,
+linkcolor = hyperclrblue,
+urlcolor = blue,
+citecolor = blue,
+anchorcolor = blue]{hyperref} % link package
+\usepackage{pgfplots} % to plot directly into latex
+\pgfplotsset{compat=1.5} % needed forpgfplots
+\usepackage{framed, color} % for framing/shaded box
+\definecolor{shadecolor}{cmyk}{0,0,0.185,0} % color for shaded box
+\usepackage{fancybox}
+\usepackage[sc]{titlesec} % title package
+%_______________________________________________________________________________________________
+%NEW COMMANDS_________________________________________________________________________________
+%\renewcommand*{\thefootnote}{$\dagger$} % creating dagger footnote
+\newcommand*{\boisik}{\fontfamily{bsk}\selectfont} % change font to boisik command
+\newcommand{\wf}{\text{\textpsi}} % defining wavefunctions as cbgreek class.
+\newcommand{\bwf}{\text{\textPsi}} % defining Wavefunctions as cbgreek class.
+\newcommand{\Q}{\hat{\text{\boisik Q}}} % defining operator-style 'Q'
+\newcommand{\nlm}{\ket{n\ell m_\ell}} % defining wavefunctions as cbgreek class.
+\newcommand{\nlmz}{\ket{n\ell m_\ell;0}} % defining wavefunctions as cbgreek class.
+\newcommand{\nlmt}{\ket{n\ell m_\ell;t}} % defining wavefunctions as cbgreek class.
+%_____________________________________________
+%\numberwithin{equation}{section} %equations labeled by section
+\sectionfont{\centering} % centering sections with 'sectsty'
+\subsectionfont{\centering} % centering sections with 'sectsty'
+\definecolor{myclr}{RGB}{190,90,20} %Definind own color
+\renewcommand{\thesection}{\Roman{section}.} % Roman numerals for sections
+\renewcommand{\thesubsection}{\Alph{subsection}} % Roman numerals for subsections
+\titleformat{\section}{\large\scshape\centering}{\thesection}{1em}{} % Change the look of the section titles
+\titleformat{\subsection}{\normalsize\centering\bfseries}{\thesubsection.}{1em}{} % Change the look of the section titles
+\setlength{\columnsep}{0.7cm}
+%______________________________________________________________________________________________
+%%%%
+%%%%_________________________________________________________________________________________
+\begin{document}
+%%%% TOP PAGE TEXT
+{\SetBgContents{ \textit{{\small\textsc{ Ask Juhl Markestad, Thorbjørn Vidvei Larsen, Universitetet i Oslo. \hspace{3.5cm} \textit{\today}}}}}
+\SetBgScale{1}
+\SetBgColor{black}
+\SetBgAngle{0}
+\SetBgOpacity{1}
+\SetBgPosition{current page.north east}
+\SetBgVshift{-1.2cm}
+\SetBgHshift{-10.5cm}
+%%%% CREATING TITLE HEADER
+$$\:$$
+\begin{center}
+\vspace{0.2cm}%\boisik
+\fontsize{15}{15}\selectfont \textsc{ Project 1: Vector and Matrix Operations in c++},\\
+%{in}}\\
+\fontsize{13}{13}\selectfont \textsc{Fys $\textnormal{{4150}}$ }\\
+\vspace{0.4cm}
+\fontsize{12}{12}\selectfont {\textsc{ Ask Juhl Markestad, Thorbjørn Vidvei Larsen }}\\
+\vspace{0.5cm}
+\end{center}
+%%%%
+%%%%
+%______________________________________________________________________________________________
+%%%%
+%%%%
+
+%\includegraphics[scale = 0.48]{line}
+\rule{\textwidth}{0.3pt}\par
+
+%---------------------------------------------------------------------------------------------------------------------------------------
+
+
+\section*{Introduction}
+
+Differential equations are fundamental in physics. The standard approach in most branches of physics is to describe a physical system in terms of it's symmetries and degrees of freedom through the formalism of Lagrange or Hamilton, i.e. by setting up equations of motion. It is thus a very important tool to be able to solve these differential equations as precisely and effectively as possible. In this project we explore algorithms for calculating second order differential equations using vector and matrix operations with the aim to better understand the computational demands of differential equation solutions and how to reduce these demands.
+
+
+
+\section*{Theory and Algorithms}
+
+
+\section*{Results}
+
+
+
+\section*{Conclusion}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{thebibliography}{3}
+	
+	\bibitem{lucia}
+	Name of Author/s
+	\emph{Name of work }
+	Prublisher
+	year
+	\begin{verbatim}
+	Web link
+	\end{verbatim}
+	
+	
+	
+	
+	
+\end{thebibliography}
+
+
+
+
+
+
+
+
+
+%__________________________________________________________________________
+\end{document}
+
