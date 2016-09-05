@@ -26,6 +26,7 @@
 \usepackage[usenames, dvipsnames]{color} % defining own colors
 \usepackage{type1cm} % scalable fonts
 \usepackage{lettrine} % larger first letter in paragraph.
+\usepackage{listings}
 \usepackage{background} % used for top page text
 %\usepackage{niceframe} % for old-school double frame
 \usepackage{tikz} % figure config/ creation
@@ -177,8 +178,149 @@ a_1 & b_2 & c_2 & 0 & ... & 0 \\
 \label{general_tridiagonal_matrix}
 \end{equation}
 
+We now see that this problem is on the type $\mathbf{A}\mathbf{u}=\mathbf{f}$ were we know the values of $\mathbf{A}$ and $\mathbf{f}$. A solution for this problem is to form a diagonal matrix of $\mathbf{A}$, such that we easily can read out the values of $\mathbf{u}$. As the matrix is tridiagonal we can do this in two steps, forwardsubstitution where we remove the $a$ values and backwardssubstitution were we remove the $c$ values. Looking at the first 2 rows, we see that if we subtract the first row multiplied by $a_1/b_1$ we get
+
+\begin{equation}
+\begin{pmatrix}
+b_1 & c_1 & 0 & ... & ... & 0 \\
+0 & b_2-\frac{a_1 c_1}{b_1} & c_2 & 0 & ... & 0 \\
+0 & a_2 & b_3 & c_3 & 0 & ... \\
+... & ... & ... & ... & ... & ... \\
+0 & ... & 0 & a_{n-2} & b_{n-1} & c_{n-1} \\
+0 & 0 & ... & 0 & a_{n-1} & b_{n} 
+\end{pmatrix} \begin{pmatrix}
+u_1\\
+u_2\\
+u_3\\
+...\\
+...\\
+u_n
+\end{pmatrix} = \frac{1}{h^2}\begin{pmatrix}
+f_1 \\
+f_2-\frac{f_1 a_1}{b_1} \\
+f_3 \\
+... \\
+... \\
+f_n \\
+\end{pmatrix}
+\end{equation}
+
+If we do this all the way to the end of the matrix, we get a new matrix with only non-zero elements on and above the diagonal. If we call the new values of the diagonal element $\tilde{b}$ we have an explicit expression for them as
+
+\begin{equation}
+	\tilde{b_i}=b_{i}-\frac{a_{i-1}c_{i-1}}{\tilde{b_{i-1}}}\quad i = 2, ..., n
+	\label{eq:forward_general_b}
+\end{equation}
+We also have to update the $\mathbf{f}$ in a similar manner
+\begin{equation}
+	\tilde{f_i}=f_{i}-\frac{a_{i-1}f_{i-1}}{\tilde{b_{i-1}}}\quad i = 2, ..., n
+	\label{eq:forward_general_f}
+\end{equation}
+
+In the end of this forward substitution we have
+
+\begin{equation}
+\begin{pmatrix}
+b_1 & c_1 & 0 & ... & ... & 0 \\
+0 & \tilde{b_2} & c_2 & 0 & ... & 0 \\
+0 & 0 & \tilde{b_3} & c_3 & 0 & ... \\
+... & ... & ... & ... & ... & ... \\
+0 & ... & 0 & 0 & \tilde{b_{n-1}} & c_{n-1} \\
+0 & 0 & ... & 0 & 0 & \tilde{b_{n}}
+\end{pmatrix} \begin{pmatrix}
+u_1\\
+u_2\\
+u_3\\
+...\\
+...\\
+u_n
+\end{pmatrix} = \frac{1}{h^2}\begin{pmatrix}
+f_1 \\
+\tilde{f_2} \\
+\tilde{f_3} \\
+... \\
+... \\
+\tilde{f_n} \\
+\end{pmatrix}
+\end{equation}
+
+To continue we have to remove the elements above the diagonal. This time we first look at the elements in the last row that the first elements $u_n$ is given by $\tilde{f_n}/h^2$. To find the next elements $u_{n-1}$ we simply see that the equation for this row is 
+
+\begin{equation}
+	u_{n-1}\tilde{b_{n-1}}+c_{n-1}u_n = \frac{\tilde{f_{n-1}}}{h^2}
+\end{equation}
+
+We know all values except $u_{n-1}$ and solve for this value in an interative process upwards. This gives the algorithm 
+
+\begin{equation}
+	u_i = \frac{\frac{\tilde{f_i}}{h^2}-c_i u_{i+1}}{\tilde{a_i}}\quad i = n-1, n-2, ..., 1
+	\label{eq:forward_general_u}
+\end{equation}
+
+were the sequence for the i's are important(i.e starting with the known value in the bottom). 
+
+%% TODO:Antall steg i generell algoritme
 
 
+We can then look at our specialized example were we know the coefficients of the matrix $\mathbf{A}$. By precalculation some of the algorithms we can reduce the number of operations for a given gridsize n by a substantial factor. If we insert the numbers into the first forward substitution equation \ref{eq:forward_general_b} we get
+
+\begin{equation}
+	\tilde{b_i}=2-\frac{1}{\tilde{b_{i-1}}}\quad i = 2, ..., n
+\end{equation}
+
+For n=2,3,4 we have 
+
+\begin{align}
+	\tilde{b_2}=2-\frac{1}{2}=\frac{3}{2} \\
+	\tilde{b_3}=2-\frac{2}{3}=\frac{4}{3} \\
+	\tilde{b_4}=2-\frac{3}{4}=\frac{5}{4}
+\end{align}
+
+were we start to suspect a series on the form
+
+\begin{equation}
+	\tilde{b_i}=\frac{i+1}{i}  \quad i = 2, ..., n
+	\label{eq:forward_specific_b}
+\end{equation}
+
+We can see that this step only has 2n flops. The equations for $\mathbf{f}$ also simplify to a degree
+\begin{equation}
+	\tilde{f_i}=f_{i}+\frac{f_{i-1}}{\tilde{b_{i-1}}}\quad i = 2, ..., n
+	\label{eq:forward_specific_f}
+\end{equation}
+
+where we now equally have 2n flops for this step. 
+
+For the backward substitution we get 
+
+\begin{equation}
+	u_i = \frac{\frac{\tilde{f_i}}{h^2}+ u_{i+1}}{\tilde{a_i}}\quad i = n-1, n-2, ..., 1
+	\label{eq:forward_specific_u}
+\end{equation}
+
+which has 4n$(2n?, 1/h^2 ?)$ flops. 
+
+\subsection{Memory handling and algorithms}
+To efficiently handle the memory and not generate lots of copies of the matrices, vectors are used as the algorithms act on a vector-type structure. For each round of the general algorithm, as in the forward substitution of b we can pass the array by reference and only update the values. The pseudocode for the forwards substitution would then be
+\begin{lstlisting}
+//general forward algorithm
+//start at 1 as the 0 elements is ok
+for (int i=1; i<=n; i++)
+{
+	b[i]=b[i]-c[i-1]*b[i-1]/b[i-1];
+	f[i]=f[i]-c[i-1]*f[i-1]/b[i-1];
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}
+//general backward algorithm
+//start at 1 as the 0 elements is ok
+for (int i=n-1; i>=0; i--)
+{
+
+}
+\end{lstlisting}
 
 
 \section*{Results}
