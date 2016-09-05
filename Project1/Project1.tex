@@ -75,7 +75,7 @@ anchorcolor = blue]{hyperref} % link package
 %%%%_________________________________________________________________________________________
 \begin{document}
 %%%% TOP PAGE TEXT
-{\SetBgContents{ \textit{{\small\textsc{ Ask Juhl Markestad, Thorbjørn Vidvei Larsen, Universitetet i Oslo. \hspace{3.5cm} \textit{\today}}}}}
+{\SetBgContents{ \textit{{\small\textsc{ Ask J. Markestad, Thorbjørn V. Larsen, Ingrid A. V. Holm Universitetet i Oslo. \hspace{0.5cm} \textit{\today}}}}}
 \SetBgScale{1}
 \SetBgColor{black}
 \SetBgAngle{0}
@@ -91,7 +91,7 @@ $$\:$$
 %{in}}\\
 \fontsize{13}{13}\selectfont \textsc{Fys $\textnormal{{4150}}$ }\\
 \vspace{0.4cm}
-\fontsize{12}{12}\selectfont {\textsc{ Ask Juhl Markestad, Thorbjørn Vidvei Larsen }}\\
+\fontsize{12}{12}\selectfont {\textsc{ Ask J. Markestad, Thorbjørn V. Larsen, Ingrid A. V. Holm }}\\
 \vspace{0.5cm}
 \end{center}
 %%%%
@@ -113,6 +113,72 @@ Differential equations are fundamental in physics. The standard approach in most
 
 
 \section*{Theory and Algorithms}
+
+We will be looking in detail at linear second-order differential equations.
+
+$$\frac{d^2y}{dx^2} = k^2(x) y = f(x)$$
+
+More specifically, we will look at differential equations where $k^2(x) = 0$. A known physics example of this type of equation would be Poisson's equation in radial coordinates for spherically symmetric source term.
+
+$$\frac{d^2 \phi}{d r^2} = f(r)$$
+
+In Newtonian gravity or in electromagnetism the source term is associated with a charge or mass distribution with a negative sign to explicitly indicate the attractiveness of the resulting potential. We will therefore look closely at the equation:
+
+\begin{equation}
+	- u''(x) = f(x)
+	\label{diff_eq}
+\end{equation}
+
+With Dirichlet boundary conditions, i.e. $ x \in (0,1), \: \: u(0) = u(1) = 0$. To solve this equation numerically we need to discretize the functions $u$ and $f$ with grid points $x_i = i h$ from 0 to 1 in $n+1$ steps using step length $h = 1/(n+1)$. This means that we know the initial and final point of $u$ through the boundary conditions, and that we can use the three point derivative formula to rewrite the equation as:
+
+\begin{equation}
+- \frac{u_{i+1} - 2u_i + u_{i-1}}{h^2} = f_i \: \: \: \: \: \: \: \: \text{for} \: \: i = 1, 2, ... , n
+\label{disc_diff_eq}
+\end{equation}
+
+The solution to this equation with the given boundary conditions is $u(x) = 1 - (1-e^{-10}) - e^{-10x}$. For $x = 0$ we get $u(0) = 1 - (1 - e^{-10})*0 - e^{-10 * 0} = 1-1 = 0$, and for $x = 1$ we get $u(1) = 1 - 1 + e^{-10} - e^{-10} = 0$, so it satisfies the boundary conditions and by deriving it twice we get $u'(x) = -(1-e^{-10}) + 10e^{-10x}, \: \: \: u''(x) = -100 e^{-10x}$. So we have found the exact solution to the differential equation which gives us a value to compare to, to see the accuracy of our numerical method. The next step to solve the equation is to rewrite it as a linear set of equations:
+
+\begin{equation}
+\begin{pmatrix}
+2 & -1 & 0 & ... & ... & 0 \\
+-1 & 2 & -1 & 0 & ... & 0 \\
+0 & -1 & 2 & -1 & 0 & ... \\
+... & ... & ... & ... & ... & ... \\
+0 & ... & 0 & -1 & 2 & -1 \\
+0 & 0 & ... & 0 & -1 & 2 
+\end{pmatrix} \begin{pmatrix}
+u_1\\
+u_2\\
+u_3\\
+...\\
+...\\
+u_n
+\end{pmatrix} = \begin{pmatrix}
+f_1/h^2 \\
+f_2/h^2 \\
+f_3/h^2 \\
+... \\
+... \\
+f_n/h^2 \\
+\end{pmatrix}
+\end{equation}
+
+We will now take a step back and look at a more general matrix $\mathbf{A}$ for this sort of linear problem and developing an algorithm for it. This allows us to see the difference in CPU time between the general algorithm and one made specifically for our very symmetric case. The more general matrix we will look at is a tridiagonal matrix:
+
+\begin{equation}
+\mathbf{A} = \begin{pmatrix}
+b_1 & c_1 & 0 & ... & ... & 0 \\
+a_1 & b_2 & c_2 & 0 & ... & 0 \\
+0 & a_2 & b_3 & c_3 & 0 & ... \\
+... & ... & ... & ... & ... & ... \\
+0 & ... & 0 & a_{n-2} & b_{n-1} & c_{n-1} \\
+0 & 0 & ... & 0 & a_{n-1} & b_{n} 
+\end{pmatrix}
+\label{general_tridiagonal_matrix}
+\end{equation}
+
+
+
 
 
 \section*{Results}
