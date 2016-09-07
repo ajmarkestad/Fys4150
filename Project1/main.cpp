@@ -12,67 +12,56 @@ void solver_general(double *, double *, double *, double *, double *, int);
 
 int main(int argc, char *argv[])
 {
-    double N [] = {10, 100, 1000};  //grid sizes
+    //DEFINING VARIABLES
+    double N [] = {10, 100, 1000000};  //grid sizes
     int grid_size;
     double *a, *b, *c, *source_func, *u, *exact_solution; // defining the dynamic variables
     double h, a0, b0, c0; // defining the static variables
 
 
-    //initialize vectors
-
-    grid_size = N[1];
+    //ALLOCATION IN MEMORY
+    grid_size = N[2];
     h = 1.0/(grid_size+1.0);            //Defining the step size
     a = new double[grid_size-1];    //Defining the matrix elements for a tridiagonal matrix
     b = new double[grid_size];
     c = new double[grid_size-1];
     source_func = new double[grid_size];    //Defining the source function vector
     u = new double[grid_size];              //Defining the function vector we wish to solve
-
     exact_solution = new double[grid_size]; //Defining the exact analytical solution vector
 
-    for (int i=0; i<grid_size+1; i++){
-        exact_solution[i]=1.0-(1.0-exp(-10.0))*i*h-exp(-10.0*i*h);
-        }
 
-
-
+    //FILLING VECTORS
     a0 = -1.0; // Defining the matrix element values
     b0 = 2.0;
     c0 = -1.0;
-
-    //calculates f for the grid size
-    for (int i=0; i<grid_size+1; i++){
-        source_func[i]=(100.0*exp(-10.0*(i*h)))*pow(h,2.0);
-        }
-
-    //Filling out the vectors with the matrix elements
-    for (int i=0; i<grid_size-1; i++){
-        a[i] = a0;
+    for (int i=0; i<grid_size+1; i++)
+    {
+        exact_solution[i]=1.0-(1.0-exp(-10.0))*i*h-exp(-10.0*i*h); //Exact solution
+        source_func[i]=(100.0*exp(-10.0*(i*h)))*pow(h,2.0);        //Source function
+        a[i] = a0;                                                 //matrix elements
         b[i] = b0;
         c[i] = c0;
     }
 
+
+    //SOLVING PROBLEM
     solver_general(a, b, c, u, source_func, grid_size);     //Solving the differential equation
     cout << "Step length: " << h << endl;
     cout << "grid size: " << grid_size << endl;
 
 
-
-    //Printing out calculated and exact values to compare as a code test
-    for(int i=0; i<grid_size; i++){
-        cout << "calculated solution: " << u[i] << "  Analytical solution: " << exact_solution[i] << endl;
+    //DEBUG PRINTING & RESULTS
+    double rms = 0;
+    for(int i=0; i<grid_size; i++)
+    {
+        rms += pow(u[i]-exact_solution[i],2);
+        //cout << "calculated solution: " << u[i] << "  Analytical solution: " << exact_solution[i] << endl;
     }
+    rms /=grid_size;
+    rms = sqrt(rms)*100;
+    cout << "Results: " << endl;
+    cout << "RMS difference between analytic and calculated:" << rms << endl;
 
-//    int n=N[0];
-//    double f[2] = {1,2}; //= vector(n)
-//    for (int i = 0; i<n; i++) f[i]*=(1./pow(n,-2)); //corrects f values
-
-
-//    for (int i=0; i<3; i++){
-//        double value = afunction(N[i]);
-//        cout << "N[" << i << "] = " << N[i] << ". f(N[i]) = " << value << endl;
-
-//    }
     return 0;
 }
 
