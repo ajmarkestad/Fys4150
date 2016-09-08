@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     //DEFINING VARIABLES
     double N [] = {10, 100, 1000000};  //grid sizes
     int grid_size;
-    double *a, *b, *c, *source_func, *u, *exact_solution; // defining the dynamic variables
+    double *a, *b, *c, *source_func, *u, *u_specific, *exact_solution; // defining the dynamic variables
     double h, a0, b0, c0; // defining the static variables
 
 
@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
     c = new double[grid_size-1];
     source_func = new double[grid_size];    //Defining the source function vector
     u = new double[grid_size];              //Defining the function vector we wish to solve
+    u_specific = new double[grid_size];
     exact_solution = new double[grid_size]; //Defining the exact analytical solution vector
 
 
@@ -44,10 +45,13 @@ int main(int argc, char *argv[])
     }
 
 
-    //SOLVING PROBLEM
-    solver_general(a, b, c, u, source_func, grid_size);     //Solving the differential equation
+
     cout << "Step length: " << h << endl;
     cout << "grid size: " << grid_size << endl;
+
+    //SOLVING PROBLEM
+    solver_general(a, b, c, u, source_func, grid_size);     //Solving the differential equation
+    solver_specified(u_specific, source_func, grid_size);
 
 
     //DEBUG PRINTING & RESULTS
