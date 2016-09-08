@@ -244,7 +244,7 @@ f_1 \\
 \end{pmatrix}
 \end{equation}
 
-To continue we have to remove the elements above the diagonal. This time we first look at the elements in the last row that the first elements $u_n$ is given by $\tilde{f_n}/h^2$. To find the next elements $u_{n-1}$ we simply see that the equation for this row is 
+To continue we have to remove the elements above the diagonal. This time we first look at the elements in the last row that the first elements $u_n$ is given by $\tilde{f_n}/\tilde{b_n}$. To find the next elements $u_{n-1}$ we simply see that the equation for this row is 
 
 \begin{equation}
 	u_{n-1}\tilde{b_{n-1}}+c_{n-1}u_n = \tilde{f_{n-1}}
@@ -257,9 +257,7 @@ We know all values except $u_{n-1}$ and solve for this value in an interative pr
 	\label{eq:forward_general_u}
 \end{equation}
 
-were the sequence for the i's are important(i.e starting with the known value in the bottom). 
-
-%% TODO:Antall steg i generell algoritme
+where the sequence for the i's are important(i.e starting with the known value in the bottom). If we count the flops without any further simplifications, we get $3*3n=9n$ flops. Later in the algorithm section we see that we can actually reduce this value by 1 to get 8n flops. 
 
 
 We can then look at our specialized example were we know the coefficients of the matrix $\mathbf{A}$. By precalculation some of the algorithms we can reduce the number of operations for a given gridsize n by a substantial factor. If we insert the numbers into the first forward substitution equation \ref{eq:forward_general_b} we get
@@ -276,14 +274,14 @@ For n=2,3,4 we have
 	\tilde{b_4}=2-\frac{3}{4}=\frac{5}{4}
 \end{align}
 
-were we start to suspect a series on the form
+where we start to suspect a series on the form
 
 \begin{equation}
 	\tilde{b_i}=\frac{i+1}{i}  \quad i = 2, ..., n
 	\label{eq:forward_specific_b}
 \end{equation}
 
-We can see that this step only has 2n flops. The equations for $\mathbf{f}$ also simplify to a degree
+We can see that this step only has 2n flops. The equations for $\mathbf{f}$ also simplify to
 \begin{equation}
 	\tilde{f_i}=f_{i}+\frac{f_{i-1}}{\tilde{b_{i-1}}}\quad i = 2, ..., n
 	\label{eq:forward_specific_f}
@@ -298,7 +296,8 @@ For the backward substitution we get
 	\label{eq:forward_specific_u}
 \end{equation}
 
-which has 3n flops. 
+which has 2n flops. 
+This gives in total 6n flops for this specified algorithm, a significant improvement compared to the general case. 
 
 \subsection{Memory handling and algorithms}
 To efficiently handle the memory and not generate lots of copies of the matrices, vectors are used as the algorithms act on a vector-type structure. For each round of the general algorithm, as in the forward substitution of b we can pass the array by reference and only update the values. The pseudocode for the forwards substitution would then be
@@ -312,6 +311,19 @@ for (int i=1; i<=n; i++)
 }
 \end{lstlisting}
 
+We notice that the factor $a[i-1]/b[i-1]$ gets calculated twice. This is a waste of flops, so to reduce the number of flops by 1 we can calculate this value and save it as an intermediate step. This will now give
+
+\begin{lstlisting}
+//general forward algorithm
+//start at 1 as the 0 elements is ok
+double intermediate; 
+for (int i=1; i<=n; i++)
+{
+	intermediate = a[i-1]/b[i-1];
+	b[i]=b[i]-c[i-1]*intermediate;
+	f[i]=f[i]-f[i-1]*intermediate;
+}
+\end{lstlisting}
 
 \begin{lstlisting}
 //general backward algorithm
@@ -322,7 +334,7 @@ for (int i=n-1; i>=0; i--)
 }
 \end{lstlisting}
 
-We see that in total we have 11n flops for the general algorithm. We know that a in specialized case where we tailor the algorithm for the problem we usually can reduce the number of flops, so let's go through the specified program. 
+We see that in total we have 8n flops for the general algorithm. We know that a in specialized case where we tailor the algorithm for the problem we usually can reduce the number of flops, so let's go through the specified program. 
 
 \begin{lstlisting}
 //specified forward algorithm
@@ -343,7 +355,7 @@ for (int i=n-1; i>=0; i--)
 }
 \end{lstlisting}
 
-9n flops?
+Giving 6n flops. 
 
 \section*{Results}
 

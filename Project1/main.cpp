@@ -77,20 +77,20 @@ void solver_general(double *a, double *b, double *c, double *u, double *source_f
     //assuming a, b, c, source_func are vectors of size grid_size
     // while b,c are of size grid_size-1
 
-
+    double intermediate;
     //forward substitution
     for (int i = 1; i<grid_size+1; i++)
     {
-        b[i]-= a[i-1]*c[i-1]/b[i-1];
-        source_func[i]-= source_func[i-1]*c[i-1]/b[i-1];
+        intermediate = a[i-1]/b[i-1];   //1 flop
+        b[i]-= a[i-1]* intermediate;    //2 flop
+        source_func[i]-= source_func[i-1]*intermediate; // 2 flop
     }
 
-    u[grid_size] = source_func[grid_size]/b[grid_size];
-
     //backward substitution
+    u[grid_size] = source_func[grid_size]/b[grid_size];
     for (int i = grid_size-1; i -- > 0;)
     {
-        u[i]=(source_func[i]-c[i]*u[i+1])/b[i];
+        u[i]=(source_func[i]-c[i]*u[i+1])/b[i]; //3 flop
     }
 
 }
@@ -104,16 +104,15 @@ void solver_specified(double *u, double *source_func, int grid_size)
     //forward substitution
     for (int i = 1; i<grid_size+1; i++)
     {
-        b[i] = (i+1)/i;
-        source_func[i]+= source_func[i-1]/b[i-1];
+        b[i] = (i+1)/i;     //2 flops
+        source_func[i]+= source_func[i-1]/b[i-1];   // 2 flops
     }
 
-    u[grid_size] = source_func[grid_size]/b[grid_size];
-
     //backward substitution
+    u[grid_size] = source_func[grid_size]/b[grid_size];
     for (int i = grid_size-1; i -- > 0;)
     {
-        u[i]=(source_func[i]+u[i+1])/b[i];
+        u[i]=(source_func[i]+u[i+1])/b[i];  // 2 flops
     }
 }
 
