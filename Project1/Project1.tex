@@ -298,7 +298,7 @@ For the backward substitution we get
 	\label{eq:forward_specific_u}
 \end{equation}
 
-which has 4n$(2n?, 1/h^2 ?)$ flops. 
+which has 3n flops. 
 
 \subsection{Memory handling and algorithms}
 To efficiently handle the memory and not generate lots of copies of the matrices, vectors are used as the algorithms act on a vector-type structure. For each round of the general algorithm, as in the forward substitution of b we can pass the array by reference and only update the values. The pseudocode for the forwards substitution would then be
@@ -307,8 +307,8 @@ To efficiently handle the memory and not generate lots of copies of the matrices
 //start at 1 as the 0 elements is ok
 for (int i=1; i<=n; i++)
 {
-b[i]=b[i]-c[i-1]*b[i-1]/b[i-1];
-f[i]=f[i]-c[i-1]*f[i-1]/b[i-1];
+	b[i]=b[i]-c[i-1]*b[i-1]/b[i-1];
+	f[i]=f[i]-c[i-1]*f[i-1]/b[i-1];
 }
 \end{lstlisting}
 
@@ -318,10 +318,32 @@ f[i]=f[i]-c[i-1]*f[i-1]/b[i-1];
 //start at 1 as the 0 elements is ok
 for (int i=n-1; i>=0; i--)
 {
-
+	u[i]=(f[i]+u[i+1])/b[i];
 }
 \end{lstlisting}
 
+We see that in total we have 11n flops for the general algorithm. We know that a in specialized case where we tailor the algorithm for the problem we usually can reduce the number of flops, so let's go through the specified program. 
+
+\begin{lstlisting}
+//specified forward algorithm
+//start at 1 as the 0 elements is ok
+for (int i=1; i<=n; i++)
+{
+	b[i]=(i+1)/i;
+	f[i]=f[i]+f[i-1]/b[i-1];
+}
+\end{lstlisting}
+
+\begin{lstlisting}
+//specified backward algorithm
+//start at 1 as the 0 elements is ok
+for (int i=n-1; i>=0; i--)
+{
+	u[i]=(f[i]+u[i+1])/b[i];
+}
+\end{lstlisting}
+
+9n flops?
 
 \section*{Results}
 

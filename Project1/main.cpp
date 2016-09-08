@@ -7,7 +7,7 @@ using namespace std;
 
 
 void solver_general(double *, double *, double *, double *, double *, int);
-//void solver_specified(double *, double *, int );
+void solver_specified(double *, double *, int );
 
 
 int main(int argc, char *argv[])
@@ -91,8 +91,25 @@ void solver_general(double *a, double *b, double *c, double *u, double *source_f
 
 }
 
-//void solver_specified(target_vector, function_values, grid_size)
-//{
+void solver_specified(double *u, double *source_func, int grid_size)
+{
+    //allocate b-vector.
+    double *b = new double[grid_size];
 
-//}
+    b[0]=2;
+    //forward substitution
+    for (int i = 1; i<grid_size+1; i++)
+    {
+        b[i] = (i+1)/i;
+        source_func[i]+= source_func[i-1]/b[i-1];
+    }
+
+    u[grid_size] = source_func[grid_size]/b[grid_size];
+
+    //backward substitution
+    for (int i = grid_size-1; i -- > 0;)
+    {
+        u[i]=(source_func[i]+u[i+1])/b[i];
+    }
+}
 
