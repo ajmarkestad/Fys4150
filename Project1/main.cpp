@@ -1,5 +1,9 @@
 #include <iostream>
 #include <cmath>
+#include <string>
+#include <fstream> // For reading to file
+#include <iomanip>
+#include <sstream>
 //#include <lib.h>
 
 
@@ -8,19 +12,26 @@ using namespace std;
 
 void solver_general(double *, double *, double *, double *, double *, int);
 void solver_specified(double *, double *, int );
+void output( double *, double *, double *, int);
 
+ofstream ofile;
 
-int main(int argc, char *argv[])
+int main()
 {
     //DEFINING VARIABLES
-    double N [] = {10, 100, 1000000};  //grid sizes
+    int N [] = {10, 100, 1000000};  //grid sizes
     int grid_size;
-    double *a, *b, *c, *source_func, *u, *u_specific, *exact_solution; // defining the dynamic variables
+    string str1 = "Project_1_exact_and_computed_values_for_grid_size_";
+    string outfilename;
+
+
+
+    double *a, *b, *c, *source_func, *u, *u_specific, *exact_solution, *x_list; // defining the dynamic variables
     double h, a0, b0, c0; // defining the static variables
 
 
     //ALLOCATION IN MEMORY
-    grid_size = N[2];
+    grid_size = N[1];
     h = 1.0/(grid_size+1.0);            //Defining the step size
     a = new double[grid_size-1];    //Defining the matrix elements for a tridiagonal matrix
     b = new double[grid_size];
@@ -29,6 +40,7 @@ int main(int argc, char *argv[])
     u = new double[grid_size];              //Defining the function vector we wish to solve
     u_specific = new double[grid_size];
     exact_solution = new double[grid_size]; //Defining the exact analytical solution vector
+    x_list = new double[grid_size];
 
 
     //FILLING VECTORS
@@ -37,34 +49,37 @@ int main(int argc, char *argv[])
     c0 = -1.0;
     for (int i=0; i<grid_size+1; i++)
     {
-        exact_solution[i]=1.0-(1.0-exp(-10.0))*i*h-exp(-10.0*i*h); //Exact solution
-        source_func[i]=(100.0*exp(-10.0*(i*h)))*pow(h,2.0);        //Source function
-        a[i] = a0;                                                 //matrix elements
+        exact_solution[i]=1.0-(1.0-exp(-10.0))*i*h-exp(-10.0*i*h);  //Exact solution
+        source_func[i]=(100.0*exp(-10.0*(i*h)))*pow(h,2.0);         //Source function
+        x_list[i] = i*h;
+        a[i] = a0;                                                  //matrix elements
         b[i] = b0;
         c[i] = c0;
     }
 
 
 
-    cout << "Step length: " << h << endl;
-    cout << "grid size: " << grid_size << endl;
-
     //SOLVING PROBLEM
     solver_general(a, b, c, u, source_func, grid_size);     //Solving the differential equation
     solver_specified(u_specific, source_func, grid_size);
 
 
-    //DEBUG PRINTING & RESULTS
-    double rms = 0;
-    for(int i=0; i<grid_size; i++)
-    {
-        rms += pow(u[i]-exact_solution[i],2);
-        //cout << "calculated solution: " << u[i] << "  Analytical solution: " << exact_solution[i] << endl;
-    }
-    rms /=grid_size;
-    rms = sqrt(rms)*100;
-    cout << "Results: " << endl;
-    cout << "RMS difference between analytic and calculated:" << rms << endl;
+    outfilename.append(str1);
+
+    int number1 = N[1];
+    stringstream ss;
+    ss << number1;
+
+    outfilename.append(ss.str());
+
+    ofile.open(outfilename);
+
+    output(x_list, u, exact_solution, grid_size);
+
+
+    // close output file
+    ofile.close();
+
 
     return 0;
 }
@@ -115,4 +130,21 @@ void solver_specified(double *u, double *source_func, int grid_size)
         u[i]=(source_func[i]+u[i+1])/b[i];  // 2 flops
     }
 }
+
+
+
+
+void output(double *x_axis, double *u_general, double *exact_solution, int grid_size )
+{
+  int i;
+  ofile << " RESULTS:" << endl;
+  ofile << setiosflags(ios::showpoint | ios::uppercase | ios::uppercase);
+  for( i=0; i < grid_size+1; i++)
+    {
+      ofile << setw(15) << setprecision(8) << u_general[i];
+      ofile << setw(15) << setprecision(8) << exact_solution[i];
+      ofile << setw(15) << setprecision(8) << x_axis[i] << endl;
+}
+}
+
 
