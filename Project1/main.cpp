@@ -27,7 +27,7 @@ int main()
     double *max_error, *time_special, *time_lu, *time_general;
 
     //FILLING VALUES
-    powers = 3;                                             //Maximal power of 10 minus 1
+    powers = 6;                                             //Maximal power of 10 minus 1
     N = new int[powers];
     for (int i = 0; i<powers; i++) N[i]=(int)pow(10,i);     //Fills N
     max_error = new double[powers];                        //sparer på max_feil
@@ -65,9 +65,9 @@ int main()
         c0 = -1.0;
         for (int i=0; i<grid_size+1; i++)
         {
-            exact_solution[i]=1.0-(1.0-exp(-10.0))*i*h-exp(-10.0*i*h); //Exact solution
-            source_func[i]=(100.0*exp(-10.0*(i*h)))*pow(h,2.0);        //Source function
-            x_list[i] = i*h;
+            exact_solution[i]=1.0-(1.0-exp(-10.0))*(i+1)*h-exp(-10.0*(i+1)*h); //Exact solution
+            source_func[i]=100.0*exp(-10.0*(i+1)*h)*pow(h,2.0);        //Source function
+            x_list[i] = i*h +1;
             a[i] = a0;                                                 //matrix elements
             b[i] = b0;
             c[i] = c0;
@@ -89,7 +89,6 @@ int main()
         solver_specified(u_specific, source_func, grid_size);
         finish_specified = clock();
         time_special[i]=(double)(finish_specified-start_speficied)/CLOCKS_PER_SEC;
-        cout << i << endl;
 
         //LU decomposition
         clock_t start_lu, finish_lu; //Times the function
@@ -101,12 +100,11 @@ int main()
 
         //DEBUG PRINTING & RESULTS
         double intermediate_error = 0;
-//        for(int i=0; i<grid_size; i++)
-//        {
-
-//            intermediate_error = abs(u[i]-exact_solution[i]);
-//            if (intermediate_error> max_error[i]) max_error[i] = intermediate_error;
-//        }
+        for(int j=0; j<grid_size; j++)
+        {
+            intermediate_error =  (double)abs(u[j]-exact_solution[j]);
+            if (intermediate_error> max_error[i]) max_error[i] = intermediate_error;
+        }
 
         string str1 = "Project_1_exact_and_computed_values_for_grid_size_";
         string outfilename;
@@ -132,7 +130,6 @@ int main()
         cout << "N=10^" << i << endl;
         cout << "Max_error: " << max_error[i] << endl;
         cout << "Time used by specified: " << time_special[i] << ". By general: " << time_general[i] << endl;
-        cout << endl;
     }
 
 
