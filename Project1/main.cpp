@@ -7,7 +7,7 @@
 #include <time.h>
 //#include <armadillo>
 
-//#include <lib.h>
+#include <lib.h>
 
 
 using namespace std;
@@ -16,6 +16,7 @@ using namespace std;
 void solver_general(double *, double *, double *, double *, double *, int);
 void solver_specified(double *, double *, int );
 void output( double *, double *, double *, int);
+void output_general( double *, double *, double *, double *, int);
 
 ofstream ofile;
 
@@ -27,10 +28,10 @@ int main()
     double *max_error, *time_special, *time_lu, *time_general;
 
     //FILLING VALUES
-    powers = 6;                                             //Maximal power of 10 minus 1
+    powers = 6;                                             //Maximal power of 10
     N = new int[powers];
-    for (int i = 0; i<powers; i++) N[i]=(int)pow(10,i);     //Fills N
-    max_error = new double[powers];                        //sparer på max_feil
+    for (int i = 0; i<powers; i++) N[i]=(int)pow(10,i+1);     //Fills N
+    max_error = new double[powers];                         //sparer på max_feil
     for (int i = 0; i<powers; i++) max_error[i]=0;
     time_special = new double[powers];
     time_general = new double[powers];
@@ -46,6 +47,7 @@ int main()
         //DEFINING VARIABLES
         double *a, *b, *c, *source_func, *u, *u_specific, *exact_solution, *x_list; // defining the dynamic variables
         double h, a0, b0, c0; // defining the static variables
+        //matrix(grid_size,grid_size,sizeof((double)4));
 
         //ALLOCATION IN MEMORY
         h = 1.0/(grid_size+1.0);                    //Defining the step size
@@ -58,17 +60,16 @@ int main()
         exact_solution = new double[grid_size];     //Defining the exact analytical solution vector
         x_list = new double[grid_size];
 
-
         //FILLING VECTORS
-        a0 = -1.0; // Defining the matrix element values
+        a0 = -1.0;                                                              // Defining the matrix element values
         b0 = 2.0;
         c0 = -1.0;
         for (int i=0; i<grid_size+1; i++)
         {
-            exact_solution[i]=1.0-(1.0-exp(-10.0))*(i+1)*h-exp(-10.0*(i+1)*h); //Exact solution
-            source_func[i]=100.0*exp(-10.0*(i+1)*h)*pow(h,2.0);        //Source function
-            x_list[i] = i*h +1;
-            a[i] = a0;                                                 //matrix elements
+            exact_solution[i]=1.0-(1.0-exp(-10.0))*(i+1)*h-exp(-10.0*(i+1)*h);  //Exact solution
+            source_func[i]=100.0*exp(-10.0*(i+1)*h)*pow(h,2.0);                 //Source function
+            x_list[i] = (1+i)*h;
+            a[i] = a0;                                                          //matrix elements
             b[i] = b0;
             c[i] = c0;
         }
@@ -94,11 +95,12 @@ int main()
         clock_t start_lu, finish_lu; //Times the function
         start_lu = clock();
         //DO THE LU DECOMPOSITION
+        //ludcmp();
         finish_lu = clock();
         time_lu[i]=(double)(finish_lu-start_lu)/CLOCKS_PER_SEC;
 
 
-        //DEBUG PRINTING & RESULTS
+        //CALCULATE MAX ERROR
         double intermediate_error = 0;
         for(int j=0; j<grid_size; j++)
         {
@@ -106,6 +108,8 @@ int main()
             if (intermediate_error> max_error[i]) max_error[i] = intermediate_error;
         }
 
+
+        //SAVE DATA TO FILE
         string str1 = "Project_1_exact_and_computed_values_for_grid_size_";
         string outfilename;
         outfilename.append(str1);
@@ -118,21 +122,13 @@ int main()
 
         // close output file
         ofile.close();
-
-
     }
 
 
+    //SAVES GENERAL FOR ALL RUNS
+    output_general(max_error, time_general, time_special, time_lu, powers);
 
-
-
-    for (int i = 0; i<powers; i++){
-        cout << "N=10^" << i << endl;
-        cout << "Max_error: " << max_error[i] << endl;
-        cout << "Time used by specified: " << time_special[i] << ". By general: " << time_general[i] << endl;
-    }
-
-
+    //FREEING MEMORY
     delete[] time_general;
     delete[] time_special;
     delete[] time_lu;
@@ -148,18 +144,18 @@ void solver_general(double *a, double *b, double *c, double *u, double *source_f
 
     double intermediate;
     //forward substitution
-    for (int i = 1; i<grid_size+1; i++)
+    for (int i = 1; i<=grid_size; i++)
     {
-        intermediate = a[i-1]/b[i-1];   //1 flop
-        b[i]-= a[i-1]* intermediate;    //2 flop
-        source_func[i]-= source_func[i-1]*intermediate; // 2 flop
+        intermediate = a[i-1]/b[i-1];                       //1 flop
+        b[i]-= a[i-1]* intermediate;                        //2 flop
+        source_func[i]-= source_func[i-1]*intermediate;     //2 flop
     }
 
     //backward substitution
     u[grid_size] = source_func[grid_size]/b[grid_size];
-    for (int i = grid_size-1; i -- > 0;)
+    for (int i = grid_size-1; i >= 0; i--)
     {
-        u[i]=(source_func[i]-c[i]*u[i+1])/b[i]; //3 flop
+        u[i]=(source_func[i]-c[i]*u[i+1])/b[i];             //3 flop
     }
 }
 
@@ -170,17 +166,17 @@ void solver_specified(double *u, double *source_func, int grid_size)
 
     b[0]=2;
     //forward substitution
-    for (int i = 1; i<grid_size+1; i++)
+    for (int i = 1; i<=grid_size; i++)
     {
-        b[i] = (i+1)/i;     //2 flops
-        source_func[i]+= source_func[i-1]/b[i-1];   // 2 flops
+        b[i] = (i+1)/i;                                     //2 flops
+        source_func[i]+= source_func[i-1]/b[i-1];           //2 flops
     }
 
     //backward substitution
     u[grid_size] = source_func[grid_size]/b[grid_size];
-    for (int i = grid_size-1; i -- > 0;)
+    for (int i = grid_size-1; i >= 0;i--)
     {
-        u[i]=(source_func[i]+u[i+1])/b[i];  // 2 flops
+        u[i]=(source_func[i]+u[i+1])/b[i];                  //2 flops
     }
     delete[] b;
 }
@@ -190,15 +186,39 @@ void solver_specified(double *u, double *source_func, int grid_size)
 
 void output(double *x_axis, double *u_general, double *exact_solution, int grid_size )
 {
-  int i;
-  ofile << " RESULTS:" << endl;
-  ofile << setiosflags(ios::showpoint | ios::uppercase | ios::uppercase);
-  for( i=0; i < grid_size+1; i++)
+    ofile << " RESULTS:" << endl;
+    ofile << setiosflags(ios::showpoint | ios::uppercase | ios::uppercase);
+    ofile << setw(15) << "Calculated" << setw(15) << "Exact" << setw(15) << "X-axis" << endl;
+    for(int i=0; i < grid_size; i++)
     {
-      ofile << setw(15) << setprecision(8) << u_general[i];
-      ofile << setw(15) << setprecision(8) << exact_solution[i];
-      ofile << setw(15) << setprecision(8) << x_axis[i] << endl;
-}
+        ofile << setw(15) << setprecision(8) << u_general[i];
+        ofile << setw(15) << setprecision(8) << exact_solution[i];
+        ofile << setw(15) << setprecision(8) << x_axis[i] << endl;
+    }
 }
 
+
+void output_general(double *max_error, double *time_general, double *time_special, double *time_lu, int powers)
+{
+
+    ofile.open("Results_General");
+    ofile << "Results for all runs:" << endl;
+    ofile << setiosflags(ios::showpoint | ios::uppercase | ios::uppercase | ios::uppercase | ios::uppercase);
+    ofile << setw(8) << "log10(N)";
+    ofile << setw(16) << "log10(maxerror)";
+    ofile << setw(16) << "Time general(s)";
+    ofile << setw(16) << "Time special(s)";
+    ofile << setw(16) << "Time LU (s)" << endl;
+
+    for (int i = 0; i<powers; i++){
+
+        ofile << setiosflags(ios::showpoint | ios::uppercase | ios::uppercase | ios::uppercase | ios::uppercase);
+        ofile << setw(8) << i+1;
+        ofile << setw(16) << setprecision(4) << log10(max_error[i]);
+        ofile << setw(16) << setprecision(4) << time_general[i];
+        ofile << setw(16) << setprecision(4) << time_special[i];
+        ofile << setw(16) << setprecision(4) << time_lu[i] << endl;
+    }
+    ofile.close();
+}
 
