@@ -359,6 +359,23 @@ Giving 6n flops.
 
 \section*{Results}
 
+\begin{table}[]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{|lllll|} 
+log10(N) & log10($\epsilon$) & Time General (s)     & Time Special(s)      & Time LU(s) \\
+\hline 
+1        & $-1.097$          & $5.000\cdot 10^{-6}$ & $1.000\cdot 10^{-6}$ & INSERT     \\
+2        & $-0.004789$       & $3.000\cdot 10^{-6}$ & $2.000\cdot 10^{-6}$ &            \\
+3        &  $-3.002$       & $2.400\cdot 10^{-5}$ & $2.000\cdot 10^{-5}$ &            \\
+4        & $-4.000$          & 		$0.0002260$ 	& $0.0001910$			&   NA       \\
+5        &   $-5.000$        &      $0.002342$	    &  $0.001957$	      &   NA       \\
+6        &   $-6.000$         &      $0.02318$	    &  $0.02478$	        &   NA       \\
+7        &   $-6.244$         &      $0.2693$	     &  $0.2175$	        &   NA      	\\  
+\hline
+\end{tabular}
+\end{table}
 
 
 \section*{Conclusion}

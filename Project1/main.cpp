@@ -5,13 +5,15 @@
 #include <iomanip>
 #include <sstream>
 #include <time.h>
-//#include <armadillo>
+#include <armadillo>
 
-#include <lib.h>
+#include "lib.h"
+
+
 
 
 using namespace std;
-
+using namespace arma;
 
 void solver_general(double *, double *, double *, double *, double *, int);
 void solver_specified(double *, double *, int );
@@ -28,7 +30,7 @@ int main()
     double *max_error, *time_special, *time_lu, *time_general;
 
     //FILLING VALUES
-    powers = 6;                                             //Maximal power of 10
+    powers = 5;                                             //Maximal power of 10
     N = new int[powers];
     for (int i = 0; i<powers; i++) N[i]=(int)pow(10,i+1);     //Fills N
     max_error = new double[powers];                         //sparer på max_feil
@@ -92,12 +94,29 @@ int main()
         time_special[i]=(double)(finish_specified-start_speficied)/CLOCKS_PER_SEC;
 
         //LU decomposition
-        clock_t start_lu, finish_lu; //Times the function
-        start_lu = clock();
-        //DO THE LU DECOMPOSITION
-        //ludcmp();
-        finish_lu = clock();
-        time_lu[i]=(double)(finish_lu-start_lu)/CLOCKS_PER_SEC;
+        if (N[i]<=1000){
+            //Creates matrices for the LU-decomposition
+            int *indx;
+            double *col, d, **a;
+            mat matrisen= eye(N[i], N[i])*2;
+            for (int k = 0; k<N[i]-1; k++) {
+                matrisen(k+1,k)=-1;
+                matrisen(k,k+1)=-1;
+            }
+            indx = new int[N[i]];
+            mat L, U;
+            vec index = zeros(N[i]);
+
+            //DO THE LU DECOMPOSITION
+            clock_t start_lu, finish_lu; //Times the function
+            start_lu = clock();
+            //ludcmp(a, N[i], indx, &d);
+            finish_lu = clock();
+            time_lu[i]=(double)(finish_lu-start_lu)/CLOCKS_PER_SEC;
+        } else
+        {
+            time_lu[i]=0;
+        }
 
 
         //CALCULATE MAX ERROR
@@ -201,17 +220,15 @@ void output(double *x_axis, double *u_general, double *exact_solution, int grid_
 void output_general(double *max_error, double *time_general, double *time_special, double *time_lu, int powers)
 {
 
+    //HEADER
     ofile.open("Results_General");
     ofile << "Results for all runs:" << endl;
     ofile << setiosflags(ios::showpoint | ios::uppercase | ios::uppercase | ios::uppercase | ios::uppercase);
-    ofile << setw(8) << "log10(N)";
-    ofile << setw(16) << "log10(maxerror)";
-    ofile << setw(16) << "Time general(s)";
-    ofile << setw(16) << "Time special(s)";
-    ofile << setw(16) << "Time LU (s)" << endl;
+    ofile << setw(8) << "log10(N)" << setw(16) << "log10(maxerror)" << setw(16) << "Time general(s)";
+    ofile << setw(16) << "Time special(s)" << setw(16) << "Time LU (s)" << endl;
 
+    //FILLS NUMBERS
     for (int i = 0; i<powers; i++){
-
         ofile << setiosflags(ios::showpoint | ios::uppercase | ios::uppercase | ios::uppercase | ios::uppercase);
         ofile << setw(8) << i+1;
         ofile << setw(16) << setprecision(4) << log10(max_error[i]);
