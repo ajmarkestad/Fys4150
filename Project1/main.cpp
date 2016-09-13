@@ -5,9 +5,9 @@
 #include <iomanip>
 #include <sstream>
 #include <time.h>
-//#include <armadillo>
-
-//#include "lib.h"
+#include <armadillo>
+//#include "lib.cpp"
+#include "lib.h"
 
 
 
@@ -15,13 +15,13 @@
 using namespace std;
 //using namespace arma;
 
+
 void solver_general(double *, double *, double *, double *, double *, int);
 void solver_specified(double *, double *, int );
 void output( double *, double *, double *, int);
 void output_general( double *, double *, double *, double *, int);
 
 ofstream ofile;
-
 int main()
 {
     //DEFINING VARIABLES
@@ -30,7 +30,7 @@ int main()
     double *max_error, *time_special, *time_lu, *time_general;
 
     //FILLING VALUES
-    powers = 5;                                             //Maximal power of 10
+    powers = 3;                                             //Maximal power of 10
     N = new int[powers];
     for (int i = 0; i<powers; i++) N[i]=(int)pow(10,i+1);     //Fills N
     max_error = new double[powers];                         //sparer på max_feil
@@ -53,6 +53,7 @@ int main()
 
         //ALLOCATION IN MEMORY
         h = 1.0/(grid_size+1.0);                    //Defining the step size
+        cout << h << endl;
         a = new double[grid_size-1];                //Defining the matrix elements for a tridiagonal matrix
         b = new double[grid_size];
         c = new double[grid_size-1];
@@ -66,14 +67,18 @@ int main()
         a0 = -1.0;                                                              // Defining the matrix element values
         b0 = 2.0;
         c0 = -1.0;
-        for (int i=0; i<grid_size+1; i++)
+        for (int k=0; k<grid_size; k++)
         {
-            exact_solution[i]=1.0-(1.0-exp(-10.0))*(i+1)*h-exp(-10.0*(i+1)*h);  //Exact solution
-            source_func[i]=100.0*exp(-10.0*(i+1)*h)*pow(h,2.0);                 //Source function
-            x_list[i] = (1+i)*h;
-            a[i] = a0;                                                          //matrix elements
-            b[i] = b0;
-            c[i] = c0;
+            exact_solution[k]=1.0-(1.0-exp(-10.0))*(k+1)*h-exp(-10.0*(k+1)*h);  //Exact solution
+            source_func[k]=100.0*exp(-10.0*(k+1)*h)*pow(h,2.0);                 //Source function
+            x_list[k] = (1.0+k)*h;
+
+            b[k] = b0;
+                                                                     //matrkx elements
+        }
+        for (int k=0; k<grid_size-1; k++) {
+            c[k] = c0;
+            a[k] = a0;
         }
 
         //
@@ -95,22 +100,29 @@ int main()
 
         //LU decomposition
 //        if (N[i]<=1000){
-            //Creates matrices for the LU-decomposition
-//            int *indx;
-//            double *col, d, **a;
-//            mat matrisen= eye(N[i], N[i])*2;
-//            for (int k = 0; k<N[i]-1; k++) {
-//                matrisen(k+1,k)=-1;
-//                matrisen(k,k+1)=-1;
+//            //Creates matrices for the LU-decomposition
+//            double *col, **a, determinant;
+//            int t, *indx;
+//            a = (double **) matrix(N[i], N[i], sizeof(double));
+//            //mat matrisen= eye(N[i], N[i])*2;
+//            for (int k = 0; k<N[i]-1; k++)
+//                {
+//                a[k+1][k]=-1;
+//                a[k][k+1]=-1;
+//                a[k][k]=2;
 //            }
-//            indx = new int[N[i]];
-//            mat L, U;
-//            vec index = zeros(N[i]);
+//            a[N[i]][N[i]]=2;
+//            //mat L, U;
+//            //y = (double **) matrix(N[i], N[i], sizeof(double));
 
-            //DO THE LU DECOMPOSITION
+//            indx = new int[N[i]];
+//            col = new double[N[i]];
+
+//            //DO THE LU DECOMPOSITION
 //            clock_t start_lu, finish_lu; //Times the function
 //            start_lu = clock();
-            //ludcmp(a, N[i], indx, &d);
+//            //lu(L,U,matrisen);
+//            //ludcmp(a, N[i], indx, determinant);
 //            finish_lu = clock();
 //            time_lu[i]=(double)(finish_lu-start_lu)/CLOCKS_PER_SEC;
 //        } else
@@ -163,7 +175,7 @@ void solver_general(double *a, double *b, double *c, double *u, double *source_f
 
     double intermediate;
     //forward substitution
-    for (int i = 1; i<=grid_size; i++)
+    for (int i = 1; i<grid_size; i++)
     {
         intermediate = a[i-1]/b[i-1];                       //1 flop
         b[i]-= a[i-1]* intermediate;                        //2 flop
@@ -171,8 +183,8 @@ void solver_general(double *a, double *b, double *c, double *u, double *source_f
     }
 
     //backward substitution
-    u[grid_size] = source_func[grid_size]/b[grid_size];
-    for (int i = grid_size-1; i >= 0; i--)
+    u[grid_size-1] = source_func[grid_size-1]/b[grid_size-1];
+    for (int i = grid_size-2; i >= 0; i--)
     {
         u[i]=(source_func[i]-c[i]*u[i+1])/b[i];             //3 flop
     }
@@ -185,15 +197,15 @@ void solver_specified(double *u, double *source_func, int grid_size)
 
     b[0]=2;
     //forward substitution
-    for (int i = 1; i<=grid_size; i++)
+    for (int i = 1; i<grid_size; i++)
     {
         b[i] = (i+1)/i;                                     //2 flops
         source_func[i]+= source_func[i-1]/b[i-1];           //2 flops
     }
 
     //backward substitution
-    u[grid_size] = source_func[grid_size]/b[grid_size];
-    for (int i = grid_size-1; i >= 0;i--)
+    u[grid_size-1] = source_func[grid_size-1]/b[grid_size-1];
+    for (int i = grid_size-2; i >= 0;i--)
     {
         u[i]=(source_func[i]+u[i+1])/b[i];                  //2 flops
     }
