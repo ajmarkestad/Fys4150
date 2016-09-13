@@ -5,15 +5,15 @@
 #include <iomanip>
 #include <sstream>
 #include <time.h>
-#include <armadillo>
+//#include <armadillo>
 
-#include "lib.h"
+//#include "lib.h"
 
 
 
 
 using namespace std;
-using namespace arma;
+//using namespace arma;
 
 void solver_general(double *, double *, double *, double *, double *, int);
 void solver_specified(double *, double *, int );
@@ -94,29 +94,29 @@ int main()
         time_special[i]=(double)(finish_specified-start_speficied)/CLOCKS_PER_SEC;
 
         //LU decomposition
-        if (N[i]<=1000){
+//        if (N[i]<=1000){
             //Creates matrices for the LU-decomposition
-            int *indx;
-            double *col, d, **a;
-            mat matrisen= eye(N[i], N[i])*2;
-            for (int k = 0; k<N[i]-1; k++) {
-                matrisen(k+1,k)=-1;
-                matrisen(k,k+1)=-1;
-            }
-            indx = new int[N[i]];
-            mat L, U;
-            vec index = zeros(N[i]);
+//            int *indx;
+//            double *col, d, **a;
+//            mat matrisen= eye(N[i], N[i])*2;
+//            for (int k = 0; k<N[i]-1; k++) {
+//                matrisen(k+1,k)=-1;
+//                matrisen(k,k+1)=-1;
+//            }
+//            indx = new int[N[i]];
+//            mat L, U;
+//            vec index = zeros(N[i]);
 
             //DO THE LU DECOMPOSITION
-            clock_t start_lu, finish_lu; //Times the function
-            start_lu = clock();
+//            clock_t start_lu, finish_lu; //Times the function
+//            start_lu = clock();
             //ludcmp(a, N[i], indx, &d);
-            finish_lu = clock();
-            time_lu[i]=(double)(finish_lu-start_lu)/CLOCKS_PER_SEC;
-        } else
-        {
-            time_lu[i]=0;
-        }
+//            finish_lu = clock();
+//            time_lu[i]=(double)(finish_lu-start_lu)/CLOCKS_PER_SEC;
+//        } else
+//        {
+//            time_lu[i]=0;
+//        }
 
 
         //CALCULATE MAX ERROR
@@ -145,7 +145,7 @@ int main()
 
 
     //SAVES GENERAL FOR ALL RUNS
-    output_general(max_error, time_general, time_special, time_lu, powers);
+    //output_general(max_error, time_general, time_special, time_lu, powers);
 
     //FREEING MEMORY
     delete[] time_general;
@@ -205,9 +205,7 @@ void solver_specified(double *u, double *source_func, int grid_size)
 
 void output(double *x_axis, double *u_general, double *exact_solution, int grid_size )
 {
-    ofile << " RESULTS:" << endl;
-    ofile << setiosflags(ios::showpoint | ios::uppercase | ios::uppercase);
-    ofile << setw(15) << "Calculated" << setw(15) << "Exact" << setw(15) << "X-axis" << endl;
+    ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase);
     for(int i=0; i < grid_size; i++)
     {
         ofile << setw(15) << setprecision(8) << u_general[i];
