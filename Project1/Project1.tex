@@ -6,6 +6,8 @@
 \usepackage{simplewick} %Allows Wick Notation
 \usepackage{slashed} %Allows feynman slash notation 
 \usepackage{graphicx} % graphics, pictures, figures
+\usepackage{caption}
+\usepackage{subcaption}
 \usepackage{verbatim} % importing numerical scripts
 \usepackage{multicol, float} % placing floats in right places
 \usepackage{algpseudocode} % no idea...
@@ -33,7 +35,7 @@
 %\usepackage{bbold}
 %\usepackage{swrule} % for fancy line
 %\usepackage{pdfpages} % for importing pdf
-%\usepackage{subfigure} % for subfigures
+
 %%%%
 %%%% SET-UP NEEDED FOR FURTHER PACKAGES
 %%%%
@@ -76,7 +78,7 @@ anchorcolor = blue]{hyperref} % link package
 %%%%_________________________________________________________________________________________
 \begin{document}
 %%%% TOP PAGE TEXT
-{\SetBgContents{ \textit{{\small\textsc{ Ask J. Markestad, Thorbjørn V. Larsen, Ingrid A. V. Holm Universitetet i Oslo. \hspace{0.5cm} \textit{\today}}}}}
+{\SetBgContents{ \textit{{\small\textsc{ Ask J. Markestad, Thorbjørn V. Larsen Universitetet i Oslo. \hspace{3.5cm} \textit{\today}}}}}
 \SetBgScale{1}
 \SetBgColor{black}
 \SetBgAngle{0}
@@ -92,7 +94,7 @@ $$\:$$
 	%{in}}\\
 	\fontsize{13}{13}\selectfont \textsc{Fys $\textnormal{{4150}}$ }\\
 	\vspace{0.4cm}
-	\fontsize{12}{12}\selectfont {\textsc{ Ask J. Markestad, Thorbjørn V. Larsen, Ingrid A. V. Holm }}\\
+	\fontsize{12}{12}\selectfont {\textsc{ Ask J. Markestad, Thorbjørn V. Larsen }}\\
 	\vspace{0.5cm}
 \end{center}
 %%%%
@@ -120,7 +122,7 @@ Differential equations are fundamental in physics. The standard approach in most
 		
 \section*{Theory and Algorithms}
 		
-We will be looking in detail at linear second-order differential equations.
+The following Gaussian elimination method for tridiagonal matrices is taken in large part from Computational Physics Lecture Notes Fall 2015 by Morten Hjort-Jensen \cite{M.Hjort-Jensen_CompFys}. We will be looking in detail at linear second-order differential equations.
 		
 $$\frac{d^2y}{dx^2} = k^2(x) y = f(x)$$
 		
@@ -142,7 +144,13 @@ With Dirichlet boundary conditions, i.e. $ x \in (0,1), \: \: u(0) = u(1) = 0$. 
 	\label{disc_diff_eq}
 \end{equation}
 		
-The solution to this equation with the given boundary conditions is $u(x) = 1 - (1-e^{-10}) - e^{-10x}$. For $x = 0$ we get $u(0) = 1 - (1 - e^{-10})*0 - e^{-10 * 0} = 1-1 = 0$, and for $x = 1$ we get $u(1) = 1 - 1 + e^{-10} - e^{-10} = 0$, so it satisfies the boundary conditions and by deriving it twice we get $u'(x) = -(1-e^{-10}) + 10e^{-10x}, \: \: \: u''(x) = -100 e^{-10x}$. So we have found the exact solution to the differential equation which gives us a value to compare to, to see the accuracy of our numerical method. The next step to solve the equation is to rewrite it as a linear set of equations:
+The solution to this equation with the given boundary conditions is: 
+\begin{equation}
+u(x) = 1 - (1-e^{-10}) - e^{-10x}
+\label{exact_solution}
+\end{equation}
+
+For $x = 0$ we get $u(0) = 1 - (1 - e^{-10})*0 - e^{-10 * 0} = 1-1 = 0$, and for $x = 1$ we get $u(1) = 1 - 1 + e^{-10} - e^{-10} = 0$, so it satisfies the boundary conditions and by deriving it twice we get $u'(x) = -(1-e^{-10}) + 10e^{-10x}, \: \: \: u''(x) = -100 e^{-10x}$. So we have found the exact solution to the differential equation which gives us a value to compare to, to see the accuracy of our numerical method. The next step to solve the equation is to rewrite it as a linear set of equations:
 		
 \begin{equation}
 \begin{pmatrix}
@@ -303,8 +311,18 @@ u_i = \frac{\tilde{f_i} + u_{i+1}}{\tilde{b_i}}\quad i = n-1, n-2, ..., 1
 		
 which has 2n flops. 
 This gives in total 6n flops for this specified algorithm, a significant improvement compared to the general case. 
-		
+
+
+LU decomposition is an efficient method for solving matrix equations for general matrices \cite{M.Hjort-Jensen_CompFys}, however for our matrix where most of the elements are zero it becomes very inefficient. To illustrate this point we will be using LU decomposition function and LU backwards algorithm from the lib.h package (Is included with our source code linked below).
+
+	
 \subsection{Memory handling and algorithms}
+
+Source code and accompanying codes can be found at the git hub address:
+
+\url{https://github.com/ajmarkestad/Fys4150/tree/master/Project1}
+
+
 To efficiently handle the memory and not generate lots of copies of the matrices, vectors are used as the algorithms act on a vector-type structure. For each round of the general algorithm, as in the forward substitution of b we can pass the array by reference and only update the values. The pseudocode for the forwards substitution would then be
 \begin{lstlisting}
 //general forward algorithm
@@ -349,9 +367,6 @@ for (int i=1; i<=n; i++)
 	b[i]=(i+1)/i;
 	f[i]=f[i]+f[i-1]/b[i-1];
 	}
-\end{lstlisting}
-		
-\begin{lstlisting}
 //specified backward algorithm
 //start at 1 as the 0 elements is ok
 for (int i=n-1; i>=0; i--)
@@ -360,24 +375,54 @@ for (int i=n-1; i>=0; i--)
 	}
 \end{lstlisting}
 		
-Giving 6n flops. 
+Giving 6n flops.
+
+Due to the memory requirements for saving the data, and for generating matrices for the general LU decomposition from runs with grid sizes that are of order $10^{6}$ and up we set up if test to ensure that these operations are only done for the smaller grid sizes when running through the different desired grid sizes.
 		
+		
+
 \section*{Results}
+
+A comparison plot between the numerically computed solution to the differential equation and the exact solution \ref{exact_solution} is shown in figure \ref{fig:exact_vs_calculated} for grid sizes with 10, 100, and 1000 points. From a visual inspection we cannot distinguish the two function already for only 100 grid points. From table \ref*{table:Results} we see that the max relative error between the two functions is of the order $10^{-3}$ or 0.1 \% error. Therefor, for most practical purposes we can keep the grid size in the 1000 point range to ensure a fast and accurate result without having to set aside a large amount of memory. In fact we see that for $10^{6}$ grid points the accuracy decreases due to round off error when we subtract in the algorithm. Because of this accuracy limit, the number of grid points where the time difference between the general and the specific algorithm becomes truly significant is not reached and both algorithms are exceedingly fast.
+
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[scale=0.3]{n=10}
+		\caption{Calculated using grid size n = 10}
+		\label{fig:n=10}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[scale=0.3]{n=100}
+		\caption{Calculated using grid size n = 100}
+		\label{fig:n=100}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[scale=0.3]{n=1000}
+		\caption{Calculated using grid size n = 100}
+		\label{fig:n=1000}
+	\end{subfigure}
+	\caption{Comparison between the exact solution to the differential equation and the one computed using Gaussian elimination for a grid sizes of n = 10, 100, and 1000. Here the two points determined by the boundary condition is left out as they are known and are thus not calculated.}\label{fig:exact_vs_calculated}
+\end{figure}
+
+
+
+
 		
 \begin{table}[H]
 	\centering
-	\caption{My caption}
-	\label{my-label}
-	\begin{tabular}{|lllll|} 
+	\caption{The results of our accuracy and speed difference tests. The max relative error is calculated by comparison between the general tridiagonal Gaussian elimination method and the exact solution for grid sizes varying from n = 10 to n = $10^{7}$. The time specified in the table is the CPU time of the algorithm for general tridiagonal matrix, our specific tridiagonal matrix and using a general LU decomposition algorithm}
+	\label{table:Results}
+	\begin{tabular}{|lllll|} \hline
 		log10(N) & log10($\epsilon$) & Time General (s)     & Time Special(s)      & Time LU(s) \\
 		\hline 
-		1        & $-1.097$          & $5.000\cdot 10^{-6}$ & $1.000\cdot 10^{-6}$ & INSERT     \\
-		2        & $-0.004789$       & $3.000\cdot 10^{-6}$ & $2.000\cdot 10^{-6}$ &            \\
-		3        &  $-3.002$       & $2.400\cdot 10^{-5}$ & $2.000\cdot 10^{-5}$ &            \\
-		4        & $-4.000$          & 		$0.0002260$ 	& $0.0001910$			&   NA       \\
-		5        &   $-5.000$        &      $0.002342$	    &  $0.001957$	      &   NA       \\
-		6        &   $-6.000$         &      $0.02318$	    &  $0.02478$	        &   NA       \\
-		7        &   $-6.244$         &      $0.2693$	     &  $0.2175$	        &   NA      	\\  
+		1        & $-1.359$       &$1.000\cdot 10^{-6}$  &$3.000\cdot 10^{-6}$ & INSERT     \\
+		2        & $-3.262$       &$3.000\cdot 10^{-6}$  &$2.000\cdot 10^{-6}$ &            \\
+		3        & $-5.254$       &$2.500\cdot 10^{-5}$  &$2.400\cdot 10^{-5}$ &            \\
+		4        & $-7.253$       &$0.0007110$ 	         &$0.0002740$		   &   NA       \\
+		5        & $-9.044$       &$0.003859$	         &$0.002849$	       &   NA       \\
+		6        & $-6.351$       &$0.02349$	         &$0.01608$	           &   NA       \\
 		\hline
 	\end{tabular}
 \end{table}
@@ -385,7 +430,7 @@ Giving 6n flops.
 		
 \section*{Conclusion}
 		
-		
+In conclusion, with the tridiagonal Gaussian elimination method there is an upper limit of $10^{5}$ grid points due to round off errors occurring at higher grid point values. At this upper grid point limit the time difference in the general tridiagonal algorithm and the specialized for our matrix is negligible, and we can therefore in similar situations in the future use the general solver without significant repercussions to CPU time.
 		
 		
 		
@@ -403,12 +448,10 @@ Giving 6n flops.
 			
 	\bibitem{M.Hjort-Jensen_CompFys}
 	Morten Hjort-Jensen
-	\emph{ Computaional Physics Lecture Notes Fall 2015}
+	\emph{ Computational Physics Lecture Notes Fall 2015}
 	Department of Physics, University of Oslo
 	2015
-	\begin{verbatim}
-	https://github.com/CompPhysics/ComputationalPhysics/blob/master/doc/Lectures/lectures2015.pdf
-	\end{verbatim}
+	\url{https://github.com/CompPhysics/ComputationalPhysics/blob/master/doc/Lectures/lectures2015.pdf}
 			
 			
 			
