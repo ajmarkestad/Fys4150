@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <sstream>
 #include <time.h>
-#include <armadillo>
+//#include <armadillo>
 //#include "lib.cpp"
 #include "lib.h"
 
@@ -30,7 +30,7 @@ int main()
     double *max_error, *time_special, *time_lu, *time_general;
 
     //FILLING VALUES
-    powers = 3;                                             //Maximal power of 10
+    powers = 6;                                             //Maximal power of 10
     N = new int[powers];
     for (int i = 0; i<powers; i++) N[i]=(int)pow(10,i+1);     //Fills N
     max_error = new double[powers];                         //sparer på max_feil
@@ -53,7 +53,6 @@ int main()
 
         //ALLOCATION IN MEMORY
         h = 1.0/(grid_size+1.0);                    //Defining the step size
-        cout << h << endl;
         a = new double[grid_size-1];                //Defining the matrix elements for a tridiagonal matrix
         b = new double[grid_size];
         c = new double[grid_size-1];
@@ -139,25 +138,28 @@ int main()
             if (intermediate_error> max_error[i]) max_error[i] = intermediate_error;
         }
 
+        if(grid_size <= 1000){
+            //SAVE DATA TO FILE
+            string str1 = "Project_1_exact_and_computed_values_for_grid_size_";
+            string outfilename;
+            outfilename.append(str1);
+            int number1 = N[i];
+            stringstream ss;
+            ss << number1;
+            outfilename.append(ss.str());
+            ofile.open(outfilename);
+            output(x_list, u, exact_solution, grid_size);
 
-        //SAVE DATA TO FILE
-        string str1 = "Project_1_exact_and_computed_values_for_grid_size_";
-        string outfilename;
-        outfilename.append(str1);
-        int number1 = N[i];
-        stringstream ss;
-        ss << number1;
-        outfilename.append(ss.str());
-        ofile.open(outfilename);
-        output(x_list, u, exact_solution, grid_size);
+            // close output file
+            ofile.close();
+        }{
 
-        // close output file
-        ofile.close();
+        }
     }
 
 
     //SAVES GENERAL FOR ALL RUNS
-    //output_general(max_error, time_general, time_special, time_lu, powers);
+    output_general(max_error, time_general, time_special, time_lu, powers);
 
     //FREEING MEMORY
     delete[] time_general;
