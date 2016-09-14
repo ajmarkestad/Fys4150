@@ -7,5 +7,5 @@ Ask Juhl Markestad
 
 Thorbjørn Vidvei Larsen
 
-Ingrid Angelica Vazquez Holm
+
 
