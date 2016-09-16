@@ -1,5 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os as os
+
+
+
+##Runs the program 
+os.system("./Project1")
+##Calculates the relative times of the algorithm and creates figures
+os.system("python3 Project1_relative_time.py ")
 
 
 f1 = np.loadtxt('Project_1_exact_and_computed_values_for_grid_size_10')
@@ -47,6 +55,7 @@ plt.xlabel('Position in dirichlet boundary condition [x]')
 plt.ylabel('Function value [u(x)]')
 plt.title('Grid size n = 10')
 plt.legend()
+plt.savefig('n=10.png')
 
 
 
@@ -57,6 +66,7 @@ plt.xlabel('Position in dirichlet boundary condition [x]')
 plt.ylabel('Function value [u(x)]')
 plt.title('Grid size n = 100')
 plt.legend()
+plt.savefig('n=100.png')
 
 
 plt.figure(3)
@@ -66,5 +76,5 @@ plt.xlabel('Position in dirichlet boundary condition [x]')
 plt.ylabel('Function value [u(x)]')
 plt.title('Grid size n = 1000')
 plt.legend()
-plt.show()
+plt.savefig('n=1000.png')
 

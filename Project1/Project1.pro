@@ -12,3 +12,6 @@ INCLUDEPATH += /usr/local/include
 
 
 LIBS += -L/usr/local/lib -larmadillo -lblas -llapack
+
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -O3

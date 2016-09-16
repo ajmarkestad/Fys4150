@@ -191,7 +191,8 @@ a_1 & b_2 & c_2 & 0 & ... & 0 \\
 \label{general_tridiagonal_matrix}
 \end{equation}
 		
-We now see that this problem is on the type $\mathbf{A}\mathbf{u}=\mathbf{f}$ were we know the values of $\mathbf{A}$ and $\mathbf{f}$. A solution for this problem is to form a diagonal matrix of $\mathbf{A}$, such that we easily can read out the values of $\mathbf{u}$. As the matrix is tridiagonal we can do this in two steps, forwardsubstitution where we remove the $a$ values and backwardssubstitution were we remove the $c$ values. Looking at the first 2 rows, we see that if we subtract the first row multiplied by $a_1/b_1$ we get
+		\subsection{General solver}
+We now see that this problem is on the type $\mathbf{A}\mathbf{u}=\mathbf{f}$ were we know the values of $\mathbf{A}$ and $\mathbf{f}$. A solution for this problem is to form a diagonal matrix of $\mathbf{A}$, such that we easily can read out the values of $\mathbf{u}$. As the matrix is tridiagonal we can do this in two steps, forward-substitution where we remove the $a$ values and backward-substitution were we remove the $c$ values. Looking at the first 2 rows, we see that if we subtract the first row multiplied by $a_1/b_1$ we get
 		
 \begin{equation}
 \begin{pmatrix}
@@ -230,7 +231,7 @@ We also have to update the $\mathbf{f}$ in a similar manner
 \label{eq:forward_general_f}
 \end{equation}
 		
-In the end of this forward substitution we have
+In the end of the forward substitution we have
 		
 \begin{equation}
 \begin{pmatrix}
@@ -272,7 +273,7 @@ u_i = \frac{\tilde{f_i}-c_i u_{i+1}}{\tilde{b_i}}\quad i = n-1, n-2, ..., 1
 	
 where the sequence for the i's are important(i.e starting with the known value in the bottom). If we count the flops without any further simplifications, we get $3*3n=9n$ flops. Later in the algorithm section we see that we can actually reduce this value by 1 to get 8n flops. 
 		
-		
+		\subsection{Specialized solver}
 We can then look at our specialized example were we know the coefficients of the matrix $\mathbf{A}$. By precalculation some of the algorithms we can reduce the number of operations for a given gridsize n by a substantial factor. If we insert the numbers into the first forward substitution equation \ref{eq:forward_general_b} we get
 		
 \begin{equation}
@@ -294,7 +295,7 @@ where we start to suspect a series on the form
 \label{eq:forward_specific_b}
 \end{equation}
 		
-We can see that this step only has 2n flops. The equations for $\mathbf{f}$ also simplify to
+We can see that this step only has 2n flops, and will always contain the same elements. The equations for $\mathbf{f}$ also simplify to
 \begin{equation}
 \tilde{f_i}=f_{i}+\frac{f_{i-1}}{\tilde{b_{i-1}}}\quad i = 2, ..., n
 \label{eq:forward_specific_f}
@@ -313,7 +314,7 @@ which has 2n flops.
 This gives in total 6n flops for this specified algorithm, a significant improvement compared to the general case. 
 
 
-LU decomposition is an efficient method for solving matrix equations for general matrices \cite{M.Hjort-Jensen_CompFys}, however for our matrix where most of the elements are zero it becomes very inefficient. To illustrate this point we will be using LU decomposition function and LU backwards algorithm from the lib.h package (Is included with our source code linked below).
+LU decomposition is an efficient method for solving matrix equations for general matrices \cite{M.Hjort-Jensen_CompFys}, however for our matrix where most of the elements are zero it becomes very inefficient. To illustrate this point we will be using LU decomposition function and LU backwards algorithm from the armadillo package (Is included with our source code linked below). 
 
 	
 \subsection{Memory handling and algorithms}
@@ -323,10 +324,9 @@ Source code and accompanying codes can be found at the git hub address:
 \url{https://github.com/ajmarkestad/Fys4150/tree/master/Project1}
 
 
-To efficiently handle the memory and not generate lots of copies of the matrices, vectors are used as the algorithms act on a vector-type structure. For each round of the general algorithm, as in the forward substitution of b we can pass the array by reference and only update the values. The pseudocode for the forwards substitution would then be
+To efficiently handle the memory and not generate lots of copies of the matrices, vectors are used as the algorithms act on a vector-type structure. For each round of the general algorithm(as in the forward substitution of b) we can pass the array by reference and only update the values. The pseudocode for the forwards substitution would then be
 \begin{lstlisting}
 //general forward algorithm
-//start at 1 as the 0 elements is ok
 for (int i=1; i<=n; i++)
 	{
 	b[i]=b[i]-c[i-1]*b[i-1]/b[i-1];
@@ -335,10 +335,9 @@ for (int i=1; i<=n; i++)
 \end{lstlisting}
 		
 We notice that the factor $a[i-1]/b[i-1]$ gets calculated twice. This is a waste of flops, so to reduce the number of flops by 1 we can calculate this value and save it as an intermediate step. This will now give
-		
+
 \begin{lstlisting}
 //general forward algorithm
-//start at 1 as the 0 elements is ok
 double intermediate; 
 for (int i=1; i<=n; i++)
 	{
@@ -357,33 +356,32 @@ for (int i=n-1; i>=0; i--)
 	}
 \end{lstlisting}
 		
-We see that in total we have 8n flops for the general algorithm. We know that a in specialized case where we tailor the algorithm for the problem we usually can reduce the number of flops, so let's go through the specified program. 
+We see that in total we have 8n flops for the general algorithm. We know that in a specialized case where we tailor the algorithm for the problem we usually can reduce the number of flops, so let's go through such a process for the specified program. Inserting the improvements we already have found, we get
 		
 \begin{lstlisting}
 //specified forward algorithm
 //start at 1 as the 0 elements is ok
-for (int i=1; i<=n; i++)
+for (int i=1; i<n; i++)
 	{
-	b[i]=(i+1)/i;
-	f[i]=f[i]+f[i-1]/b[i-1];
+	f[i]=f[i]+f[i-1]/pre_calculated[i-1];
 	}
 //specified backward algorithm
 //start at 1 as the 0 elements is ok
-for (int i=n-1; i>=0; i--)
+for (int i=n-2; i>=0; i--)
 	{
-	u[i]=(f[i]+u[i+1])/b[i];
+	u[i]=(f[i]+u[i+1])/pre_calculated[i-1];
 	}
 \end{lstlisting}
 		
-Giving 6n flops.
+where the $pre\_ calculated$ variable is a list already filled before the algorithm(see equation \ref{eq:forward_specific_b} for the formula). By these improvements the algorithm will require of the order 4n flops, an $50\%$ reduction in computing time relative to the general solver. We will later see that other effects will come into play when comparing the actual time for computing, but these will nevertheless be around an $\frac{1}{2}$ reduction in CPU-time.  
 
-Due to the memory requirements for saving the data, and for generating matrices for the general LU decomposition from runs with grid sizes that are of order $10^{6}$ and up we set up if test to ensure that these operations are only done for the smaller grid sizes when running through the different desired grid sizes.
-		
-		
+\subsection{LU}
+The LU-algorithm is based on storing and manipulating full matrices and will require in general the square of the memory required for our vectorized implementation. For grid sizes on the order of $10^4$ and higher this will require around 1 GB of memory, while for the vectors the needs are of the order 80 KB. To handle this problem we will not include LU-decomposition and solving for grid sizes larger than $10^3$ points. 
 
 \section*{Results}
 
-A comparison plot between the numerically computed solution to the differential equation and the exact solution \ref{exact_solution} is shown in figure \ref{fig:exact_vs_calculated} for grid sizes with 10, 100, and 1000 points. From a visual inspection we cannot distinguish the two function already for only 100 grid points. From table \ref*{table:Results} we see that the max relative error between the two functions is of the order $10^{-3}$ or 0.1 \% error. Therefor, for most practical purposes we can keep the grid size in the 1000 point range to ensure a fast and accurate result without having to set aside a large amount of memory. In fact we see that for $10^{6}$ grid points the accuracy decreases due to round off error when we subtract in the algorithm. Because of this accuracy limit, the number of grid points where the time difference between the general and the specific algorithm becomes truly significant is not reached and both algorithms are exceedingly fast.
+A comparison plot between the numerically computed solution to the differential equation and the exact solution \ref{exact_solution} is shown in figure \ref{fig:exact_vs_calculated} for grid sizes with 10, 100, and 1000 points. From a visual inspection we cannot distinguish the two function already for only 100 grid points. From table \ref*{table:Results} we see that the max relative error between the two functions is of the order $10^{-3}$ or 0.1 \% error. When increasing N we see that for $N>10^{5}$ grid points the accuracy decreases due to round off error when we subtract in the algorithm. Therefor, for most practical purposes we can keep the grid size in the 1000 point range to ensure a fast and accurate result without having to set aside a large amount of memory. On another note, for some applications a small error is extremly important. In such cases it is important to notice that until we hit the point where $log10(N)=5$, the memory and time used for the computation scales linearly with N, while the maximum error scales almost like $1/N^2$ which is a good trade-off. 
+
 
 
 \begin{figure}[H]
@@ -403,11 +401,20 @@ A comparison plot between the numerically computed solution to the differential 
 		\caption{Calculated using grid size n = 100}
 		\label{fig:n=1000}
 	\end{subfigure}
-	\caption{Comparison between the exact solution to the differential equation and the one computed using Gaussian elimination for a grid sizes of n = 10, 100, and 1000. Here the two points determined by the boundary condition is left out as they are known and are thus not calculated.}\label{fig:exact_vs_calculated}
+	\caption{Comparison between the exact solution to the differential equation and the one computed using Gaussian elimination for a grid sizes of n = 10, 100, and 1000. Here the two points determined by the boundary condition is left out as they are known and are thus not calculated.}
+	\label{fig:exact_vs_calculated}
 \end{figure}
 
+\begin{figure}
+	\centering
+	\begin{subfigure}{0.3\textwidth}
+		\includegraphics[scale=0.5]{Time_relative}
+	\end{subfigure}
+	\label{fig:Time_relative}
+	\caption{Relative radio of the time spend on the specified algorithm to the general algorithm. For each power of 10 the average of 1000 runs was calculated and used for each algorithm. There is a pronounced leveling off as N increases, which could be interpreted as the overhead of calling a function becomes less important compared to the calculations}
+\end{figure}
 
-
+We can further compare run-times for the specialized vs general algorithm. This was done by for each grid size up to $10^7$ and in each loop the average of 1000 function calls was calculated. In figure \ref{fig:Time_relative} one can see that after increasing the grid size above $10^3$ the ratio of time spend by the algorithms is relativly stable. It levels off around a value of 0.35 which means we gain an even higher speedup compared to what we had expected from our simple counting of mathematical operations(4n vs 8n flops). A possible explanation for this effect is that all flops are not equal. A multiplication could take more time that a simple addition and with a different number of operation types for each algorithm this difference could leading to different performance. These is also an extra storing of an intermediate value in the general solver, which could lead to extra CPU-time. 
 
 		
 \begin{table}[H]
@@ -417,29 +424,25 @@ A comparison plot between the numerically computed solution to the differential 
 	\begin{tabular}{|lllll|} \hline
 		log10(N) & log10($\epsilon$) & Time General (s)     & Time Special(s)      & Time LU(s) \\
 		\hline 
-		1        & $-1.359$       &$1.000\cdot 10^{-6}$  &$3.000\cdot 10^{-6}$ & INSERT     \\
-		2        & $-3.262$       &$3.000\cdot 10^{-6}$  &$2.000\cdot 10^{-6}$ &            \\
-		3        & $-5.254$       &$2.500\cdot 10^{-5}$  &$2.400\cdot 10^{-5}$ &            \\
-		4        & $-7.253$       &$0.0007110$ 	         &$0.0002740$		   &   NA       \\
-		5        & $-9.044$       &$0.003859$	         &$0.002849$	       &   NA       \\
-		6        & $-6.351$       &$0.02349$	         &$0.01608$	           &   NA       \\
+		1        & $-1.359$       &$6.300\cdot 10^{-8}$  &$1.500\cdot 10^{-8}$ & $7.700 \cdot 10^{-5}$    \\
+		2        & $-3.262$       &$1.103\cdot 10^{-6}$  &$3.540\cdot 10^{-7}$ &  0.000645        \\
+		3        & $-5.254$       &$1.163\cdot 10^{-5}$  &$2.404\cdot 10^{-5}$ &   $0.07625$      \\
+		4        & $-7.253$       &$0.0001204$ 	         &$4.204\cdot 10^{-5}$ &   NA       \\
+		5        & $-9.044$       &$0.001187$	         &$0.0004330$	       &   NA       \\
+		6        & $-6.351$       &$0.01213$	         &$0.004415$	           &   NA       \\
+		7 		& $-6.199$	& 	$0.1283$ & 	0.04484 & NA \\
 		\hline
 	\end{tabular}
 \end{table}
+
+
 		
 		
+Going to the time spend on the LU-method we see that there in an enormous increase in time spent to compute as it scales with $\propto N^3$. If we had included $N=10^4$ this calculation alone would have taken in the order of a minute, and requiering 1 GB of memory. 
+
 \section*{Conclusion}
 		
-In conclusion, with the tridiagonal Gaussian elimination method there is an upper limit of $10^{5}$ grid points due to round off errors occurring at higher grid point values. At this upper grid point limit the time difference in the general tridiagonal algorithm and the specialized for our matrix is negligible, and we can therefore in similar situations in the future use the general solver without significant repercussions to CPU time.
-		
-		
-		
-		
-		
-		
-		
-		
-		
+In conclusion, with the tridiagonal Gaussian elimination method there is an upper limit of $10^{5}$ grid points due to round off errors occurring at higher grid point values. At this upper grid point limit the time ratio for the general tridiagonal algorithm to the specialized for our matrix is of the order 3. We see clearly that each method for solving the problem has it's advantages and disaadvantages, considering CPU-time, memory requirement and generality. While the LU-method is a general method that can handle matrices that are not only tridiagonal, it quicly runs into hardware limitations giving practical limitations in the accuracy of the solution(only up to $log10(max\_error)\propto -5$. 
 		
 		
 		

@@ -30,7 +30,7 @@ int main()
     double *max_error, *time_special, *time_lu, *time_general;
 
     //FILLING VALUES
-    powers = 8;                                             //Maximal power of 10
+    powers = 7;                                             //Maximal power of 10
     N = new int[powers];
     for (int i = 0; i<powers; i++) N[i]=(int)pow(10,i+1);     //Fills N
     max_error = new double[powers];                         //sparer på max_feil
@@ -76,14 +76,17 @@ int main()
             a[k] = a0;
         }
 
+        //int nn = (int) std::pow(10,3); to get average times
         //
         //SOLVING PROBLEM
         //General solver
         clock_t start_general, finish_general;
         start_general = clock();
-        solver_general(a, b, c, u, source_func, grid_size);
+        //for (int ii=0; ii < nn; ii++) {
+            solver_general(a, b, c, u, source_func, grid_size);
+        //}
         finish_general = clock();
-        time_general[i] = (double)(finish_general-start_general)/CLOCKS_PER_SEC;
+        time_general[i] = (finish_general-start_general)/((double) CLOCKS_PER_SEC) ; //*nn
 
 
         //Specified solver
@@ -95,16 +98,18 @@ int main()
         }
         clock_t start_speficied, finish_specified; //Times the function
         start_speficied = clock();
+        //for (int ii=0; ii<nn; ii++){
         solver_specified(u_specific, source_func, grid_size, diagonal);
+        //}
         finish_specified = clock();
-        time_special[i]=(double)(finish_specified-start_speficied)/CLOCKS_PER_SEC;
+        time_special[i]=(finish_specified-start_speficied)/((double)CLOCKS_PER_SEC);  //*nn
 
         //LU decomposition
         if (grid_size<=1000){
             //Creates matrices for the LU-decomposition
             vec y(grid_size), arma_solution(grid_size); mat a = zeros<mat>(grid_size, grid_size);
             for (int k = 0; k<grid_size-1; k++)
-                {
+            {
 
                 y(k)=source_func[k];
                 a(k+1,k)=-1;
@@ -163,16 +168,16 @@ int main()
 }
 
 
-void solver_general(double *a, double *b, double *c, double *u, double *source_func, int grid_size){
+void solver_general(double *a, double *b, double *c, double *u, double *source_func, int grid_size)
+{
     //assuming a, b, c, source_func are vectors of size grid_size
     // while b,c are of size grid_size-1
-
     double intermediate;
     //forward substitution
     for (int i = 1; i<grid_size; i++)
     {
         intermediate = a[i-1]/b[i-1];                       //1 flop
-        b[i]-= a[i-1]* intermediate;                        //2 flop
+        b[i]-= a[i-1]*intermediate;                        //2 flop
         source_func[i]-= source_func[i-1]*intermediate;     //2 flop
     }
 
