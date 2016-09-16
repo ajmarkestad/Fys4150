@@ -5,15 +5,15 @@
 #include <iomanip>
 #include <sstream>
 #include <time.h>
-//#include <armadillo>
+#include <armadillo>
 //#include "lib.cpp"
-#include "lib.h"
+//#include "lib.h"
 
 
 
 
 using namespace std;
-//using namespace arma;
+using namespace arma;
 
 
 void solver_general(double *, double *, double *, double *, double *, int);
@@ -98,36 +98,43 @@ int main()
         time_special[i]=(double)(finish_specified-start_speficied)/CLOCKS_PER_SEC;
 
         //LU decomposition
-//        if (N[i]<=1000){
-//            //Creates matrices for the LU-decomposition
-//            double *col, **a, determinant;
-//            int t, *indx;
-//            a = (double **) matrix(N[i], N[i], sizeof(double));
-//            //mat matrisen= eye(N[i], N[i])*2;
-//            for (int k = 0; k<N[i]-1; k++)
-//                {
-//                a[k+1][k]=-1;
-//                a[k][k+1]=-1;
-//                a[k][k]=2;
-//            }
-//            a[N[i]][N[i]]=2;
-//            //mat L, U;
-//            //y = (double **) matrix(N[i], N[i], sizeof(double));
+        if (N[i]<=1000){
+            //Creates matrices for the LU-decomposition
+            //double *col, **a, determinant;
+            //int t, *indx;
 
-//            indx = new int[N[i]];
-//            col = new double[N[i]];
+            vec y(N[i]), arma_solution(grid_size);
+            mat a = zeros<mat>(N[i], N[i]);
+            //mat matrisen= eye(N[i], N[i])*2;
+            for (int k = 0; k<N[i]-1; k++)
+                {
 
-//            //DO THE LU DECOMPOSITION
-//            clock_t start_lu, finish_lu; //Times the function
-//            start_lu = clock();
-//            //lu(L,U,matrisen);
-//            //ludcmp(a, N[i], indx, determinant);
-//            finish_lu = clock();
-//            time_lu[i]=(double)(finish_lu-start_lu)/CLOCKS_PER_SEC;
-//        } else
-//        {
-//            time_lu[i]=0;
-//        }
+                y(k)=source_func[k];
+                a(k+1,k)=-1;
+                a(k,k+1)=-1;
+                a(k,k)=2;
+            }
+            y(N[i]-1)=source_func[grid_size-1];
+            a(N[i]-1,N[i]-1)=2;
+
+            //mat L, U;
+            //y = (double **) matrix(N[i], N[i], sizeof(double));
+
+            //indx = new int[N[i]];
+            //col = new double[N[i]];
+
+            //DO THE LU DECOMPOSITION
+            clock_t start_lu, finish_lu; //Times the function
+            start_lu = clock();
+            arma_solution=solve( a, y);
+            //lu(L,U,matrisen);
+            //ludcmp(a, N[i], indx, determinant);
+            finish_lu = clock();
+            time_lu[i]=(double)(finish_lu-start_lu)/CLOCKS_PER_SEC;
+        } else
+        {
+            time_lu[i]=0;
+        }
 
 
         //CALCULATE MAX ERROR
