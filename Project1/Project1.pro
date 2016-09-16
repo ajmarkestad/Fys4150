@@ -15,3 +15,5 @@ LIBS += -L/usr/local/lib -larmadillo -lblas -llapack
 
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -O3
+
+#LIBS +=  -larmadillo -lblas -llapack
