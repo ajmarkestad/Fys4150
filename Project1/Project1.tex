@@ -321,7 +321,8 @@ LU decomposition is an efficient method for solving matrix equations for general
 
 Source code and accompanying codes can be found at the git hub address:
 
-\url{https://github.com/ajmarkestad/Fys4150/tree/master/Project1}
+\url{https://github.com/ajmarkestad/Fys4150/tree/master/Project1} 
+
 
 
 To efficiently handle the memory and not generate lots of copies of the matrices, vectors are used as the algorithms act on a vector-type structure. For each round of the general algorithm(as in the forward substitution of b) we can pass the array by reference and only update the values. The pseudocode for the forwards substitution would then be
