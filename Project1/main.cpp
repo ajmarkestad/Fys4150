@@ -17,7 +17,7 @@ using namespace arma;
 
 
 void solver_general(double *, double *, double *, double *, double *, int);
-void solver_specified(double *, double *, int );
+void solver_specified(double *, double *, int , double *);
 void output( double *, double *, double *, int);
 void output_general( double *, double *, double *, double *, int);
 
@@ -30,7 +30,7 @@ int main()
     double *max_error, *time_special, *time_lu, *time_general;
 
     //FILLING VALUES
-    powers = 6;                                             //Maximal power of 10
+    powers = 8;                                             //Maximal power of 10
     N = new int[powers];
     for (int i = 0; i<powers; i++) N[i]=(int)pow(10,i+1);     //Fills N
     max_error = new double[powers];                         //sparer på max_feil
@@ -42,9 +42,7 @@ int main()
     //LOOPS FOR ALL GRID_SIZES
     for (int i = 0; i<powers; i++)
     {
-
         grid_size = N[i];
-
 
         //DEFINING VARIABLES
         double *a, *b, *c, *source_func, *u, *u_specific, *exact_solution, *x_list; // defining the dynamic variables
@@ -71,9 +69,7 @@ int main()
             exact_solution[k]=1.0-(1.0-exp(-10.0))*(k+1)*h-exp(-10.0*(k+1)*h);  //Exact solution
             source_func[k]=100.0*exp(-10.0*(k+1)*h)*pow(h,2.0);                 //Source function
             x_list[k] = (1.0+k)*h;
-
             b[k] = b0;
-                                                                     //matrkx elements
         }
         for (int k=0; k<grid_size-1; k++) {
             c[k] = c0;
@@ -91,22 +87,23 @@ int main()
 
 
         //Specified solver
+        double *diagonal = new double[grid_size];
+        diagonal[0]=2;
+        for (int i = 1; i<grid_size; i++)
+        {
+            diagonal[i] = (i+1)/i;
+        }
         clock_t start_speficied, finish_specified; //Times the function
         start_speficied = clock();
-        solver_specified(u_specific, source_func, grid_size);
+        solver_specified(u_specific, source_func, grid_size, diagonal);
         finish_specified = clock();
         time_special[i]=(double)(finish_specified-start_speficied)/CLOCKS_PER_SEC;
 
         //LU decomposition
-        if (N[i]<=1000){
+        if (grid_size<=1000){
             //Creates matrices for the LU-decomposition
-            //double *col, **a, determinant;
-            //int t, *indx;
-
-            vec y(N[i]), arma_solution(grid_size);
-            mat a = zeros<mat>(N[i], N[i]);
-            //mat matrisen= eye(N[i], N[i])*2;
-            for (int k = 0; k<N[i]-1; k++)
+            vec y(grid_size), arma_solution(grid_size); mat a = zeros<mat>(grid_size, grid_size);
+            for (int k = 0; k<grid_size-1; k++)
                 {
 
                 y(k)=source_func[k];
@@ -114,21 +111,13 @@ int main()
                 a(k,k+1)=-1;
                 a(k,k)=2;
             }
-            y(N[i]-1)=source_func[grid_size-1];
-            a(N[i]-1,N[i]-1)=2;
-
-            //mat L, U;
-            //y = (double **) matrix(N[i], N[i], sizeof(double));
-
-            //indx = new int[N[i]];
-            //col = new double[N[i]];
+            y(grid_size-1)=source_func[grid_size-1];
+            a(grid_size-1,grid_size-1)=2;
 
             //DO THE LU DECOMPOSITION
-            clock_t start_lu, finish_lu; //Times the function
+            clock_t start_lu, finish_lu;
             start_lu = clock();
             arma_solution=solve( a, y);
-            //lu(L,U,matrisen);
-            //ludcmp(a, N[i], indx, determinant);
             finish_lu = clock();
             time_lu[i]=(double)(finish_lu-start_lu)/CLOCKS_PER_SEC;
         } else
@@ -150,7 +139,7 @@ int main()
             string str1 = "Project_1_exact_and_computed_values_for_grid_size_";
             string outfilename;
             outfilename.append(str1);
-            int number1 = N[i];
+            int number1 = grid_size;
             stringstream ss;
             ss << number1;
             outfilename.append(ss.str());
@@ -169,11 +158,7 @@ int main()
     output_general(max_error, time_general, time_special, time_lu, powers);
 
     //FREEING MEMORY
-    delete[] time_general;
-    delete[] time_special;
-    delete[] time_lu;
-    delete[] max_error;
-    delete[] N;
+    delete[] time_general; delete[] time_special; delete[] time_lu; delete[] max_error; delete[] N;
     return 0;
 }
 
@@ -199,29 +184,22 @@ void solver_general(double *a, double *b, double *c, double *u, double *source_f
     }
 }
 
-void solver_specified(double *u, double *source_func, int grid_size)
+void solver_specified(double *u, double *source_func, int grid_size, double *diagonal)
 {
     //allocate b-vector.
-    double *b = new double[grid_size];
-
-    b[0]=2;
     //forward substitution
     for (int i = 1; i<grid_size; i++)
     {
-        b[i] = (i+1)/i;                                     //2 flops
-        source_func[i]+= source_func[i-1]/b[i-1];           //2 flops
+        source_func[i]+= source_func[i-1]/diagonal[i-1];           //2 flops
     }
 
     //backward substitution
-    u[grid_size-1] = source_func[grid_size-1]/b[grid_size-1];
+    u[grid_size-1] = source_func[grid_size-1]/diagonal[grid_size-1];
     for (int i = grid_size-2; i >= 0;i--)
     {
-        u[i]=(source_func[i]+u[i+1])/b[i];                  //2 flops
+        u[i]=(source_func[i]+u[i+1])/diagonal[i];                  //2 flops
     }
-    delete[] b;
 }
-
-
 
 
 void output(double *x_axis, double *u_general, double *exact_solution, int grid_size )
