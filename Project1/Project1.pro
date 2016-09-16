@@ -8,7 +8,4 @@ SOURCES += main.cpp
 #INCLUDEPATH += /Users/VidveiLarsen/arma/armadillo-7.400.2/include
 
 
-INCLUDEPATH += /usr/local/include
-
-
-LIBS += -L/usr/local/lib -larmadillo -lblas -llapack
+LIBS +=  -larmadillo -lblas -llapack
