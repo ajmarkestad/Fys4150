@@ -264,7 +264,7 @@ To continue we have to remove the elements above the diagonal. This time we firs
 u_{n-1}\tilde{b_{n-1}}+c_{n-1}u_n = \tilde{f_{n-1}}
 \end{equation}
 		
-We know all values except $u_{n-1}$ and solve for this value in an interative process upwards. This gives the algorithm 
+We know all values except $u_{n-1}$ and solve for this value in an iterative process upwards. This gives the algorithm 
 		
 \begin{equation}
 u_i = \frac{\tilde{f_i}-c_i u_{i+1}}{\tilde{b_i}}\quad i = n-1, n-2, ..., 1
@@ -274,7 +274,7 @@ u_i = \frac{\tilde{f_i}-c_i u_{i+1}}{\tilde{b_i}}\quad i = n-1, n-2, ..., 1
 where the sequence for the i's are important(i.e starting with the known value in the bottom). If we count the flops without any further simplifications, we get $3*3n=9n$ flops. Later in the algorithm section we see that we can actually reduce this value by 1 to get 8n flops. 
 		
 		\subsection{Specialized solver}
-We can then look at our specialized example were we know the coefficients of the matrix $\mathbf{A}$. By precalculation some of the algorithms we can reduce the number of operations for a given gridsize n by a substantial factor. If we insert the numbers into the first forward substitution equation \ref{eq:forward_general_b} we get
+We can then look at our specialized example were we know the coefficients of the matrix $\mathbf{A}$. By precalculation some of the algorithms we can reduce the number of operations for a given grid size n by a substantial factor. If we insert the numbers into the first forward substitution equation \ref{eq:forward_general_b} we get
 		
 \begin{equation}
 \tilde{b_i}=2-\frac{1}{\tilde{b_{i-1}}}\quad i = 2, ..., n
@@ -381,7 +381,7 @@ The LU-algorithm is based on storing and manipulating full matrices and will req
 
 \section*{Results}
 
-A comparison plot between the numerically computed solution to the differential equation and the exact solution \ref{exact_solution} is shown in figure \ref{fig:exact_vs_calculated} for grid sizes with 10, 100, and 1000 points. From a visual inspection we cannot distinguish the two function already for only 100 grid points. From table \ref*{table:Results} we see that the max relative error between the two functions is of the order $10^{-3}$ or 0.1 \% error. When increasing N we see that for $N>10^{5}$ grid points the accuracy decreases due to round off error when we subtract in the algorithm. Therefor, for most practical purposes we can keep the grid size in the 1000 point range to ensure a fast and accurate result without having to set aside a large amount of memory. On another note, for some applications a small error is extremly important. In such cases it is important to notice that until we hit the point where $log10(N)=5$, the memory and time used for the computation scales linearly with N, while the maximum error scales almost like $1/N^2$ which is a good trade-off. 
+A comparison plot between the numerically computed solution to the differential equation and the exact solution \ref{exact_solution} is shown in figure \ref{fig:exact_vs_calculated} for grid sizes with 10, 100, and 1000 points. From a visual inspection we cannot distinguish the two function already for only 100 grid points. From table \ref*{table:Results} we see that the max relative error between the two functions is of the order $10^{-3}$ or 0.1 \% error. When increasing N we see that for $N>10^{5}$ grid points the accuracy decreases due to round off error when we subtract in the algorithm. Therefor, for most practical purposes we can keep the grid size in the 1000 point range to ensure a fast and accurate result without having to set aside a large amount of memory. On another note, for some applications a small error is extremely important. In such cases it is important to notice that until we hit the point where $log10(N)=5$, the memory and time used for the computation scales linearly with N, while the maximum error scales almost like $1/N^2$ which is a good trade-off. 
 
 
 
@@ -408,15 +408,18 @@ A comparison plot between the numerically computed solution to the differential 
 
 \begin{figure}
 	\centering
-	\begin{subfigure}{0.3\textwidth}
-		\includegraphics[scale=0.5]{Time_relative}
-	\end{subfigure}
-	\label{fig:Time_relative}
+	\includegraphics[scale=0.5]{Time_relative}
 	\caption{Relative radio of the time spend on the specified algorithm to the general algorithm. For each power of 10 the average of 1000 runs was calculated and used for each algorithm. There is a pronounced leveling off as N increases, which could be interpreted as the overhead of calling a function becomes less important compared to the calculations}
+	\label{fig:Time_relative}
 \end{figure}
 
-We can further compare run-times for the specialized vs general algorithm. This was done by for each grid size up to $10^7$ and in each loop the average of 1000 function calls was calculated. In figure \ref{fig:Time_relative} one can see that after increasing the grid size above $10^3$ the ratio of time spend by the algorithms is relativly stable. It levels off around a value of 0.35 which means we gain an even higher speedup compared to what we had expected from our simple counting of mathematical operations(4n vs 8n flops). A possible explanation for this effect is that all flops are not equal. A multiplication could take more time that a simple addition and with a different number of operation types for each algorithm this difference could leading to different performance. These is also an extra storing of an intermediate value in the general solver, which could lead to extra CPU-time. 
+We can further compare run-times for the specialized vs general algorithm. This was done by for each grid size up to $10^7$ and in each loop the average of 1000 function calls was calculated. In figure \ref{fig:Time_relative} one can see that after increasing the grid size above $10^3$ the ratio of time spend by the algorithms is relatively stable. It levels off around a value of 0.35 which means we gain an even higher speedup compared to what we had expected from our simple counting of mathematical operations(4n vs 8n flops). A possible explanation for this effect is that all flops are not equal. A multiplication could take more time that a simple addition and with a different number of operation types for each algorithm this difference could leading to different performance. These is also an extra storing of an intermediate value in the general solver, which could lead to extra CPU-time. It is also interesting to note that for low grid sizes the ratio is even farther in favor of the specialized algorithm. We theorize that since for low values of n the time difference in the actual calculations is negligible and the time difference then emerges because of the different structures of the functions defined to do the calculations. Since the general solver has to take in more variables then the specialized solver, we suspect that it will take longer to run through. We therefore hypothesize a relation for the relative time:
 
+\begin{equation}
+\text{relative time} = \frac{\text{fixed time due to general solver function structure} + 8n}{\text{fixed time due to specialized solver function structure} + 4n}
+\end{equation}
+
+So for small n the CPU dominating process is the structure of the functions, but as n increases the ratio shifts until finally for sufficiently large n values it is the flop ratio that is the dominating factor.
 		
 \begin{table}[H]
 	\centering
@@ -425,13 +428,13 @@ We can further compare run-times for the specialized vs general algorithm. This 
 	\begin{tabular}{|lllll|} \hline
 		log10(N) & log10($\epsilon$) & Time General (s)     & Time Special(s)      & Time LU(s) \\
 		\hline 
-		1        & $-1.359$       &$6.300\cdot 10^{-8}$  &$1.500\cdot 10^{-8}$ & $7.700 \cdot 10^{-5}$    \\
-		2        & $-3.262$       &$1.103\cdot 10^{-6}$  &$3.540\cdot 10^{-7}$ &  0.000645        \\
-		3        & $-5.254$       &$1.163\cdot 10^{-5}$  &$2.404\cdot 10^{-5}$ &   $0.07625$      \\
-		4        & $-7.253$       &$0.0001204$ 	         &$4.204\cdot 10^{-5}$ &   NA       \\
-		5        & $-9.044$       &$0.001187$	         &$0.0004330$	       &   NA       \\
-		6        & $-6.351$       &$0.01213$	         &$0.004415$	           &   NA       \\
-		7 		& $-6.199$	& 	$0.1283$ & 	0.04484 & NA \\
+		1        & $-1.359$       &$2.000\cdot 10^{-6}$  &$0.000$              &  $0.0001410$    \\
+		2        & $-3.262$       &$9.000\cdot 10^{-6}$  &$1.000\cdot 10^{-6}$ &  $0.0007060$        \\
+		3        & $-5.254$       &$1.500\cdot 10^{-5}$  &$4.000\cdot 10^{-6}$ &  $0.08217$      \\
+		4        & $-7.253$       &$0.0001560$ 	         &$4.300\cdot 10^{-5}$ &   NA       \\
+		5        & $-9.044$       &$0.001843$	         &$0.0004250$	       &   NA       \\
+		6        & $-6.351$       &$0.01808$	         &$0.004945$	       &   NA       \\
+		7 	     & $-6.199$		  &$0.1967$ 		     &$0.05018$ 		   &   NA \\
 		\hline
 	\end{tabular}
 \end{table}
@@ -439,11 +442,11 @@ We can further compare run-times for the specialized vs general algorithm. This 
 
 		
 		
-Going to the time spend on the LU-method we see that there in an enormous increase in time spent to compute as it scales with $\propto N^3$. If we had included $N=10^4$ this calculation alone would have taken in the order of a minute, and requiering 1 GB of memory. 
+Going to the time spend on the LU-method we see that there in an enormous increase in time spent to compute as it scales with $\propto N^3$. If we had included $N=10^4$ this calculation alone would have taken in the order of a minute, and requiring 1 GB of memory. 
 
 \section*{Conclusion}
 		
-In conclusion, with the tridiagonal Gaussian elimination method there is an upper limit of $10^{5}$ grid points due to round off errors occurring at higher grid point values. At this upper grid point limit the time ratio for the general tridiagonal algorithm to the specialized for our matrix is of the order 3. We see clearly that each method for solving the problem has it's advantages and disaadvantages, considering CPU-time, memory requirement and generality. While the LU-method is a general method that can handle matrices that are not only tridiagonal, it quicly runs into hardware limitations giving practical limitations in the accuracy of the solution(only up to $log10(max\_error)\propto -5$. 
+In conclusion, with the tridiagonal Gaussian elimination method there is an upper limit of $10^{5}$ grid points due to round off errors occurring at higher grid point values. At this upper grid point limit the time ratio for the general tridiagonal algorithm to the specialized for our matrix is of the order 3. We see clearly that each method for solving the problem has it's advantages and disadvantages, considering CPU-time, memory requirement and generality. While the LU-method is a general method that can handle matrices that are not only tridiagonal, it quickly runs into hardware limitations giving a practical limitation in the accuracy of the solution(only up to $log10(max\_error)\propto -5$. 
 		
 		
 		
