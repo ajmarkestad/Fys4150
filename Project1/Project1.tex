@@ -28,7 +28,7 @@
 \usepackage[usenames, dvipsnames]{color} % defining own colors
 \usepackage{type1cm} % scalable fonts
 \usepackage{lettrine} % larger first letter in paragraph.
-\usepackage{listings}
+\usepackage{listings} % code-snippets in the text
 \usepackage{background} % used for top page text
 %\usepackage{niceframe} % for old-school double frame
 \usepackage{tikz} % figure config/ creation
@@ -124,7 +124,7 @@ Differential equations are fundamental in physics. The standard approach in most
 		
 The following Gaussian elimination method for tridiagonal matrices is taken in large part from Computational Physics Lecture Notes Fall 2015 by Morten Hjort-Jensen \cite{M.Hjort-Jensen_CompFys}. We will be looking in detail at linear second-order differential equations.
 		
-$$\frac{d^2y}{dx^2} = k^2(x) y = f(x)$$
+$$\frac{d^2y}{dx^2} + k^2(x) y = f(x)$$
 		
 More specifically, we will look at differential equations where $k^2(x) = 0$. A known physics example of this type of equation would be Poisson's equation in radial coordinates for spherically symmetric source term.
 		
@@ -446,7 +446,7 @@ Going to the time spend on the LU-method we see that there in an enormous increa
 
 \section*{Conclusion}
 		
-In conclusion, with the tridiagonal Gaussian elimination method there is an upper limit of $10^{5}$ grid points due to round off errors occurring at higher grid point values. At this upper grid point limit the time ratio for the general tridiagonal algorithm to the specialized for our matrix is of the order 3. We see clearly that each method for solving the problem has it's advantages and disadvantages, considering CPU-time, memory requirement and generality. While the LU-method is a general method that can handle matrices that are not only tridiagonal, it quickly runs into hardware limitations giving a practical limitation in the accuracy of the solution(only up to $log10(max\_error)\propto -5$. 
+In conclusion, with the tridiagonal Gaussian elimination method there is an upper limit of $10^{5}$ grid points due to round off errors occurring at higher grid point values. At this upper grid point limit the time ratio for the general tridiagonal algorithm to the specialized for our matrix is of the order 3. We see clearly that each method for solving the problem has it's advantages and disadvantages, considering CPU-time, memory requirement and generality. While the LU-method is a general method that can handle matrices that are not only tridiagonal, it quickly runs into hardware limitations giving a practical limitation in the accuracy of the solution(only up to $log10(max\_error)\propto -5$) For differential equations on the type given in the introduction, the specialized algorithm shown in this project was the best way to proceed. 
 		
 		
 		
