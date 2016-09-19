@@ -14,10 +14,11 @@ using namespace std;
 bool unittest_largest_off_diagonal();
 bool unittest_orthogonality();
 bool unittest_correct_eigenvalues();
-void jacobis_method(mat , mat , int);
+void jacobis_method(mat , mat , int, double);
 double maxoffdiag(mat , int *, int *, int );
 void rotate(mat , mat , int , int , int );
-mat Matrix_creator(double *, int, double);
+void test(mat);
+//mat matrix_creator(double *, int, double);
 
 int main(int argc, char *argv[])
 {
@@ -46,15 +47,35 @@ int main(int argc, char *argv[])
         HO_potential[i] = pow(rho[i],2.0);
     }
 
-    mat A = Matrix_creator(HO_potential, n, h);
+//    mat A = matrix_creator(HO_potential, n, h);
 
-    mat R(n,n);
+    mat A(n,n);
+    for(int i = 0; i<n-1; i++){
+        A(i,i) = 2.0/(h*h) + HO_potential[i];
+        A(i,i+1) = -1.0/(h*h);
+        A(i+1,i) = -1.0/(h*h);
+    }
+    A(n-1,n-1) = 2.0/(h*h) + HO_potential[n-1];
 
-    jacobis_method(A, R, n);
+    mat& R(n,n);
+    double epsilon;
+    epsilon = pow(10.0,-8.0);
+
+    jacobis_method(A, R, n, epsilon);
+    test(R);
+
+    A.print("A: ");
+    R.print("R: ");
+
 
     return 0;
 }
 
+void test(mat& R)
+{
+    R(2,3)= 5.0;
+    return;
+}
 
 /*
 Function that creates a matrix A for the discretized dimensionless Schrodinger equation.
@@ -63,17 +84,17 @@ potential: a vector of the potential at the discretized positions.
 n: number of steps in our discretized system excluding the first and last values which are known from boundary conditions.
 */
 
-mat Matix_creator(double *potential, int n, double h)
-{
-    mat A(n,n);
-    for(int i = 0; i<n-1; i++){
-        A(i,i) = 2.0/(h*h) + potential[i];
-        A(i,i+1) = -1.0/(h*h);
-        A(i+1,i) = -1.0/(h*h);
-    }
-    A(n-1,n-1) = 2.0/(h*h) + potential[n-1];
-return A;
-}
+//mat matix_creator(double *potential, int n, double h)
+//{
+//    mat A(n,n);
+//    for(int i = 0; i<n-1; i++){
+//        A(i,i) = 2.0/(h*h) + potential[i];
+//        A(i,i+1) = -1.0/(h*h);
+//        A(i+1,i) = -1.0/(h*h);
+//    }
+//    A(n-1,n-1) = 2.0/(h*h) + potential[n-1];
+//return A;
+//}
 
 
 
@@ -83,7 +104,7 @@ return A;
  A: The matrix that you wish to find the eigenvalues and eigenvectors of.
  R: An empty matrix that will store the eigenvectors.
  n: The dimension of the the matricies that are input.
- tolerance: The largest off diagonal element allowed in the finished diagonal matrix. Passivly set to 10^{-8}.
+ tolerance: The largest off diagonal element allowed in the finished diagonal matrix.
 
  output:
  A: A is diagonalzed until the eigenvalues are the diagonal elements of A, i.e. A[i][i].
@@ -93,14 +114,14 @@ return A;
 
  */
 
-void jacobis_method(mat A, mat R, int n, double tolerance = pow(10,-8))
+void jacobis_method(mat A, mat R, int n, double tolerance)
 {
     for(int i = 0; i<n; i++){
         for(int j = 0; j<n; j++){
             if (i==j){
-                R(i)(j) = 1.0;
+                R(i,j) = 1.0;
             } else {
-                R(i)(j) = 0.0;
+                R(i,j) = 0.0;
             }
         }
     }
@@ -138,8 +159,8 @@ double maxoffdiag(mat A, int *k, int *l, int n)
 
     for(int i = 0; i < n; i++){
         for(int j = i+1; j <n; j++){
-            if(fabs(A(i)(j) > max)){
-                max = fabs(A(i)(j));
+            if(fabs(A(i,j) > max)){
+                max = fabs(A(i,j));
                 *l = i;
                 *k = j;
 
@@ -166,9 +187,9 @@ n: dimension of input matrices
 void rotate(mat A, mat R, int k, int l, int n)
 {
     double s,c;
-    if (A(k)(l) != 0.00){
+    if (A(k,l) != 0.00){
         double t, tau;
-        tau = (A(l)(l) - A(k)(k))/(2*A(k)(l));
+        tau = (A(l,l) - A(k,k))/(2*A(k,l));
         if(tau > 0){
             t = 1.0/(tau + sqrt(1.0 + tau*tau));
         } else {
@@ -183,28 +204,28 @@ void rotate(mat A, mat R, int k, int l, int n)
     }
 
     double a_kk, a_ll, a_ik, a_il, r_ik, r_il;
-    a_kk = A(k)(k);
-    a_ll = A(l)(l);
+    a_kk = A(k,k);
+    a_ll = A(l,l);
     // Changing the matric elements with indices k and l
-    A(k)(k) = c*c*a_kk - 2.0*c*s*A(k)(l) + s*s*a_ll;
-    A(l)(l) = s*s*a_kk + 2.0*c*s*A(k)(l) + c*c*a_ll;
-    A(k)(l) = 0.0; //Hard-coding of the zeros
-    A(l)(k) = 0.0;
+    A(k,k) = c*c*a_kk - 2.0*c*s*A(k,l) + s*s*a_ll;
+    A(l,l) = s*s*a_kk + 2.0*c*s*A(k,l) + c*c*a_ll;
+    A(k,l) = 0.0; //Hard-coding of the zeros
+    A(l,k) = 0.0;
     //Then we change the remaining elements
     for(int i = 0; i<n;i++){
         if (i != k && i != l) {
-            a_ik = A(i)(k);
-            a_il = A(i)(l);
-            A(i)(k) = c*a_ik - s*a_il;
-            A(k)(i) = A(i)(k);
-            A(i)(l) = c*a_il + s*a_ik;
-            A(l)(i) = A(i)(l);
+            a_ik = A(i,k);
+            a_il = A(i,l);
+            A(i,k) = c*a_ik - s*a_il;
+            A(k,i) = A(i,k);
+            A(i,l) = c*a_il + s*a_ik;
+            A(l,i) = A(i,l);
         }
         // Computing the new eigenvectors
-        r_ik = R(i)(k);
-        r_il = R(i)(l);
-        R(i)(k) = c*r_ik - s*r_il;
-        R(i)(l) = c*r_il + s*r_ik;
+        r_ik = R(i,k);
+        r_il = R(i,l);
+        R(i,k) = c*r_ik - s*r_il;
+        R(i,l) = c*r_il + s*r_ik;
     }
 return;
 }
