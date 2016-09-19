@@ -14,10 +14,10 @@ using namespace std;
 bool unittest_largest_off_diagonal();
 bool unittest_orthogonality();
 bool unittest_correct_eigenvalues();
-void jacobis_method(mat , mat , int, double);
-double maxoffdiag(mat , int *, int *, int );
-void rotate(mat , mat , int , int , int );
-void test(mat);
+void jacobis_method(mat &A, mat &R, int, double);
+double maxoffdiag(mat &A, int *, int *, int );
+void rotate(mat &A, mat &R, int , int , int );
+void test(mat &A, int );
 //mat matrix_creator(double *, int, double);
 
 int main(int argc, char *argv[])
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     double h, rho_start, rho_stop ;
     double *HO_potential, *rho;
 
-    n = 10;
+    n = 5;
     rho_start = -10.0;
     rho_stop = 10.0;
     h = (rho_stop - rho_start)/(n+1.0);
@@ -57,12 +57,12 @@ int main(int argc, char *argv[])
     }
     A(n-1,n-1) = 2.0/(h*h) + HO_potential[n-1];
 
-    mat& R(n,n);
+    mat R(n,n);
     double epsilon;
     epsilon = pow(10.0,-8.0);
 
-    jacobis_method(A, R, n, epsilon);
-    test(R);
+    jacobis_method(A,R,n,epsilon);
+    //test(R,n);
 
     A.print("A: ");
     R.print("R: ");
@@ -71,12 +71,20 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void test(mat& R)
-{
-    R(2,3)= 5.0;
-    return;
-}
 
+void test(mat &R, int n)
+{
+
+  for (int i=0; i< n; i++){
+    for (int j=0; j< n; j++) {
+
+           R(i,j)= i+j;
+      }
+  }
+
+   R.print("Printing local version of R:");
+  return;
+}
 /*
 Function that creates a matrix A for the discretized dimensionless Schrodinger equation.
 input:
@@ -114,7 +122,7 @@ n: number of steps in our discretized system excluding the first and last values
 
  */
 
-void jacobis_method(mat A, mat R, int n, double tolerance)
+void jacobis_method(mat &A, mat &R, int n, double tolerance)
 {
     for(int i = 0; i<n; i++){
         for(int j = 0; j<n; j++){
@@ -129,11 +137,11 @@ void jacobis_method(mat A, mat R, int n, double tolerance)
     int k, l;
     double max_number_iterations = (double) n * (double) n * (double) n;
     int iterations = 0;
-    double max_offdiag = maxoffdiag( A, &k, &l, n);
+    double max_offdiag = maxoffdiag(A,&k,&l,n);
 
     while (fabs(max_offdiag) > tolerance && (double) iterations < max_number_iterations){
         max_offdiag = maxoffdiag(A, &k,&l,n);
-        rotate (A, R,k,l,n);
+        rotate (A,R,k,l,n);
         iterations ++;
     }
 return;
@@ -153,7 +161,7 @@ return;
 
 */
 
-double maxoffdiag(mat A, int *k, int *l, int n)
+double maxoffdiag(mat &A, int *k, int *l, int n)
 {
     double max = 0.0;
 
@@ -184,7 +192,7 @@ n: dimension of input matrices
 
 */
 
-void rotate(mat A, mat R, int k, int l, int n)
+void rotate(mat &A, mat &R, int k, int l, int n)
 {
     double s,c;
     if (A(k,l) != 0.00){
