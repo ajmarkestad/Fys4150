@@ -24,11 +24,16 @@ int main(int argc, char *argv[])
 {
 
     //UNIT TESTS
-//    bool tests = True;
-//    bool tests_pass = True;
-//    try { unittest_correct_eigenvalues()}
-
-//    try { unittest_largest_off_diagonal()}
+    try {
+        unittest_largest_off_diagonal();
+    }catch (const char* msg) {
+        cerr << "Noe feil i test av larges off diagonal!" << endl;
+    }
+    try {
+        unittest_correct_eigenvalues();
+    }catch (const char* msg) {
+        cerr << "Noe feil i test av larges off diagonal!" << endl;
+    }
 
 //    try { unittest_orthogonality() }
     int n;
@@ -41,7 +46,6 @@ int main(int argc, char *argv[])
     h = (rho_stop - rho_start)/(n+1.0);
     HO_potential = new double[n];
     rho = new double[n];
-
     for (int i=0; i<n ;i++){
         rho[i] = rho_start + i*h;
         HO_potential[i] = pow(rho[i],2.0);
@@ -64,6 +68,7 @@ int main(int argc, char *argv[])
     jacobis_method(A,R,n,epsilon);
     //test(R,n);
 
+
     A.print("A: ");
     R.print("R: ");
 
@@ -74,7 +79,6 @@ int main(int argc, char *argv[])
 
 void test(mat &R, int n)
 {
-
   for (int i=0; i< n; i++){
     for (int j=0; j< n; j++) {
 
@@ -149,7 +153,7 @@ return;
 
 
 /*
- Function that finds the max off diagonal elements of a matrix.
+ Function that finds the max off diagonal elements of a square matrix.
  input:
  A: matrix we wish to find the max off diagonal element off.
  k: integer that will store the coloum number of the max element
@@ -239,6 +243,44 @@ return;
 }
 
 
+
+bool unittest_largest_off_diagonal(){
+    bool results = 0;
+    int n=3, column=0, row=0;
+    mat testmatrix = zeros(n,n);
+    testmatrix(1,2)=5;
+    if ( maxoffdiag(testmatrix, &column, &row, n)!=5){
+        results = 1;
+        throw "Test av maks offdiagonal element ble feil!";
+    }
+    if (column!=2){
+        throw "Feil kolonne!";
+        results = 1;
+    }
+    if (row!=1){
+        throw "Feil rad!";
+        results = 1;
+    }
+    testmatrix(2,1)=-20;
+    if (maxoffdiag(testmatrix, &column, &row, n)==-20){
+        throw "Den plukket opp negative verdier istedenfor positive i maks-offdiagonal!";
+        results = 1;
+    }
+    return results;
+}
+
+bool unittest_correct_eigenvalues(){
+    mat testmatrix = zeros(2,2);
+    testmatrix(0,0)= 3;
+    testmatrix(0,1) = sqrt(2);
+    testmatrix(1,1)=-1;
+    mat eigvectors = zeros(2,2);
+    double n = 2;
+    double tolerance = pow(10,-8);
+}
+    /*the matrix testmatrix has analytical eigenvalues 1 and 3
+    and eigenvectors
+    */
 
 
 
