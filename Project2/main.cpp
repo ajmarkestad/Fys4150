@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     try {
         unittest_correct_eigenvalues();
     }catch (const char* msg) {
-        cerr << "Noe feil i test av larges off diagonal!" << endl;
+        cerr << "Noe feil i test av egenverdier!" << endl;
     }
 
 //    try { unittest_orthogonality() }
