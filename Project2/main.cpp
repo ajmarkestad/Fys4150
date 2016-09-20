@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     double h, rho_start, rho_stop ;
     double *HO_potential, *rho;
 
-    n = 5;
+    n = 500;
     rho_start = -10.0;
     rho_stop = 10.0;
     h = (rho_stop - rho_start)/(n+1.0);
@@ -69,31 +69,24 @@ int main(int argc, char *argv[])
     //test(R,n);
 
 
-    A.print("A: ");
-    R.print("R: ");
+    vec v = A.diag();
 
+    vec v_sorted = sort(v);
+
+    v_sorted.print("Eigenvalues: ");
+    double minimum = min(v_sorted);
+    cout << "minimum eigenvalue: " << minimum << endl;
 
     return 0;
 }
 
-
-void test(mat &R, int n)
-{
-  for (int i=0; i< n; i++){
-    for (int j=0; j< n; j++) {
-
-           R(i,j)= i+j;
-      }
-  }
-
-   R.print("Printing local version of R:");
-  return;
-}
 /*
 Function that creates a matrix A for the discretized dimensionless Schrodinger equation.
 input:
 potential: a vector of the potential at the discretized positions.
 n: number of steps in our discretized system excluding the first and last values which are known from boundary conditions.
+
+DOES NOT WORK
 */
 
 //mat matix_creator(double *potential, int n, double h)
@@ -138,7 +131,7 @@ void jacobis_method(mat &A, mat &R, int n, double tolerance)
         }
     }
 
-    int k, l;
+    int k=0, l=0;
     double max_number_iterations = (double) n * (double) n * (double) n;
     int iterations = 0;
     double max_offdiag = maxoffdiag(A,&k,&l,n);
@@ -170,8 +163,8 @@ double maxoffdiag(mat &A, int *k, int *l, int n)
     double max = 0.0;
 
     for(int i = 0; i < n; i++){
-        for(int j = i+1; j <n; j++){
-            if(fabs(A(i,j) > max)){
+        for(int j = i+1; j < n; j++){
+            if(fabs(A(i,j)) > max){
                 max = fabs(A(i,j));
                 *l = i;
                 *k = j;
@@ -248,8 +241,8 @@ bool unittest_largest_off_diagonal(){
     bool results = 0;
     int n=3, column=0, row=0;
     mat testmatrix = zeros(n,n);
-    testmatrix(1,2)=5;
-    if ( maxoffdiag(testmatrix, &column, &row, n)!=5){
+    testmatrix(1,2)=1.0;
+    if ( fabs(maxoffdiag(testmatrix, &column, &row, n))!=fabs(testmatrix(1,2))){
         results = 1;
         throw "Test av maks offdiagonal element ble feil!";
     }
