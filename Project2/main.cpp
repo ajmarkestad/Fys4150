@@ -18,6 +18,7 @@ void jacobis_method(mat &A, mat &R, int, double);
 double maxoffdiag(mat &A, int *, int *, int );
 void rotate(mat &A, mat &R, int , int , int );
 void test(mat &A, int );
+void sorting(mat , mat , vec &V, mat &R,  int );
 //mat matrix_creator(double *, int, double);
 
 int main(int argc, char *argv[])
@@ -37,12 +38,13 @@ int main(int argc, char *argv[])
 
 //    try { unittest_orthogonality() }
     int n;
-    double h, rho_start, rho_stop ;
+    double h, rho_start, rho_stop, edge;
     double *HO_potential, *rho;
 
-    n = 500;
-    rho_start = -10.0;
-    rho_stop = 10.0;
+    n = 100;
+    edge = 4;
+    rho_start = -edge;
+    rho_stop = edge;
     h = (rho_stop - rho_start)/(n+1.0);
     HO_potential = new double[n];
     rho = new double[n];
@@ -68,14 +70,12 @@ int main(int argc, char *argv[])
     jacobis_method(A,R,n,epsilon);
     //test(R,n);
 
+    vec eigenvalues_sorted(n);
+    mat eigenvectors_sorted(n,n);
+    sorting(A, R, eigenvalues_sorted, eigenvectors_sorted, n);
 
-    vec v = A.diag();
 
-    vec v_sorted = sort(v);
 
-    v_sorted.print("Eigenvalues: ");
-    double minimum = min(v_sorted);
-    cout << "minimum eigenvalue: " << minimum << endl;
 
     return 0;
 }
@@ -235,6 +235,17 @@ void rotate(mat &A, mat &R, int k, int l, int n)
 return;
 }
 
+
+
+void sorting(mat A,mat R, vec &V_sorted, mat &R_sorted, int n)
+{
+    vec V = A.diag();
+    V_sorted = sort(V);
+    uvec indices = sort_index(V);
+    uvec cols = linspace<uvec>(0,R.n_cols -1, R.n_cols);
+    R_sorted = R.submat(cols, indices);
+    return;
+}
 
 
 bool unittest_largest_off_diagonal(){
