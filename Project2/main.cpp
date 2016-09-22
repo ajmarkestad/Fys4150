@@ -18,7 +18,8 @@ void jacobis_method(mat &A, mat &R, int, double);
 double maxoffdiag(mat &A, int *, int *, int );
 void rotate(mat &A, mat &R, int , int , int );
 void test(mat &A, int );
-void sorting(mat , mat , vec &V, mat &R,  int );
+void sorting(mat , mat , vec &V, mat &R);
+void potential_generator(double *, double *, double , double , int );
 //mat matrix_creator(double *, int, double);
 
 int main(int argc, char *argv[])
@@ -38,20 +39,21 @@ int main(int argc, char *argv[])
 
 //    try { unittest_orthogonality() }
     int n;
-    double h, rho_start, rho_stop, edge;
+    double h, rho_start, rho_stop;
     double *HO_potential, *rho;
 
-    n = 100;
-    edge = 4;
-    rho_start = -edge;
-    rho_stop = edge;
+    n = 400;
+    rho_start = 0.0000001;
+    rho_stop = 4.0;
     h = (rho_stop - rho_start)/(n+1.0);
-    HO_potential = new double[n];
     rho = new double[n];
     for (int i=0; i<n ;i++){
         rho[i] = rho_start + i*h;
-        HO_potential[i] = pow(rho[i],2.0);
     }
+
+    HO_potential = new double[n];
+
+    potential_generator(rho, HO_potential, 1.0, 0.0, n);
 
 //    mat A = matrix_creator(HO_potential, n, h);
 
@@ -67,18 +69,39 @@ int main(int argc, char *argv[])
     double epsilon;
     epsilon = pow(10.0,-8.0);
 
+    double time;
+    clock_t start, finish;
+    start = clock();
     jacobis_method(A,R,n,epsilon);
+    finish = clock();
+    time = (finish-start)/((double) CLOCKS_PER_SEC);
+    cout << "CPU time of jacobi's method: " << time << endl;
+
     //test(R,n);
 
     vec eigenvalues_sorted(n);
     mat eigenvectors_sorted(n,n);
-    sorting(A, R, eigenvalues_sorted, eigenvectors_sorted, n);
+    sorting(A, R, eigenvalues_sorted, eigenvectors_sorted);
 
-
+    cout << "First eigenvalue: " << eigenvalues_sorted(0) << endl;
+    cout << "Sencond eigenvalue: " << eigenvalues_sorted(1) << endl;
+    cout << "Third eigenvalue: " << eigenvalues_sorted(2) << endl;
 
 
     return 0;
 }
+
+
+
+void potential_generator(double *rho, double *potential, double factor1, double factor2, int n)
+{
+    for (int i=0; i<n ;i++){
+        potential[i] = factor1 * pow(rho[i],2.0) + factor2 * 1.0/rho[i];
+    }
+    return;
+}
+
+
 
 /*
 Function that creates a matrix A for the discretized dimensionless Schrodinger equation.
@@ -237,7 +260,7 @@ return;
 
 
 
-void sorting(mat A,mat R, vec &V_sorted, mat &R_sorted, int n)
+void sorting(mat A,mat R, vec &V_sorted, mat &R_sorted)
 {
     vec V = A.diag();
     V_sorted = sort(V);
@@ -279,8 +302,6 @@ bool unittest_correct_eigenvalues(){
     testmatrix(0,1) = sqrt(2);
     testmatrix(1,1)=-1;
     mat eigvectors = zeros(2,2);
-    double n = 2;
-    double tolerance = pow(10,-8);
 }
     /*the matrix testmatrix has analytical eigenvalues 1 and 3
     and eigenvectors
