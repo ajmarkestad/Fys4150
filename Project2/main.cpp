@@ -10,7 +10,6 @@
 using namespace arma;
 using namespace std;
 
-
 bool unittest_largest_off_diagonal();
 bool unittest_orthogonality();
 bool unittest_correct_eigenvalues();
@@ -20,8 +19,11 @@ void rotate(mat &A, mat &R, int , int , int );
 void test(mat &A, int );
 void sorting(mat , mat , vec &V, mat &R);
 void potential_generator(double *, double *, double , double , int );
-//mat matrix_creator(double *, int, double);
+void matrix_creator(mat &A, double *, int, double);
+void output(mat &R, vec &V, int );
 
+
+ofstream ofile;
 int main(int argc, char *argv[])
 {
 
@@ -39,31 +41,36 @@ int main(int argc, char *argv[])
 
 //    try { unittest_orthogonality() }
     int n;
-    double h, rho_start, rho_stop;
-    double *HO_potential, *rho;
+    double h, rho_start, rho_stop, Harmonic_oscillator_frequency, columbfactor;
+    double *potential, *rho;
 
-    n = 400;
+    // Read in output file, abort if there are too few command-line arguments
+    if( argc <= 3){
+      cout << "Bad Usage: " << argv[0] << " read three values: number of grid points, unitless harmonic oscillator frequency, and unitless columb factor om same line" << endl;
+      exit(1);
+    }
+    else{
+       n = atof(argv[1]);
+       Harmonic_oscillator_frequency = atof(argv[2]);
+       columbfactor = atof(argv[3]);
+    }
+
     rho_start = 0.0000001;
-    rho_stop = 4.0;
+    rho_stop = 3.5;
     h = (rho_stop - rho_start)/(n+1.0);
     rho = new double[n];
     for (int i=0; i<n ;i++){
         rho[i] = rho_start + i*h;
     }
 
-    HO_potential = new double[n];
+    potential = new double[n];
 
-    potential_generator(rho, HO_potential, 1.0, 0.0, n);
-
-//    mat A = matrix_creator(HO_potential, n, h);
+    potential_generator(rho, potential, Harmonic_oscillator_frequency, columbfactor, n);
 
     mat A(n,n);
-    for(int i = 0; i<n-1; i++){
-        A(i,i) = 2.0/(h*h) + HO_potential[i];
-        A(i,i+1) = -1.0/(h*h);
-        A(i+1,i) = -1.0/(h*h);
-    }
-    A(n-1,n-1) = 2.0/(h*h) + HO_potential[n-1];
+
+    matrix_creator(A, potential, n, h);
+
 
     mat R(n,n);
     double epsilon;
@@ -77,8 +84,6 @@ int main(int argc, char *argv[])
     time = (finish-start)/((double) CLOCKS_PER_SEC);
     cout << "CPU time of jacobi's method: " << time << endl;
 
-    //test(R,n);
-
     vec eigenvalues_sorted(n);
     mat eigenvectors_sorted(n,n);
     sorting(A, R, eigenvalues_sorted, eigenvectors_sorted);
@@ -86,6 +91,31 @@ int main(int argc, char *argv[])
     cout << "First eigenvalue: " << eigenvalues_sorted(0) << endl;
     cout << "Sencond eigenvalue: " << eigenvalues_sorted(1) << endl;
     cout << "Third eigenvalue: " << eigenvalues_sorted(2) << endl;
+
+    string str1 = "Project_2_Wr=";
+    string outfilename;
+    outfilename.append(str1);
+    int number1 = Harmonic_oscillator_frequency;
+    stringstream ss1;
+    ss1 << number1;
+    outfilename.append(ss1.str());
+    string str2 = "_Columb_factor=";
+    outfilename.append(str2);
+    int number2 = columbfactor;
+    stringstream ss2;
+    ss2 << number2;
+    outfilename.append(ss2.str());
+    string str3 = "_n=";
+    outfilename.append(str3);
+    int number3 = n;
+    stringstream ss3;
+    ss3 << number3;
+    outfilename.append(ss3.str());
+    ofile.open(outfilename);
+    output(eigenvectors_sorted, eigenvalues_sorted, n);
+
+    // close output file
+    ofile.close();
 
 
     return 0;
@@ -103,29 +133,30 @@ void potential_generator(double *rho, double *potential, double factor1, double 
 
 
 
+
+
+void matrix_creator(mat &A, double *potential, int n, double h)
 /*
 Function that creates a matrix A for the discretized dimensionless Schrodinger equation.
 input:
 potential: a vector of the potential at the discretized positions.
 n: number of steps in our discretized system excluding the first and last values which are known from boundary conditions.
-
-DOES NOT WORK
 */
-
-//mat matix_creator(double *potential, int n, double h)
-//{
-//    mat A(n,n);
-//    for(int i = 0; i<n-1; i++){
-//        A(i,i) = 2.0/(h*h) + potential[i];
-//        A(i,i+1) = -1.0/(h*h);
-//        A(i+1,i) = -1.0/(h*h);
-//    }
-//    A(n-1,n-1) = 2.0/(h*h) + potential[n-1];
-//return A;
-//}
+{
+    for(int i = 0; i<n-1; i++){
+        A(i,i) = 2.0/(h*h) + potential[i];
+        A(i,i+1) = -1.0/(h*h);
+        A(i+1,i) = -1.0/(h*h);
+    }
+    A(n-1,n-1) = 2.0/(h*h) + potential[n-1];
+return;
+}
 
 
 
+
+
+void jacobis_method(mat &A, mat &R, int n, double tolerance)
 /*
  Jacobis method for determining the eigenvalues and eigenvectors of a symmetric matrix.
  Take input:
@@ -141,8 +172,6 @@ DOES NOT WORK
  Code also includes a max number of iterations n^3, such that the program will end even if the matrix input is not diagonalizable
 
  */
-
-void jacobis_method(mat &A, mat &R, int n, double tolerance)
 {
     for(int i = 0; i<n; i++){
         for(int j = 0; j<n; j++){
@@ -168,6 +197,9 @@ return;
 }
 
 
+
+
+double maxoffdiag(mat &A, int *k, int *l, int n)
 /*
  Function that finds the max off diagonal elements of a square matrix.
  input:
@@ -180,8 +212,6 @@ return;
  Does not change A or n. Gives k and l the position of the max element.
 
 */
-
-double maxoffdiag(mat &A, int *k, int *l, int n)
 {
     double max = 0.0;
 
@@ -200,6 +230,9 @@ double maxoffdiag(mat &A, int *k, int *l, int n)
 
 
 
+
+
+void rotate(mat &A, mat &R, int k, int l, int n)
 /*
 Function that rotates a matrix A with a similarity transformation, rotation in n-dim space around axis of element A[l][k].
 
@@ -211,8 +244,6 @@ l: row number of element we wish to rotate around
 n: dimension of input matrices
 
 */
-
-void rotate(mat &A, mat &R, int k, int l, int n)
 {
     double s,c;
     if (A(k,l) != 0.00){
@@ -306,6 +337,24 @@ bool unittest_correct_eigenvalues(){
     /*the matrix testmatrix has analytical eigenvalues 1 and 3
     and eigenvectors
     */
+
+
+void output(mat &R, vec &V, int n )
+{
+    ofile << "Three first eigenvalues:" << endl;
+    ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase);
+    ofile << setw(15) << setprecision(8) << V(0);
+    ofile << setw(15) << setprecision(8) << V(1);
+    ofile << setw(15) << setprecision(8) << V(2) << endl;
+    ofile << "Corresponding Eigenvectors:" << endl;
+    ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase);
+    for(int i=0; i < n; i++)
+    {
+        ofile << setw(15) << setprecision(8) << R(i,0);
+        ofile << setw(15) << setprecision(8) << R(i,1);
+        ofile << setw(15) << setprecision(8) << R(i,2) << endl;
+    }
+}
 
 
 
