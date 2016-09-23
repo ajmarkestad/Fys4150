@@ -11,13 +11,13 @@ using namespace arma;
 using namespace std;
 
 
-bool unittest_largest_off_diagonal();
-bool unittest_orthogonality();
-bool unittest_correct_eigenvalues();
+int unittest_largest_off_diagonal();
+int unittest_orthogonality();
+int unittest_correct_eigenvalues();
 void jacobis_method(mat &A, mat &R, int, double);
 double maxoffdiag(mat &A, int *, int *, int );
 void rotate(mat &A, mat &R, int , int , int );
-void test(mat &A, int );
+int test_orthogonality(mat &A, int );
 void sorting(mat , mat , vec &V, mat &R);
 void potential_generator(double *, double *, double , double , int );
 //mat matrix_creator(double *, int, double);
@@ -25,24 +25,31 @@ void potential_generator(double *, double *, double , double , int );
 int main(int argc, char *argv[])
 {
 
-    //UNIT TESTS
+    //INITIALIZATION TESTS
     try {
         unittest_largest_off_diagonal();
     }catch (const char* msg) {
         cerr << "Noe feil i test av larges off diagonal!" << endl;
     }
-    try {
-        unittest_correct_eigenvalues();
-    }catch (const char* msg) {
+
+    if (unittest_correct_eigenvalues()!=0){
         cerr << "Noe feil i test av egenverdier!" << endl;
     }
 
-//    try { unittest_orthogonality() }
+    if (unittest_orthogonality()!=0){
+        cerr << "Noe feil i test av ortogonalitet!" << endl;
+    }
+
+
+
+    //ALLOCATION
     int n;
     double h, rho_start, rho_stop;
     double *HO_potential, *rho;
 
-    n = 400;
+
+    //FILLING VALUES
+    n = 200;
     rho_start = 0.0000001;
     rho_stop = 4.0;
     h = (rho_stop - rho_start)/(n+1.0);
@@ -50,13 +57,9 @@ int main(int argc, char *argv[])
     for (int i=0; i<n ;i++){
         rho[i] = rho_start + i*h;
     }
-
     HO_potential = new double[n];
-
     potential_generator(rho, HO_potential, 1.0, 0.0, n);
-
 //    mat A = matrix_creator(HO_potential, n, h);
-
     mat A(n,n);
     for(int i = 0; i<n-1; i++){
         A(i,i) = 2.0/(h*h) + HO_potential[i];
@@ -64,11 +67,12 @@ int main(int argc, char *argv[])
         A(i+1,i) = -1.0/(h*h);
     }
     A(n-1,n-1) = 2.0/(h*h) + HO_potential[n-1];
-
     mat R(n,n);
     double epsilon;
     epsilon = pow(10.0,-8.0);
 
+
+    //FINDING EIGENVALUES AND EIGENVECTORS
     double time;
     clock_t start, finish;
     start = clock();
@@ -77,11 +81,20 @@ int main(int argc, char *argv[])
     time = (finish-start)/((double) CLOCKS_PER_SEC);
     cout << "CPU time of jacobi's method: " << time << endl;
 
-    //test(R,n);
+    //TESTING ORTHOGONALITY
+    if(test_orthogonality(R,n)!=0){
+        cout << "Orthogonality test: failed!" << endl;
+    }else{
+        cout << "Orthogonality test: passed!" << endl;
+    }
 
+
+    //SORTING
     vec eigenvalues_sorted(n);
     mat eigenvectors_sorted(n,n);
     sorting(A, R, eigenvalues_sorted, eigenvectors_sorted);
+
+
 
     cout << "First eigenvalue: " << eigenvalues_sorted(0) << endl;
     cout << "Sencond eigenvalue: " << eigenvalues_sorted(1) << endl;
@@ -95,22 +108,21 @@ int main(int argc, char *argv[])
 
 void potential_generator(double *rho, double *potential, double factor1, double factor2, int n)
 {
+    /* Creates a potensial with a input */
     for (int i=0; i<n ;i++){
         potential[i] = factor1 * pow(rho[i],2.0) + factor2 * 1.0/rho[i];
     }
     return;
 }
 
-
-
-/*
+/* Matrix creator
 Function that creates a matrix A for the discretized dimensionless Schrodinger equation.
 input:
 potential: a vector of the potential at the discretized positions.
 n: number of steps in our discretized system excluding the first and last values which are known from boundary conditions.
 
 DOES NOT WORK
-*/
+
 
 //mat matix_creator(double *potential, int n, double h)
 //{
@@ -123,27 +135,25 @@ DOES NOT WORK
 //    A(n-1,n-1) = 2.0/(h*h) + potential[n-1];
 //return A;
 //}
-
-
-
-/*
- Jacobis method for determining the eigenvalues and eigenvectors of a symmetric matrix.
- Take input:
- A: The matrix that you wish to find the eigenvalues and eigenvectors of.
- R: An empty matrix that will store the eigenvectors.
- n: The dimension of the the matricies that are input.
- tolerance: The largest off diagonal element allowed in the finished diagonal matrix.
-
- output:
- A: A is diagonalzed until the eigenvalues are the diagonal elements of A, i.e. A[i][i].
- R: R stores the eigenvectors where the eigenvector corresponding to eigenvalue A[i][i] is R[i][:].
-
- Code also includes a max number of iterations n^3, such that the program will end even if the matrix input is not diagonalizable
-
- */
+*/
 
 void jacobis_method(mat &A, mat &R, int n, double tolerance)
 {
+    /*
+     Jacobis method for determining the eigenvalues and eigenvectors of a symmetric matrix.
+     Take input:
+     A: The matrix that you wish to find the eigenvalues and eigenvectors of.
+     R: An empty matrix that will store the eigenvectors.
+     n: The dimension of the the matricies that are input.
+     tolerance: The largest off diagonal element allowed in the finished diagonal matrix.
+
+     output:
+     A: A is diagonalzed until the eigenvalues are the diagonal elements of A, i.e. A[i][i].
+     R: R stores the eigenvectors where the eigenvector corresponding to eigenvalue A[i][i] is R[i][:].
+
+     Code also includes a max number of iterations n^3, such that the program will end even if the matrix input is not diagonalizable
+
+     */
     for(int i = 0; i<n; i++){
         for(int j = 0; j<n; j++){
             if (i==j){
@@ -156,33 +166,37 @@ void jacobis_method(mat &A, mat &R, int n, double tolerance)
 
     int k=0, l=0;
     double max_number_iterations = (double) n * (double) n * (double) n;
-    int iterations = 0;
+    int iterations = 0, iter = 0;
     double max_offdiag = maxoffdiag(A,&k,&l,n);
 
     while (fabs(max_offdiag) > tolerance && (double) iterations < max_number_iterations){
         max_offdiag = maxoffdiag(A, &k,&l,n);
         rotate (A,R,k,l,n);
         iterations ++;
+        iter ++;
+        if (iter == 1000){
+            cout << iterations << "Iterations of jacobi's method. Max offdiagonal element" << max_offdiag<< endl;
+            iter = 0;
+        }
+
     }
 return;
 }
 
-
-/*
- Function that finds the max off diagonal elements of a square matrix.
- input:
- A: matrix we wish to find the max off diagonal element off.
- k: integer that will store the coloum number of the max element
- l: integer that will store the row number of the max element
- n: dimension of the input matrix A
-
- output:
- Does not change A or n. Gives k and l the position of the max element.
-
-*/
-
 double maxoffdiag(mat &A, int *k, int *l, int n)
 {
+    /*
+     Function that finds the max off diagonal elements of a square matrix.
+     input:
+     A: matrix we wish to find the max off diagonal element off.
+     k: integer that will store the coloum number of the max element
+     l: integer that will store the row number of the max element
+     n: dimension of the input matrix A
+
+     output:
+     Does not change A or n. Gives k and l the position of the max element.
+
+    */
     double max = 0.0;
 
     for(int i = 0; i < n; i++){
@@ -198,22 +212,19 @@ double maxoffdiag(mat &A, int *k, int *l, int n)
     return max;
 }
 
-
-
-/*
-Function that rotates a matrix A with a similarity transformation, rotation in n-dim space around axis of element A[l][k].
-
-input:
-A: Matrix that we wish to rotate
-R: Matrix that we wish to store corresponding eigenvectors
-k: coloum number of element we wish to rotate around
-l: row number of element we wish to rotate around
-n: dimension of input matrices
-
-*/
-
 void rotate(mat &A, mat &R, int k, int l, int n)
 {
+    /*
+    Function that rotates a matrix A with a similarity transformation, rotation in n-dim space around axis of element A[l][k].
+
+    input:
+    A: Matrix that we wish to rotate
+    R: Matrix that we wish to store corresponding eigenvectors
+    k: coloum number of element we wish to rotate around
+    l: row number of element we wish to rotate around
+    n: dimension of input matrices
+
+    */
     double s,c;
     if (A(k,l) != 0.00){
         double t, tau;
@@ -258,8 +269,6 @@ void rotate(mat &A, mat &R, int k, int l, int n)
 return;
 }
 
-
-
 void sorting(mat A,mat R, vec &V_sorted, mat &R_sorted)
 {
     vec V = A.diag();
@@ -270,8 +279,7 @@ void sorting(mat A,mat R, vec &V_sorted, mat &R_sorted)
     return;
 }
 
-
-bool unittest_largest_off_diagonal(){
+int unittest_largest_off_diagonal(){
     bool results = 0;
     int n=3, column=0, row=0;
     mat testmatrix = zeros(n,n);
@@ -296,17 +304,47 @@ bool unittest_largest_off_diagonal(){
     return results;
 }
 
-bool unittest_correct_eigenvalues(){
-    mat testmatrix = zeros(2,2);
+int unittest_correct_eigenvalues(){
+    /* test if the jacobis method finds the analytical eigenvalues of -1 and 3
+     */
+    int n = 2;
+    mat testmatrix = zeros(n,n);
     testmatrix(0,0)= 3;
     testmatrix(0,1) = sqrt(2);
     testmatrix(1,1)=-1;
-    mat eigvectors = zeros(2,2);
+    mat eigvectors = zeros(n,n);
+    jacobis_method(testmatrix,eigvectors,n,pow(10,-6));
+    vec eigenvalues_sorted(n);
+    mat eigenvectors_sorted(n,n);
+    sorting(testmatrix, eigvectors, eigenvalues_sorted, eigenvectors_sorted);
+    int results = 0;
+    if ((eigenvalues_sorted(0)!=-1) || (eigenvalues_sorted(1) != 3)) results = 1;
+    return results;
 }
-    /*the matrix testmatrix has analytical eigenvalues 1 and 3
-    and eigenvectors
-    */
 
+int unittest_orthogonality(){
+    int n = 10, result = 0;
+    // creates a symmetric matrix
+    mat A = randu<mat>(n,n);
+    mat L, U, P;
+    lu(L, U, P, A);
+    A = L + L.t();
+    mat eigvectors = zeros(n,n);
+    jacobis_method(A,eigvectors,n,pow(10,-6));
+    result = test_orthogonality(eigvectors,n);
+    return result;
+}
 
-
+int test_orthogonality(mat &R, int n){
+    int result = 0;
+    double innerproduct = 0;
+    for (int i = 0; i<n; i++){
+        for (int j= 0; j<n; j++){
+            innerproduct = dot(R.col(j),R.col(i));
+            if ((i==j) && (abs(abs(innerproduct)-1) > pow(10,-12))) result = 1;
+            if ((i!=j) && (abs(innerproduct)>pow(10,-12))) result = 1;
+        }
+    }
+    return result;
+}
 
