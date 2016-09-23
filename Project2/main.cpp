@@ -10,7 +10,6 @@
 using namespace arma;
 using namespace std;
 
-
 int unittest_largest_off_diagonal();
 int unittest_orthogonality();
 int unittest_correct_eigenvalues();
@@ -20,8 +19,11 @@ void rotate(mat &A, mat &R, int , int , int );
 int test_orthogonality(mat &A, int );
 void sorting(mat , mat , vec &V, mat &R);
 void potential_generator(double *, double *, double , double , int );
-//mat matrix_creator(double *, int, double);
+void matrix_creator(mat &A, double *, int, double);
+void output(mat &R, vec &V, int );
 
+
+ofstream ofile;
 int main(int argc, char *argv[])
 {
 
@@ -44,29 +46,32 @@ int main(int argc, char *argv[])
 
     //ALLOCATION
     int n;
-    double h, rho_start, rho_stop;
-    double *HO_potential, *rho;
+    double h, rho_start, rho_stop, Harmonic_oscillator_frequency, columbfactor;
+    double *potential, *rho;
 
+    // Read in output file, abort if there are too few command-line arguments
+    if( argc <= 3){
+      cout << "Bad Usage: " << argv[0] << " read three values: number of grid points, unitless harmonic oscillator frequency, and unitless columb factor om same line" << endl;
+      exit(1);
+    }
+    else{
+       n = atof(argv[1]);
+       Harmonic_oscillator_frequency = atof(argv[2]);
+       columbfactor = atof(argv[3]);
+    }
 
     //FILLING VALUES
-    n = 200;
     rho_start = 0.0000001;
-    rho_stop = 4.0;
+    rho_stop = 3.5;
     h = (rho_stop - rho_start)/(n+1.0);
     rho = new double[n];
     for (int i=0; i<n ;i++){
         rho[i] = rho_start + i*h;
     }
-    HO_potential = new double[n];
-    potential_generator(rho, HO_potential, 1.0, 0.0, n);
-//    mat A = matrix_creator(HO_potential, n, h);
+    potential = new double[n];
+    potential_generator(rho, potential, Harmonic_oscillator_frequency, columbfactor, n);
     mat A(n,n);
-    for(int i = 0; i<n-1; i++){
-        A(i,i) = 2.0/(h*h) + HO_potential[i];
-        A(i,i+1) = -1.0/(h*h);
-        A(i+1,i) = -1.0/(h*h);
-    }
-    A(n-1,n-1) = 2.0/(h*h) + HO_potential[n-1];
+    matrix_creator(A, potential, n, h);
     mat R(n,n);
     double epsilon;
     epsilon = pow(10.0,-8.0);
@@ -80,6 +85,7 @@ int main(int argc, char *argv[])
     finish = clock();
     time = (finish-start)/((double) CLOCKS_PER_SEC);
     cout << "CPU time of jacobi's method: " << time << endl;
+
 
     //TESTING ORTHOGONALITY
     if(test_orthogonality(R,n)!=0){
@@ -100,6 +106,31 @@ int main(int argc, char *argv[])
     cout << "Sencond eigenvalue: " << eigenvalues_sorted(1) << endl;
     cout << "Third eigenvalue: " << eigenvalues_sorted(2) << endl;
 
+    string str1 = "Project_2_Wr=";
+    string outfilename;
+    outfilename.append(str1);
+    int number1 = Harmonic_oscillator_frequency;
+    stringstream ss1;
+    ss1 << number1;
+    outfilename.append(ss1.str());
+    string str2 = "_Columb_factor=";
+    outfilename.append(str2);
+    int number2 = columbfactor;
+    stringstream ss2;
+    ss2 << number2;
+    outfilename.append(ss2.str());
+    string str3 = "_n=";
+    outfilename.append(str3);
+    int number3 = n;
+    stringstream ss3;
+    ss3 << number3;
+    outfilename.append(ss3.str());
+    ofile.open(outfilename);
+    output(eigenvectors_sorted, eigenvalues_sorted, n);
+
+    // close output file
+    ofile.close();
+
 
     return 0;
 }
@@ -115,45 +146,39 @@ void potential_generator(double *rho, double *potential, double factor1, double 
     return;
 }
 
-/* Matrix creator
+void matrix_creator(mat &A, double *potential, int n, double h){
+/*
+
 Function that creates a matrix A for the discretized dimensionless Schrodinger equation.
 input:
 potential: a vector of the potential at the discretized positions.
 n: number of steps in our discretized system excluding the first and last values which are known from boundary conditions.
-
-DOES NOT WORK
-
-
-//mat matix_creator(double *potential, int n, double h)
-//{
-//    mat A(n,n);
-//    for(int i = 0; i<n-1; i++){
-//        A(i,i) = 2.0/(h*h) + potential[i];
-//        A(i,i+1) = -1.0/(h*h);
-//        A(i+1,i) = -1.0/(h*h);
-//    }
-//    A(n-1,n-1) = 2.0/(h*h) + potential[n-1];
-//return A;
-//}
 */
+    for(int i = 0; i<n-1; i++){
+        A(i,i) = 2.0/(h*h) + potential[i];
+        A(i,i+1) = -1.0/(h*h);
+        A(i+1,i) = -1.0/(h*h);
+    }
+    A(n-1,n-1) = 2.0/(h*h) + potential[n-1];
+return;
+}
 
-void jacobis_method(mat &A, mat &R, int n, double tolerance)
-{
-    /*
-     Jacobis method for determining the eigenvalues and eigenvectors of a symmetric matrix.
-     Take input:
-     A: The matrix that you wish to find the eigenvalues and eigenvectors of.
-     R: An empty matrix that will store the eigenvectors.
-     n: The dimension of the the matricies that are input.
-     tolerance: The largest off diagonal element allowed in the finished diagonal matrix.
+void jacobis_method(mat &A, mat &R, int n, double tolerance){
+/*
+ Jacobis method for determining the eigenvalues and eigenvectors of a symmetric matrix.
+ Take input:
+ A: The matrix that you wish to find the eigenvalues and eigenvectors of.
+ R: An empty matrix that will store the eigenvectors.
+ n: The dimension of the the matricies that are input.
+ tolerance: The largest off diagonal element allowed in the finished diagonal matrix.
 
-     output:
-     A: A is diagonalzed until the eigenvalues are the diagonal elements of A, i.e. A[i][i].
-     R: R stores the eigenvectors where the eigenvector corresponding to eigenvalue A[i][i] is R[i][:].
+ output:
+ A: A is diagonalzed until the eigenvalues are the diagonal elements of A, i.e. A[i][i].
+ R: R stores the eigenvectors where the eigenvector corresponding to eigenvalue A[i][i] is R[i][:].
 
-     Code also includes a max number of iterations n^3, such that the program will end even if the matrix input is not diagonalizable
+ Code also includes a max number of iterations n^3, such that the program will end even if the matrix input is not diagonalizable
 
-     */
+ */
     for(int i = 0; i<n; i++){
         for(int j = 0; j<n; j++){
             if (i==j){
@@ -333,6 +358,23 @@ int unittest_orthogonality(){
     jacobis_method(A,eigvectors,n,pow(10,-6));
     result = test_orthogonality(eigvectors,n);
     return result;
+}
+
+void output(mat &R, vec &V, int n )
+{
+    ofile << "Three first eigenvalues:" << endl;
+    ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase);
+    ofile << setw(15) << setprecision(8) << V(0);
+    ofile << setw(15) << setprecision(8) << V(1);
+    ofile << setw(15) << setprecision(8) << V(2) << endl;
+    ofile << "Corresponding Eigenvectors:" << endl;
+    ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase);
+    for(int i=0; i < n; i++)
+    {
+        ofile << setw(15) << setprecision(8) << R(i,0);
+        ofile << setw(15) << setprecision(8) << R(i,1);
+        ofile << setw(15) << setprecision(8) << R(i,2) << endl;
+    }
 }
 
 int test_orthogonality(mat &R, int n){
