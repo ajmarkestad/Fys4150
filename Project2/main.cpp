@@ -20,7 +20,7 @@ int test_orthogonality(mat &A, int );
 void sorting(mat , mat , vec &V, mat &R);
 void potential_generator(double *, double *, double , double , int );
 void matrix_creator(mat &A, double *, int, double);
-void output(mat &R, vec &V, int );
+void output(mat &R, vec &V, int , double);
 
 
 ofstream ofile;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
     //FILLING VALUES
     rho_start = 0.0000001;
-    rho_stop = 3.5;
+    rho_stop = 4;
     h = (rho_stop - rho_start)/(n+1.0);
     rho = new double[n];
     for (int i=0; i<n ;i++){
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     ss3 << number3;
     outfilename.append(ss3.str());
     ofile.open(outfilename);
-    output(eigenvectors_sorted, eigenvalues_sorted, n);
+    output(eigenvectors_sorted, eigenvalues_sorted, n, time);
 
     // close output file
     ofile.close();
@@ -200,7 +200,7 @@ void jacobis_method(mat &A, mat &R, int n, double tolerance){
         iterations ++;
         iter ++;
         if (iter == 1000){
-            cout << iterations << "Iterations of jacobi's method. Max offdiagonal element" << max_offdiag<< endl;
+            cout << iterations << "Iterations. Max offdiagonal element" << max_offdiag<< endl;
             iter = 0;
         }
 
@@ -360,13 +360,14 @@ int unittest_orthogonality(){
     return result;
 }
 
-void output(mat &R, vec &V, int n )
+void output(mat &R, vec &V, int n , double time)
 {
-    ofile << "Three first eigenvalues:" << endl;
-    ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase);
+    ofile << "Three first eigenvalues and CPU time:" << endl;
+    ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase | ios::uppercase) ;
     ofile << setw(15) << setprecision(8) << V(0);
     ofile << setw(15) << setprecision(8) << V(1);
-    ofile << setw(15) << setprecision(8) << V(2) << endl;
+    ofile << setw(15) << setprecision(8) << V(2);
+    ofile << setw(15) << setprecision(8) << time << endl;
     ofile << "Corresponding Eigenvectors:" << endl;
     ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase);
     for(int i=0; i < n; i++)

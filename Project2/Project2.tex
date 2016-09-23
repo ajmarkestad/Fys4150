@@ -170,11 +170,22 @@ while for a unitary transformation W and general complex v
 \begin{align}
 	v^\dagger v = v^\dagger W^\dagger W v = (Wv)^\dagger (Wv) = w^\dagger w
 \end{align}
-We see that under these transformation the inner product is conserved. We can also check whether orthogonality also is conserved. In the initial basis $\{u_i\}$ the orthogonality relation $u_j^\dagger u_i = \delta_{ij}$. We transform as earlier
+We see that under these transformation the inner product is conserved. We can also check whether orthogonality also is conserved. In the initial basis $\{u_i\}$ the orthogonality relation is $u_j^\dagger u_i = \delta_{ij}$. We transform as earlier
 \begin{align}
 	 \delta_{ij}=u_j^\dagger u_i = u_j^\dagger W^\dagger W u_i = w_j^\dagger w_i
 \end{align}
-which we see has the same property. We can use these identities to construct tests during Jabobis method calculation, to ensure that machine error in representing numbers not will perturb the results after running a certain time. In practice this means that for every n'th iteration of the transformation we calculate the inner product of 2 random nonequal eigenvectors to check that they are orthonormal, and 2 random equal eigenvectors to check that the inner product is conserved. In this setting conserved is a test that the difference is smaller that a given tolerance (in our case $\epsilon = 10^{-4}$). There is also another set of tests that are useful while constructing the programs. These tests rely on simple constructed problems that are solved analytically and compared to the solutions the algorithms give. As we want to find eigenvalues and vectors, we can construct the matrix 
+which we see has the same property in the transformed system. We can use these identities to construct tests after the Jabobis method calculation, to ensure that machine error in representing numbers not will perturb the results after running a high number of iterations. We implement this as a unittest for a random, symmetric (10x10) matrix as an initial test of the algorithm and in the end of a run with the full blown set of eigenvectors. 
+\begin{lstlisting}
+//Orthogonality test   
+for i=0 : n
+        for j=0 : n
+            innerproduct = dot(vector(i),vector(j))
+            if ((i==j) && (abs(abs(innerproduct)-1) > pow(10,-12))) result = "bad";
+            if ((i!=j) && (abs(innerproduct)>pow(10,-12))) result = "bad";
+        }
+    }
+\end{lstlisting}
+In this setting conserved is a test that the difference is smaller that a given tolerance (in our case $\epsilon = 10^{-12}$). There is also another set of tests that are useful while constructing the programs. These tests rely on simple constructed problems that are solved analytically and compared to the solutions the algorithms give. As we want to find eigenvalues and vectors, we can construct the matrix 
 \begin{align}
 \begin{pmatrix}
 3 & \sqrt{2} \\
@@ -188,13 +199,35 @@ which we see has the same property. We can use these identities to construct tes
 0
 \end{pmatrix}
 \end{align}
-As a solution the program gave
+As a solution the program gives -1 and 3 which corresponds perfectly with the analytic solutions. To make sure the subroutines also runs, a test of the functions that finds the maximum offdiagonal element is also included in the startup tests. 
+
 
 
 
 
 
 \section*{Results}
+\subsection{Scaling and flops}
+To check the performance and scaling with respect to the grid size, an brute force test that runs the algorithm for different n from 50 to 1000 was performed. Then to find the scaling one approximates the total number of flops with time spend expresses this as a relation which is expected to become more precise for large n
+\begin{align}
+	T \propto n^{a} 
+\end{align}
+\begin{align}
+	log_{10}(T) \approx a\cdot log_{10}(n)
+	\label{eq:scaling}
+\end{align}
+In figure \ref{fig:scaling} one sees that there is a relation between the grid size and the number of operations. After doing a linear regression on the data with equation \ref{eq:scaling} one finds that 
+\begin{align}
+	T \approx n^{4.0}
+\end{align}
+This means that the Jacobi's method scales poorly with increasing grid size. Note that these values are expected to be hardware dependent as the number of operations per second varies with the computer, but the values are nevertheless guiding in evaluating the algorithm. 
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.6]{Project2_scaling_time}
+	\caption{Scaling of time versus grid size. This data is from a run on a Macbook Pro 13' }
+	\label{fig:scaling}
+\end{figure}
+
 \section*{Conclusion}
  
 		
