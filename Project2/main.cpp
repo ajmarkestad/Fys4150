@@ -20,7 +20,7 @@ int test_orthogonality(mat &A, int );
 void sorting(mat , mat , vec &V, mat &R);
 void potential_generator(double *, double *, double , double , int );
 void matrix_creator(mat &A, double *, int, double);
-void output(mat &R, vec &V, int , double);
+void output(mat &R, vec &V, int , double, double);
 
 
 ofstream ofile;
@@ -72,12 +72,13 @@ int main(int argc, char *argv[])
     potential_generator(rho, potential, Harmonic_oscillator_frequency, columbfactor, n);
     mat A(n,n);
     matrix_creator(A, potential, n, h);
+    mat B = A; //copy for the ARMADILLO solver
     mat R(n,n);
     double epsilon;
     epsilon = pow(10.0,-8.0);
 
 
-    //FINDING EIGENVALUES AND EIGENVECTORS
+    //FINDING EIGENVALUES AND EIGENVECTORS WITH JACOBI
     double time;
     clock_t start, finish;
     start = clock();
@@ -85,6 +86,18 @@ int main(int argc, char *argv[])
     finish = clock();
     time = (finish-start)/((double) CLOCKS_PER_SEC);
     cout << "CPU time of jacobi's method: " << time << endl;
+
+    //ARMADILLO SOLVER
+    vec eigval;
+    mat eigvec;
+    double time_arma;
+    clock_t start_arma, finish_arma;
+    start_arma = clock();
+    eig_sym(eigval, eigvec, B);
+    finish_arma = clock();
+    time_arma = (finish_arma-start_arma)/((double) CLOCKS_PER_SEC);
+    cout << "CPU time of Arma solver" << time_arma << endl;
+
 
 
     //TESTING ORTHOGONALITY
@@ -102,9 +115,9 @@ int main(int argc, char *argv[])
 
 
 
-    cout << "First eigenvalue: " << eigenvalues_sorted(0) << endl;
-    cout << "Sencond eigenvalue: " << eigenvalues_sorted(1) << endl;
-    cout << "Third eigenvalue: " << eigenvalues_sorted(2) << endl;
+    cout << "First  eigenvalue. Jacobi:" << eigenvalues_sorted(0) << ". Armadillo: " << eigval[0] << endl;
+    cout << "Second  eigenvalue. Jacobi:" << eigenvalues_sorted(1) << ". Armadillo: " << eigval[1] << endl;
+    cout << "Third eigenvalue. Jacobi:" << eigenvalues_sorted(2) << ". Armadillo: " << eigval[2] << endl;
 
     string str1 = "Project_2_Wr=";
     string outfilename;
@@ -131,7 +144,7 @@ int main(int argc, char *argv[])
     ss4 << rho_stop;
     outfilename.append(ss4.str());
     ofile.open(outfilename);
-    output(eigenvectors_sorted, eigenvalues_sorted, n, time);
+    output(eigenvectors_sorted, eigenvalues_sorted, n, time,time_arma);
 
     // close output file
     ofile.close();
@@ -139,8 +152,6 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-
 
 void potential_generator(double *rho, double *potential, double factor1, double factor2, int n)
 {
@@ -196,18 +207,18 @@ void jacobis_method(mat &A, mat &R, int n, double tolerance){
 
     int k=0, l=0;
     double max_number_iterations = (double) n * (double) n * (double) n;
-    int iterations = 0, iter = 0;
+    int iterations = 0;// iter = 0;
     double max_offdiag = maxoffdiag(A,&k,&l,n);
 
     while (fabs(max_offdiag) > tolerance && (double) iterations < max_number_iterations){
         max_offdiag = maxoffdiag(A, &k,&l,n);
         rotate (A,R,k,l,n);
         iterations ++;
-        iter ++;
-        if (iter == 1000){
-            cout << iterations << "Iterations. Max offdiagonal element" << max_offdiag<< endl;
-            iter = 0;
-        }
+//        iter ++;
+//        if (iter == 1000){
+//            cout << iterations << "Iterations. Max offdiagonal element" << max_offdiag<< endl;
+//            iter = 0;
+//        }
 
     }
 return;
@@ -356,23 +367,22 @@ int unittest_orthogonality(){
     int n = 10, result = 0;
     // creates a symmetric matrix
     mat A = randu<mat>(n,n);
-    mat L, U, P;
-    lu(L, U, P, A);
-    A = L + L.t();
+    mat B = A.t()*A;
     mat eigvectors = zeros(n,n);
     jacobis_method(A,eigvectors,n,pow(10,-6));
     result = test_orthogonality(eigvectors,n);
     return result;
 }
 
-void output(mat &R, vec &V, int n , double time)
+void output(mat &R, vec &V, int n , double time, double time_arma)
 {
-    ofile << "Three first eigenvalues and CPU time:" << endl;
-    ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase | ios::uppercase) ;
+    ofile << "Three first eigenvalues and CPU time of Jacobi and Armadillo solvers:" << endl;
+    ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase | ios::uppercase | ios::uppercase) ;
     ofile << setw(15) << setprecision(8) << V(0);
     ofile << setw(15) << setprecision(8) << V(1);
     ofile << setw(15) << setprecision(8) << V(2);
-    ofile << setw(15) << setprecision(8) << time << endl;
+    ofile << setw(15) << setprecision(8) << time;
+    ofile << setw(15) << setprecision(8) << time_arma << endl;
     ofile << "Corresponding Eigenvectors:" << endl;
     ofile << setiosflags(ios::uppercase | ios::uppercase | ios::uppercase);
     for(int i=0; i < n; i++)

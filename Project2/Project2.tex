@@ -90,11 +90,11 @@ anchorcolor = blue]{hyperref} % link package
 $$\:$$
 \begin{center}
 	\vspace{0.2cm}%\boisik
-	\fontsize{15}{15}\selectfont \textsc{ Project 2:Jacobis method},\\
+	\fontsize{15}{15}\selectfont \textsc{ 3D Quantum Mechanical oscillator with interaction term solved with Jacobi's method}\\
 	%{in}}\\
-	\fontsize{13}{13}\selectfont \textsc{Fys $\textnormal{{4150}}$ }\\
+	\fontsize{13}{13}\selectfont \textsc{Fys $\textnormal{{4150}}$: Project 2}\\
 	\vspace{0.4cm}
-	\fontsize{12}{12}\selectfont {\textsc{ Ask J. Markestad, Thorbjørn V. Larsen }}\\
+	\fontsize{12}{12}\selectfont {\textsc{ Ask J. Markestad, Thorbjoern V. Larsen }}\\
 	\vspace{0.5cm}
 \end{center}
 %%%%
@@ -145,7 +145,10 @@ $$\:$$
 	\end{pmatrix}
 \end{equation}		
 
-\subsection{Memory handling and algorithms}
+
+
+
+\subsection{Algorithms}
 
 Source code and accompanying codes can be found at the git hub address:
 
@@ -160,6 +163,20 @@ for (int i=1; i<=n; i++)
 	f[i]=f[i]-c[i-1]*f[i-1]/b[i-1];
 	}
 \end{lstlisting}
+
+
+Since our matrix is a tridiagonal symmetric matrix, Jacobi's method is not the best algorithm to find eigenvalues and eigenvectors. While it also works on a general dense matrix, we also wanted to test versus a standard library method that is already implemented in armadillo. This is the divide-and-conquer method\ which should scale in the general case of a dense matrix as $4n^3$ flops\cite{Divide-and-conquer}. It is rather easy to implement with the following lines
+\begin{lstlisting}
+mat B = A; //copy for the ARMADILLO solver
+vec eigval;
+mat eigvec;
+eig_sym(eigval, eigvec, B);
+\end{lstlisting}
+It is important to note that both methods are not optimised for the tridiagonal case and are ment for dense symmetric matrices. While this might seem like a strange idea, we can use this to see how Jacobi's method performs compared to other state of the art algorithms. 
+
+
+
+
 
 \subsection{Unit-tests}
 There exist certain mathematical properties that could be exploited to make sure the program and the algorithms run correctly. Since the transformations that occur in the Jacobi's method are either orthogonal or unitary, one can see that the inner product of a given matrix will stay invariant. Under the orthogonal transformation U one has
@@ -199,7 +216,7 @@ In this setting conserved is a test that the difference is smaller that a given 
 0
 \end{pmatrix}
 \end{align}
-As a solution the program gives -1 and 3 which corresponds perfectly with the analytic solutions. To make sure the subroutines also runs, a test of the functions that finds the maximum offdiagonal element is also included in the startup tests. 
+As a solution the program gives -1 and 3 which corresponds perfectly with the analytic solutions. To make sure the subroutines also runs, a test of the functions that finds the maximum off-diagonal element is also included in the startup tests. We initialise a 3x3 empty matrix $\hat{A}$ with the element $A_{1,2}=1$ to make sure it finds this element, with the correct column and row. For a verification that negative elements function correctly, we also test that on a similar zero-matrix with the element $A_{2,1}=-20, A_{1,2}=1$ the value -20 is picked out. 
 
 
 
@@ -220,16 +237,21 @@ In figure \ref{fig:scaling} one sees that there is a relation between the grid s
 \begin{align}
 	T \approx n^{4.0}
 \end{align}
-This means that the Jacobi's method scales poorly with increasing grid size. Note that these values are expected to be hardware dependent as the number of operations per second varies with the computer, but the values are nevertheless guiding in evaluating the algorithm. 
+This means that the Jacobi's method scales poorly with increasing grid size. Note that these values are expected to be hardware dependent as the number of operations per second varies with the computer, but the values are nevertheless guiding in evaluating the algorithm. The built in method of divide-and-conquer scales much better and is already faster at $n=50$. The memory requirements for both methods would also be interesting to study how Jacobi's method does with respect to this dimension as well. 
 \begin{figure}
 	\centering
 	\includegraphics[scale=0.6]{Project2_scaling_time}
-	\caption{Scaling of time versus grid size. This data is from a run on a Macbook Pro 13' }
+	\caption{Time spend on finding eigenvalues/vectors for Jacobi's method and the Divide-and-conquer method.  For the last point with 1000x1000 matrix, $10^{6} iterations was required of Jacobi's method. This data is from a run on a Macbook Pro 13' }
 	\label{fig:scaling}
 \end{figure}
 
+
+
+
+
+
 \section*{Conclusion}
- 
+ Jacobi's method is an easy to implement method for finding eigenvalues and eigenvectors for linear algebra problems with symmetric, square matrices up to 1000x1000. Since the scaling behaviour is poor ($time \approx n^{4}$) for tridiagonal problems, is it not useful as an algorithm for matrices larger that this size. 
 		
 		
 \begin{thebibliography}{3}
@@ -240,7 +262,11 @@ This means that the Jacobi's method scales poorly with increasing grid size. Not
 	Department of Physics, University of Oslo
 	2015
 	\url{https://github.com/CompPhysics/ComputationalPhysics/blob/master/doc/Lectures/lectures2015.pdf}
-			
+	
+	\bibitem{Divide-and-conquer}
+	Wikipedia: Divide-and-conquer method
+	\url{https://en.wikipedia.org/wiki/Divide-and-conquer_eigenvalue_algorithm}
+	
 			
 			
 			
