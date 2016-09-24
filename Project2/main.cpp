@@ -58,11 +58,11 @@ int main(int argc, char *argv[])
        n = atof(argv[1]);
        Harmonic_oscillator_frequency = atof(argv[2]);
        columbfactor = atof(argv[3]);
+       rho_stop = atof(argv[4]);
     }
 
     //FILLING VALUES
     rho_start = 0.0000001;
-    rho_stop = 4;
     h = (rho_stop - rho_start)/(n+1.0);
     rho = new double[n];
     for (int i=0; i<n ;i++){
@@ -125,6 +125,11 @@ int main(int argc, char *argv[])
     stringstream ss3;
     ss3 << number3;
     outfilename.append(ss3.str());
+    string str4 = "_rho_stop=";
+    outfilename.append(str4);
+    stringstream ss4;
+    ss4 << rho_stop;
+    outfilename.append(ss4.str());
     ofile.open(outfilename);
     output(eigenvectors_sorted, eigenvalues_sorted, n, time);
 
