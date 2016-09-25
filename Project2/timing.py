@@ -5,8 +5,8 @@ import os as os
 
 omega = str(3)
 factor2 = str(3)
-grid_size = [10,50,	100,150,200,300,400,700]
-rho_stop=	[4,	4,	4,	4,	4,	4,	4,	4]
+grid_size = [10,50,	100,150,200,300,400,700, 1000]
+rho_stop=	[4,	4,	4,	4,	4,	4,	4,	4, 		4]
 
 n = len(grid_size)
 
