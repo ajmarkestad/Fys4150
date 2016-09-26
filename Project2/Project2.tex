@@ -224,6 +224,47 @@ As a solution the program gives -1 and 3 which corresponds perfectly with the an
 
 
 \section*{Results}
+The choise of $\rho_{max}$ and the grid size is slightly tricky as we want to make sure we extend the radius long enough to make sure the wavefunction has time to go sufficiently to zero while keeping the spatial resolution high enough not to affect the eigenvalues. From the differential equation with the interaction case it is obvious that for low $\omega$ there might be some problems in extending $\rho_{max}$ as the system naturally broadens from the weak oscillator force. In the first test we wanted to make sure we got the same results as the analytical solutions, and were interested in how far we needed to push the grid-size to get 4 digits accuracy. From the article (INSERT REFERENCE) we know that the first analytic eigenvalues for $\omega = 1$ and Columb Factor$=0$ should be 3, 7 and 11.  From an arbitrary chosen simulation of 300x300 in figure \ref{fig:test1} it is obvious that $\rho_{max}$ = 3 gives a too short size for the higher eigenvectors as these in general are pushed further out. Nevertheless we see that for the lowest eigenvalue we get an almost 3 digits correct. We could try to push this up to a higher $\rho_{max}$ but also keeping the relative size of the grids roughly the same.  After going up to n=500 and $\rho_{max}=5$ all the first 4 digits are correct as shown in figure \ref{fig:goodtest1}. We suspect that for higher eigenvalues that stretch farther out there is a need for a higher maximal size of the grid together with higher grid sizes for a given precision, and a visual inspection for a general choice of $\omega$ and Columb Factor to see that all wavefunctions to sufficiently close to zero is a fair method of choosing $\rho_{max}$ and then let the grid size be roughly $\rho_{max}*100$. 
+
+\begin{figure}
+	\centering
+	\begin{subfigure}[b]{0.4\textwidth}
+		\includegraphics[scale=0.4]{ok_test1_WR=1_CF=0_C=300_rhostop=3}
+		\caption{Harmonic oscillator with grid size $=300$, $rho_{max}=3$, $\omega=1$ and Columb Factor $=0$. }
+		\label{fig:test1}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.4\textwidth}
+		\includegraphics[scale=0.4]{ok_Project_2_Wr=1_Columb_factor=0_n=500_rho_stop=5}
+		\caption{Harmonic oscillator with grid size $=500$, $rho_{max}=5$, $\omega=1$ and Columb Factor $=0$. }
+		\label{fig:goodtest1}
+	\end{subfigure}
+\end{figure}
+
+In the general case with a interaction term we want to see how the strength of the oscillator affects the distribution. We used the recommended values of $\omega = (0.01, 0.5, 1, 5)$. We notices that for a high omega the distribution is pushed towards lower $\rho$ values and for lower values one runs into problems as the distribution is very wide. After choosing appropriate $\rho$ and n the eigenvalues for the energy is seen in table \ref{tab:varying_omega}. As the strength of the harmonic oscillator potential increases, there is an strong increase in the energy-eigenvalues and from the plots of the distributions the electrons are restricted much closer to each other, which is no surprise. 
+
+\begin{table}
+\caption{default}
+\begin{center}
+\begin{tabular}{|c||c|c|c|}
+\hline
+Eigenvalue & $\lambda_1$ & $\lambda_2$ & $\lambda_3$ \\
+\hline
+\hline
+$\omega=0.01$ & 0.599 & 0.968 & 1.347  \\
+\hline
+$\omega=0.5$ & 3.001 & 5.710 & 8.464 \\
+\hline
+$\omega=1$ & 4.058 & 7.910 & 11.82 \\
+\hline
+$\omega=5$ & 8.323 & 17.03 & 25.85 \\
+\hline
+\end{tabular}
+\end{center}
+\label{tab:varying_omega}
+\end{table}%
+
+
+
 \subsection{Scaling and flops}
 To check the performance and scaling with respect to the grid size, an brute force test that runs the algorithm for different n from 50 to 1000 was performed. Then to find the scaling one approximates the total number of flops with time spend expresses this as a relation which is expected to become more precise for large n
 \begin{align}
@@ -237,13 +278,14 @@ In figure \ref{fig:scaling} one sees that there is a relation between the grid s
 \begin{align}
 	T \approx n^{4.0}
 \end{align}
-This means that the Jacobi's method scales poorly with increasing grid size. Note that these values are expected to be hardware dependent as the number of operations per second varies with the computer, but the values are nevertheless guiding in evaluating the algorithm. The built in method of divide-and-conquer scales much better and is already faster at $n=50$. The memory requirements for both methods would also be interesting to study how Jacobi's method does with respect to this dimension as well. 
+This means that the Jacobi's method scales poorly with increasing grid size. Note that these values are expected to be hardware dependent as the number of operations per second varies with the computer, but the values are nevertheless guiding in evaluating the algorithm. The built in method of divide-and-conquer scales much better and is already faster at $n=50$. The memory requirements for both methods would also be interesting to study how Jacobi's method does with respect to this dimension as well. From the results of this scaling test we used the armadillo method for $n>200$ to increase the speed of our calculations as the Jacobi's method simply was to slow in this regieme(1 hour for 1000x1000 compared to 0.7 s is a no-brainer). 
 \begin{figure}
 	\centering
 	\includegraphics[scale=0.6]{Project2_scaling_time}
 	\caption{Time spend on finding eigenvalues/vectors for Jacobi's method and the Divide-and-conquer method.  This data is from a run on a Macbook Pro 13' }
 	\label{fig:scaling}
 \end{figure}
+
 
 
 

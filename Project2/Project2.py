@@ -5,10 +5,14 @@ import os as os
 
 
 
-omega = 	[0.01,	0.5, 	1, 		5.0, 	1, 		1, 		2]
-factor2 = 	[0,		0,		0,		0, 		0.1, 	0.3, 	2]
-rho_stop = 	[4,		4,		4,		4,		4,		4,		4]
-grid_size = [200,	200,	200,	200,	200,	200,	200]
+omega = 	[0.01,	0.5, 	1, 		5]
+factor2 = 	[1,		1,		1,		1]
+rho_stop = 	[20,	6,		5,		3]
+grid_size = []
+precision = 2
+for i in range(len(rho_stop)):
+	grid_size.append(int(rho_stop[i]*100*precision))
+
 
 n = len(omega)
 
@@ -30,11 +34,13 @@ for i in range(n):
 		eigvector2.append(float(values[1])**2)
 		eigvector3.append(float(values[2])**2)
 	plt.figure(i)
-	eig1, =plt.plot(eigvector1, label=("E= {:.2f}".format(float(eigvalues[0]))))
-	eig2, =plt.plot(eigvector2, label=("E= {:.2f}".format(float(eigvalues[1]))))
-	eig3, =plt.plot(eigvector3, label=("E= {:.2f}".format(float(eigvalues[2]))))
+	x = np.linspace(0,rho_stop[i],grid_size[i])
+	eig1, =plt.plot(x,eigvector1, label=("E= {:.2f}".format(float(eigvalues[0]))))
+	eig2, =plt.plot(x,eigvector2, label=("E= {:.2f}".format(float(eigvalues[1]))))
+	eig3, =plt.plot(x,eigvector3, label=("E= {:.2f}".format(float(eigvalues[2]))))
 	plt.title('Eigenvectors with $\omega$ = '+str(int(omega[i])) + ",Columbfactor = "+str(int(factor2[i]))+", n= "+str(grid_size[i]))
 	plt.ylabel('$|\psi|^2$')
+	plt.xlabel('rho - dimensionless')
 	plt.legend(handles = [eig1,eig2,eig3])
 	plt.savefig("Project_2_Wr="+str(float(omega[i]))+"_Columb_factor="+str(float(factor2[i]))+"_n="+str(grid_size[i])+"_rho_stop="+str(rho_stop[i])+".png")
 	file.close()

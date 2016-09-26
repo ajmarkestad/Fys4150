@@ -26,7 +26,7 @@ void output(mat &R, vec &V, int , double, double);
 ofstream ofile;
 int main(int argc, char *argv[])
 {
-
+    cout << " " << endl;
     //INITIALIZATION TESTS
     try {
         unittest_largest_off_diagonal();
@@ -62,11 +62,11 @@ int main(int argc, char *argv[])
     }
 
     //FILLING VALUES
-    rho_start = 0.0000001;
+    rho_start = 0.000000000001;
     h = (rho_stop - rho_start)/(n+1.0);
     rho = new double[n];
     for (int i=0; i<n ;i++){
-        rho[i] = rho_start + i*h;
+        rho[i] = rho_start + (i+1)*h;
     }
     potential = new double[n];
     potential_generator(rho, potential, Harmonic_oscillator_frequency, columbfactor, n);
@@ -82,14 +82,17 @@ int main(int argc, char *argv[])
     double time;
     clock_t start, finish;
     start = clock();
+    if (n<200)
+    {
     jacobis_method(A,R,n,epsilon);
+    }
     finish = clock();
     time = (finish-start)/((double) CLOCKS_PER_SEC);
     cout << "CPU time of jacobi's method: " << time << endl;
 
     //ARMADILLO SOLVER
-    vec eigval;
-    mat eigvec;
+    vec eigval(n);
+    mat eigvec(n,n);
     double time_arma;
     clock_t start_arma, finish_arma;
     start_arma = clock();
@@ -101,23 +104,44 @@ int main(int argc, char *argv[])
 
 
     //TESTING ORTHOGONALITY
-    if(test_orthogonality(R,n)!=0){
-        cout << "Orthogonality test: failed!" << endl;
-    }else{
-        cout << "Orthogonality test: passed!" << endl;
+    if (n<200)
+    {
+        if(test_orthogonality(R,n)!=0){
+            cout << "Orthogonality test: failed!" << endl;
+        }else{
+            cout << "Orthogonality test: passed!" << endl;
+        }
     }
 
 
     //SORTING
     vec eigenvalues_sorted(n);
     mat eigenvectors_sorted(n,n);
+    if(n<200)
+    {
     sorting(A, R, eigenvalues_sorted, eigenvectors_sorted);
+    }else{
+        mat eigvalues(n,n);
+        for (int g = 0; g<n; g++)
+        {
+            eigvalues(g,g)=eigval(g);
+        }
+        sorting(eigvalues, eigvec, eigenvalues_sorted, eigenvectors_sorted);
+    }
 
-
-
-    cout << "First  eigenvalue. Jacobi:" << eigenvalues_sorted(0) << ". Armadillo: " << eigval[0] << endl;
-    cout << "Second  eigenvalue. Jacobi:" << eigenvalues_sorted(1) << ". Armadillo: " << eigval[1] << endl;
-    cout << "Third eigenvalue. Jacobi:" << eigenvalues_sorted(2) << ". Armadillo: " << eigval[2] << endl;
+    cout << "Results for: n=" << n << ". Rho_max = " << rho_stop << ". Omega = " << Harmonic_oscillator_frequency << ". Columb factor = " << columbfactor << endl;
+    if(n<200)
+    {
+        cout << "First  eigenvalue. Jacobi:" << eigenvalues_sorted(0) << ". Armadillo: " << eigval[0] << endl;
+        cout << "Second  eigenvalue. Jacobi:" << eigenvalues_sorted(1) << ". Armadillo: " << eigval[1] << endl;
+        cout << "Third eigenvalue. Jacobi:" << eigenvalues_sorted(2) << ". Armadillo: " << eigval[2] << endl;
+    }else{
+        cout << "As Jacobis method is slow for grid_size larger that 200" << endl;
+        cout << "Only armadillos solver is executed" << endl;
+        cout << "First  eigenvalue. Armadillo: " << eigval[0] << endl;
+        cout << "Second  eigenvalue.  Armadillo: " << eigval[1] << endl;
+        cout << "Third eigenvalue.  Armadillo: " << eigval[2] << endl;
+    }
 
     string str1 = "Project_2_Wr=";
     string outfilename;
@@ -246,7 +270,6 @@ double maxoffdiag(mat &A, int *k, int *l, int n)
                 max = fabs(A(i,j));
                 *l = i;
                 *k = j;
-
             }
         }
     }
