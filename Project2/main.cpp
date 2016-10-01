@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
        columbfactor = atof(argv[3]);
        rho_stop = atof(argv[4]);
     }
-
     //FILLING VALUES
     rho_start = 0.000000000001;
     h = (rho_stop - rho_start)/(n+1.0);
@@ -245,6 +244,7 @@ void jacobis_method(mat &A, mat &R, int n, double tolerance){
 //        }
 
     }
+    cout << "final nr of iterations: " << iterations << endl;
 return;
 }
 
