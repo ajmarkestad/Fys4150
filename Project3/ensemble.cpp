@@ -1,5 +1,6 @@
 #include "ensemble.h"
 #include <iostream>
+#include <math.h>
 using namespace std;
 
 Ensemble::Ensemble() :
@@ -18,10 +19,13 @@ void Ensemble::calculateForcesAndEnergy()
     m_kineticEnergy = 0;
     m_potentialEnergy = 0;
     m_angularMomentum.zeros();
-
+    double mm_potentialEnergy = 0;
+    vec3 force(0,0,0);
     for(Particle &body : m_bodies) {
-        // Reset forces on all bodies
+        // Reset forces, kinetic and potential energy on all bodies
         body.force.zeros();
+        body.kineticEnergy = 0;
+        body.potensialEnergy = 0;
     }
 
     for(int i=0; i<numberOfBodies(); i++) {
@@ -30,10 +34,17 @@ void Ensemble::calculateForcesAndEnergy()
             Particle &body2 = m_bodies[j];
             vec3 deltaRVector = body1.position - body2.position;
             double dr = deltaRVector.length();
-            // Calculate the force and potential energy here
+            force = deltaRVector*body1.mass*body2.mass/pow(dr,2);
+            body1.force += force;
+            body2.force -= force;
+            mm_potentialEnergy = -body1.mass*body2.mass/dr;
+            body1.potensialEnergy += mm_potentialEnergy;
+            body2.potensialEnergy += mm_potentialEnergy;
+            m_potentialEnergy += mm_potentialEnergy;
         }
+        body1.kineticEnergy =  0.5*body1.mass*body1.velocity.lengthSquared();
+        m_kineticEnergy += body1.kineticEnergy;
 
-        m_kineticEnergy += 0.5*body1.mass*body1.velocity.lengthSquared();
     }
 }
 

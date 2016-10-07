@@ -12,7 +12,10 @@ public:
 
 class Verlet{
 public:
+    double constant1;
+    double constant2;
     double m_dt;
+
     Verlet(double dt);
     void integrateOneStep(class Ensemble &system);
 };

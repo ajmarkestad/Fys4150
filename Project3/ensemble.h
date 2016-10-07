@@ -21,6 +21,7 @@ public:
     vec3 angularMomentum() const;
     std::vector<Particle> &bodies();
 
+
 private:
     std::vector<Particle> m_bodies;
     vec3 m_angularMomentum;

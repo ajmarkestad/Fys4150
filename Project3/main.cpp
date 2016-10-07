@@ -11,9 +11,6 @@ int main(int numArguments, char **arguments)
     if(numArguments >= 2) numTimesteps = atoi(arguments[1]);
 
     Ensemble solarSystem;
-    // We create new bodies like this. Note that the createCelestialBody function returns a reference to the newly created body
-    // This can then be used to modify properties or print properties of the body if desired
-    // Use with: solarSystem.createCelestialBody( position, velocity, mass );
 
     Particle &sun = solarSystem.createParticle( vec3(0,0,0), vec3(0,0,0), 1.0 );
 
@@ -30,12 +27,23 @@ int main(int numArguments, char **arguments)
 
     double dt = 0.001;
     Euler integrator(dt);
+
+    //Precalculates to speed up the algorithm
+    //solarSystem.preCalculate();
+
     for(int timestep=0; timestep<numTimesteps; timestep++) {
         integrator.integrateOneStep(solarSystem);
         solarSystem.writeToFile("positions.xyz");
     }
 
-    cout << "I just created my first solar system that has " << solarSystem.bodies().size() << " objects." << endl;
-    return 0;
+
+    cout << "The final positions are: " << endl;
+    for(int i = 0; i<bodies.size(); i++) {
+        Particle &body = bodies[i]; // Reference to this body
+        cout << "The position of this object is " << body.position << " with velocity " << body.velocity << endl;
+    }
+
+
+     return 0;
 }
 
