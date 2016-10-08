@@ -1,6 +1,7 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 
+#include <armadillo>
 
 class Euler
 {
@@ -15,8 +16,8 @@ public:
     double constant1;
     double constant2;
     double m_dt;
-
-    Verlet(double dt);
+    arma::mat force;
+    Verlet(double dt, Ensemble &system);
     void integrateOneStep(class Ensemble &system);
 };
 

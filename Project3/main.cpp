@@ -7,7 +7,8 @@ using namespace std;
 
 int main(int numArguments, char **arguments)
 {
-    int numTimesteps = 1000;
+    int years = 365;
+    int numTimesteps = 10000;
     if(numArguments >= 2) numTimesteps = atoi(arguments[1]);
 
     Ensemble solarSystem;
@@ -25,11 +26,11 @@ int main(int numArguments, char **arguments)
         cout << "The position of this object is " << body.position << " with velocity " << body.velocity << endl;
     }
 
-    double dt = 0.001;
-    Euler integrator(dt);
+    double dt = 1.0/(years*numTimesteps);
 
-    //Precalculates to speed up the algorithm
-    //solarSystem.preCalculate();
+    //double dt = 0.0001;
+    //Euler integrator(dt);
+    Verlet integrator(dt,solarSystem);
 
     for(int timestep=0; timestep<numTimesteps; timestep++) {
         integrator.integrateOneStep(solarSystem);
