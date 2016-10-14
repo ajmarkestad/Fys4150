@@ -153,9 +153,8 @@ int main()
 
             // close output file
             ofile.close();
-        }{
-
         }
+        delete[] a;delete[] source_func;delete[] u;delete[] u_specific;delete[] exact_solution;delete[] x_list;
     }
 
 

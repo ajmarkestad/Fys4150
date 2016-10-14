@@ -34,9 +34,9 @@ void Ensemble::calculateForcesAndEnergy()
             Particle &body2 = m_bodies[j];
             vec3 deltaRVector = body1.position - body2.position;
             double dr = deltaRVector.length();
-            force = deltaRVector*body1.mass*body2.mass/pow(dr,2);
-            body1.force += force;
-            body2.force -= force;
+            force =pow(2*M_PI,2)*deltaRVector*(body1.mass*body2.mass/pow(dr,3));
+            body1.force -= force;
+            body2.force += force;
             mm_potentialEnergy = -body1.mass*body2.mass/dr;
             body1.potensialEnergy += mm_potentialEnergy;
             body2.potensialEnergy += mm_potentialEnergy;

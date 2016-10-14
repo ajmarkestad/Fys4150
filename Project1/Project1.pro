@@ -5,7 +5,7 @@ CONFIG -= qt
 
 SOURCES += main.cpp
 
-#INCLUDEPATH += /Users/VidveiLarsen/arma/armadillo-7.400.2/include
+INCLUDEPATH += /Users/VidveiLarsen/arma/armadillo-7.400.2/include
 
 
 INCLUDEPATH += /usr/local/include
@@ -17,4 +17,4 @@ QMAKE_CXXFLAGS_DEBUG   += -pg
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -O3
 
-#LIBS +=  -larmadillo -lblas -llapack
+LIBS +=  -larmadillo -lblas -llapack
