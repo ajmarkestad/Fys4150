@@ -8,7 +8,7 @@
 #include <fstream>
 #include <sstream>
 using namespace std;
-ifstream ifile;
+ofstream ifile;
 void createparticles(Ensemble &system,int nargs, char **vargs);
 
 int main(int nargs, char **vargs)
@@ -66,12 +66,13 @@ int main(int nargs, char **vargs)
 
 
 void createparticles(Ensemble &system, int nargs, char **vargs){
-    ifile
+    ifile.open("initial_data.txt");
+
     for (int i=0; i<nargs-2; i++){
 
 
         solarSystem.createParticle( vec3(1.0, 0.0, 0.0), vec3(0.0, 2*M_PI, 0.0), 3e-6 );
     }
-
+    ifile.close()
 
 }
