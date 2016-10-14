@@ -37,13 +37,14 @@ void Ensemble::calculateForcesAndEnergy()
             force =pow(2*M_PI,2)*deltaRVector*(body1.mass*body2.mass/pow(dr,3));
             body1.force -= force;
             body2.force += force;
-            mm_potentialEnergy = -body1.mass*body2.mass/dr;
-            body1.potensialEnergy += mm_potentialEnergy;
-            body2.potensialEnergy += mm_potentialEnergy;
-            m_potentialEnergy += mm_potentialEnergy;
+            //Not currently needed
+            //mm_potentialEnergy = -body1.mass*body2.mass/dr;
+            //body1.potensialEnergy += mm_potentialEnergy;
+            //body2.potensialEnergy += mm_potentialEnergy;
+            //m_potentialEnergy += mm_potentialEnergy;
         }
-        body1.kineticEnergy =  0.5*body1.mass*body1.velocity.lengthSquared();
-        m_kineticEnergy += body1.kineticEnergy;
+        //body1.kineticEnergy =  0.5*body1.mass*body1.velocity.lengthSquared();
+        //m_kineticEnergy += body1.kineticEnergy;
 
     }
 }
@@ -77,10 +78,9 @@ void Ensemble::writeToFile(string filename)
             terminate();
         }
     }
-    m_file << numberOfBodies() << endl;
-    m_file << "Comment line that needs to be here. Balle." << endl;
+        m_file << "New position update:" << "\n";
     for(Particle &body : m_bodies) {
-        m_file << "1 " << body.position.x() << " " << body.position.y() << " " << body.position.z() << "\n";
+        m_file << body.position.x() << " " << body.position.y() << " " << body.position.z() << " " << body.velocity(0) << " " << body.velocity(1) << " " << body.velocity(2) << "\n";
     }
 }
 

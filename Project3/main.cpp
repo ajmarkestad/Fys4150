@@ -9,6 +9,7 @@
 #include <fstream>
 using namespace std;
 ofstream ifile;
+
 void createparticles(Ensemble &system,int nargs, char **vargs);
 
 int main(int nargs, char **vargs)
@@ -44,8 +45,9 @@ int main(int nargs, char **vargs)
 
     for(int timestep=0; timestep<numTimesteps; timestep++) {
         integrator.integrateOneStep(solarSystem);
-        solarSystem.writeToFile("positions.xyz");
+        solarSystem.writeToFile("positions.txt");
     }
+
 
     cout << "The final positions are: " << endl;
     for(int i = 0; i<bodies.size(); i++) {
