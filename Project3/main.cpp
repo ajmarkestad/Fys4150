@@ -71,8 +71,8 @@ void createparticles(Ensemble &system, int nargs, char **vargs){
     for (int i=0; i<nargs-2; i++){
 
 
-        solarSystem.createParticle( vec3(1.0, 0.0, 0.0), vec3(0.0, 2*M_PI, 0.0), 3e-6 );
+        system.createParticle( vec3(1.0, 0.0, 0.0), vec3(0.0, 2*M_PI, 0.0), 3e-6 );
     }
-    ifile.close()
+    ifile.close();
 
 }
