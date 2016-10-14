@@ -31,7 +31,7 @@ void Verlet::integrateOneStep(Ensemble &system)
 {
     int i=0;
     for(Particle &body : system.bodies()) {
-        body.position += body.velocity*m_dt+body.force*constant1;
+        body.position += body.velocity*m_dt+body.force*constant1/body.mass;
         force(i,0)=body.force(0);
         force(i,1)=body.force(1);
         force(i,2)=body.force(2);
