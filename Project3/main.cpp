@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <fstream>
+
 using namespace std;
 ofstream ifile;
 
@@ -16,9 +17,10 @@ int main(int nargs, char **vargs)
 {
     double years =10;
     int numTimesteps = 10000;
-    if(nargs<2){
+    if(nargs<4){
         cout << "Incorrect usage!" << endl;
         cout << "Usage:$ ./Project3 <numTimesteps> <years> <planet1> <planet2> ..." << endl;
+        cout << "For all bodies in initial_data.txt use <planet1> = 0" << endl;
         return 1;
     }
     if (vargs[1]<0){
@@ -50,7 +52,7 @@ int main(int nargs, char **vargs)
 
 
     cout << "The final positions are: " << endl;
-    for(int i = 0; i<bodies.size(); i++) {
+    for(int i = 0; i<(int)bodies.size(); i++) {
         Particle &body = bodies[i]; // Reference to this body
         cout << "Final status for particle with position: " << body.position << "length: " << body.position.length() << " and velociy: " << body.velocity << " and mass: " << body.mass << endl;
          }
@@ -76,7 +78,7 @@ void createparticles(Ensemble &system, int nargs, char **vargs){
             string sub;
             iss >> sub;
             for(int i = 0; i<nargs-3; i++){
-                if(atoi(sub.c_str())==atoi(vargs[i+3])){
+                if((atoi(sub.c_str())==atoi(vargs[i+3])) || ((nargs == 4) && atoi(vargs[3])==0)){
                     vec3 position(0,0,0);
                     vec3 velocity(0,0,0);
                     iss >> sub;
