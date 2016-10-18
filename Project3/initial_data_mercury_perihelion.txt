@@ -1,0 +1,4 @@
+Initial data for mercury starting at perihelion in x direction
+#	X			Y			Z			VX			VY			VZ			M
+1	0			0			0			0	 		0			0			1
+2	0.3075			0			0			0		 	12.44			0			
