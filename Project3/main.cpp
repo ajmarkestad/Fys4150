@@ -67,7 +67,7 @@ int main(int nargs, char **vargs)
 
 void createparticles(Ensemble &system, int nargs, char **vargs){
     string line;
-    ifstream myfile ("initial_data.txt");
+    ifstream myfile ("initial_data_circular_earth.txt");
     if(myfile.is_open()){
         getline(myfile,line); //skips date
         getline(myfile,line); //skips headerline
