@@ -19,7 +19,7 @@ int main(int nargs, char **vargs)
     int numTimesteps = 10000;
     if(nargs<4){
         cout << "Incorrect usage!" << endl;
-        cout << "Usage:$ ./Project3 <numTimesteps> <years> <planet1> <planet2> ..." << endl;
+        cout << "Usage:$ ./Project3 <years> <numTimesteps> <planet1> <planet2> ..." << endl;
         cout << "For all bodies in initial_data.txt use <planet1> = 0" << endl;
         return 1;
     }
