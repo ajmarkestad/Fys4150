@@ -43,7 +43,7 @@ int main(int nargs, char **vargs)
     double dt = (double)years/(double)numTimesteps;
 
     //Euler integrator(dt);
-    Verlet integrator(dt,solarSystem);
+    Verlet_GR integrator(dt,solarSystem);
 
     for(int timestep=0; timestep<numTimesteps; timestep++) {
         integrator.integrateOneStep(solarSystem);
@@ -67,7 +67,7 @@ int main(int nargs, char **vargs)
 
 void createparticles(Ensemble &system, int nargs, char **vargs){
     string line;
-    ifstream myfile ("initial_data_circular_earth.txt");
+    ifstream myfile ("initial_data_mercury_perihelion.txt");
     if(myfile.is_open()){
         getline(myfile,line); //skips date
         getline(myfile,line); //skips headerline

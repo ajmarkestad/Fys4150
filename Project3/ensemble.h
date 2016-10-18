@@ -11,7 +11,9 @@ class Ensemble
 public:
     Ensemble();
     Particle &createParticle(vec3 position, vec3 velocity, double mass);
-    void calculateForcesAndEnergy();
+    void calculateForces();
+    void calculateForces_GR();
+    void calculateEnergy();
     int numberOfBodies() const;
 
     double totalEnergy() const;
@@ -28,6 +30,7 @@ private:
     std::ofstream m_file;
     double m_kineticEnergy;
     double m_potentialEnergy;
+    double c;
 };
 
 #endif // ENSEMBLE_H
