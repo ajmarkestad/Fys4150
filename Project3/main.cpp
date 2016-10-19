@@ -11,38 +11,41 @@
 using namespace std;
 ofstream ifile;
 
-void createparticles(Ensemble &system,int nargs, char **vargs);
+void createparticles(Ensemble &system,int nargs, char **vargs, string input_file);
 
 int main(int nargs, char **vargs)
 {
     double years =10;
     int numTimesteps = 10000;
-    if(nargs<4){
+    if(nargs<5){
         cout << "Incorrect usage!" << endl;
-        cout << "Usage:$ ./Project3 <years> <numTimesteps> <planet1> <planet2> ..." << endl;
+        cout << "Usage:$ ./Project3 <input file name> <years> <numTimesteps> <planet1> <planet2> ..." << endl;
         cout << "For all bodies in initial_data.txt use <planet1> = 0" << endl;
         return 1;
     }
-    if (vargs[1]<0){
+    if (vargs[2]<0){
         cout << "Negative years is not good!" << endl;
         return 1;
     }else{
-        years = atof(vargs[1]);
+        years = atof(vargs[2]);
     }
-    if (vargs[2]<0){
+    if (vargs[3]<0){
         cout << "Negative timesteps is not good!" << endl;
         return 1;
     }else{
-        numTimesteps = atoi(vargs[2]);
+        numTimesteps = atoi(vargs[3]);
     }
 
+    string input_file(vargs[1]);
+
     Ensemble solarSystem;
-    createparticles(solarSystem, nargs, vargs);
+    createparticles(solarSystem, nargs, vargs, input_file);
     vector<Particle> &bodies = solarSystem.bodies();
 
     double dt = (double)years/(double)numTimesteps;
 
     //Euler integrator(dt);
+    //Verlet integrator(dt,solarSystem);
     Verlet_GR integrator(dt,solarSystem);
 
     for(int timestep=0; timestep<numTimesteps; timestep++) {
@@ -65,9 +68,9 @@ int main(int nargs, char **vargs)
 }
 
 
-void createparticles(Ensemble &system, int nargs, char **vargs){
+void createparticles(Ensemble &system, int nargs, char **vargs, string input_file){
     string line;
-    ifstream myfile ("initial_data_mercury_perihelion.txt");
+    ifstream myfile (input_file);
     if(myfile.is_open()){
         getline(myfile,line); //skips date
         getline(myfile,line); //skips headerline

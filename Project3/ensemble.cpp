@@ -52,7 +52,7 @@ void Ensemble::calculateForces_GR()
             Particle &body2 = m_bodies[j];
             vec3 deltaRVector = body1.position - body2.position;
             double dr = deltaRVector.length();
-            m_angularMomentum = deltaRVector.cross(body1.velocity);
+            m_angularMomentum = deltaRVector.cross(body2.velocity);
             force =pow(2*M_PI,2)*deltaRVector*(body1.mass*body2.mass/pow(dr,3))*(1 + (3* pow(m_angularMomentum.length(),2))/(pow(dr,3)*pow(c,2)));
             body1.force -= force;
             body2.force += force;
@@ -118,7 +118,6 @@ void Ensemble::writeToFile(string filename)
             terminate();
         }
     }
-        m_file << "New position update:" << "\n";
     for(Particle &body : m_bodies) {
         m_file << body.position.x() << " " << body.position.y() << " " << body.position.z() << "\n";
     }
