@@ -111,15 +111,15 @@ double Ensemble::kineticEnergy() const
 
 void Ensemble::writeToFile(string filename)
 {
-    if(!m_file.good()) {
-        m_file.open(filename.c_str(), ofstream::out);
-        if(!m_file.good()) {
-            cout << "Error opening file " << filename << ". Aborting!" << endl;
-            terminate();
-        }
-    }
+    int counter = 0;
     for(Particle &body : m_bodies) {
+        string s = to_string(counter);
+        filename.append(s);
+        m_file.open(filename.c_str(), ofstream::app);
         m_file << body.position.x() << " " << body.position.y() << " " << body.position.z() << "\n";
+        m_file.close();
+        filename.pop_back();
+        counter += 1;
     }
 }
 

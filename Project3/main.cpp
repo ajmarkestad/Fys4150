@@ -17,26 +17,28 @@ int main(int nargs, char **vargs)
 {
     double years =10;
     int numTimesteps = 10000;
-    if(nargs<5){
+    if(nargs<7){
         cout << "Incorrect usage!" << endl;
-        cout << "Usage:$ ./Project3 <input file name> <years> <numTimesteps> <planet1> <planet2> ..." << endl;
+        cout << "Usage:$ ./Project3 <Choose method> <input file name> <output file name> <years> <numTimesteps> <planet1> <planet2> ..." << endl;
+        cout << "Choose method: 0 for Euler, 1 for Verlet, 2 for Verlet with GR corrections" << endl;
         cout << "For all bodies in initial_data.txt use <planet1> = 0" << endl;
         return 1;
     }
-    if (vargs[2]<0){
+    if (vargs[4]<0){
         cout << "Negative years is not good!" << endl;
         return 1;
     }else{
-        years = atof(vargs[2]);
+        years = atof(vargs[4]);
     }
-    if (vargs[3]<0){
+    if (vargs[5]<0){
         cout << "Negative timesteps is not good!" << endl;
         return 1;
     }else{
-        numTimesteps = atoi(vargs[3]);
+        numTimesteps = atoi(vargs[5]);
     }
 
-    string input_file(vargs[1]);
+    string input_file(vargs[2]);
+    string output_file(vargs[3]);
 
     Ensemble solarSystem;
     createparticles(solarSystem, nargs, vargs, input_file);
@@ -44,14 +46,39 @@ int main(int nargs, char **vargs)
 
     double dt = (double)years/(double)numTimesteps;
 
+    if (atoi(vargs[1]) == 0){
+        Euler integrator(dt);
+        for(int timestep=0; timestep<numTimesteps; timestep++) {
+            integrator.integrateOneStep(solarSystem);
+            solarSystem.writeToFile(output_file);
+        }
+    }else if(atoi(vargs[1]) == 1){
+        Verlet integrator(dt,solarSystem);
+        for(int timestep=0; timestep<numTimesteps; timestep++) {
+            integrator.integrateOneStep(solarSystem);
+            solarSystem.writeToFile(output_file);
+        }
+    }else if (atoi(vargs[1]) == 2){
+        Verlet_GR integrator(dt,solarSystem);
+        for(int timestep=0; timestep<numTimesteps; timestep++) {
+            integrator.integrateOneStep(solarSystem);
+            solarSystem.writeToFile(output_file);
+        }
+    }else{
+        cout << "Choose method: 0 for Euler, 1 for Verlet, 2 for Verlet with GR corrections" << endl;
+        return 1;
+    }
+
+
+
     //Euler integrator(dt);
     //Verlet integrator(dt,solarSystem);
-    Verlet_GR integrator(dt,solarSystem);
+    //Verlet_GR integrator(dt,solarSystem);
 
-    for(int timestep=0; timestep<numTimesteps; timestep++) {
-        integrator.integrateOneStep(solarSystem);
-        solarSystem.writeToFile("positions.txt");
-    }
+    //for(int timestep=0; timestep<numTimesteps; timestep++) {
+    //    integrator.integrateOneStep(solarSystem);
+    //    solarSystem.writeToFile(output_file);
+    //}
 
 
     cout << "The final positions are: " << endl;
@@ -80,8 +107,8 @@ void createparticles(Ensemble &system, int nargs, char **vargs, string input_fil
             istringstream iss(line);
             string sub;
             iss >> sub;
-            for(int i = 0; i<nargs-3; i++){
-                if((atoi(sub.c_str())==atoi(vargs[i+3])) || ((nargs == 4) && atoi(vargs[3])==0)){
+            for(int i = 0; i<(nargs-6); i++){
+                if((atoi(sub.c_str())==atoi(vargs[i+6])) || ((nargs == 7) && atoi(vargs[6])==0)){
                     vec3 position(0,0,0);
                     vec3 velocity(0,0,0);
                     iss >> sub;
