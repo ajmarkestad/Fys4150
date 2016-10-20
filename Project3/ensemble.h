@@ -20,6 +20,7 @@ public:
     double potentialEnergy() const;
     double kineticEnergy() const;
     void writeToFile(std::string filename);
+    void writeEnergiesToFile(std::string filename);
     vec3 angularMomentum() const;
     std::vector<Particle> &bodies();
 

@@ -18,6 +18,8 @@ Sun = 1 ##Always
 euler = 0
 verlet = 1
 verlet_GR = 2
+energy_euler = 3
+energy_verlet = 4
 
 
 
@@ -40,11 +42,14 @@ Earth_escape8 = 10
 Mercury_GR = 2
 
 
+##################################################################################################################################################################################################
+##################################################################################################################################################################################################
 
 
-##Runs the program which saves the positions of the planets to file
-## and then open the files and makes plots
-os.system("./Project3"+ " " + str(verlet) + " " + "initial_data.txt"+ " " + "positions_solar_system"+ " " + str(Years) + " " + str(numTimesteps) + " " + str(0))
+## Simulation of our Solar System with all the planets including pluto (LONG LIVE!!) for 300 years
+
+
+os.system("./Project3"+ " " + str(verlet) + " " + "initial_data.txt"+ " " + "positions_solar_system"+ " " + str(3*Years) + " " + str(numTimesteps) + " " + str(0))
 
 ## Need to add array's for each planet
 Planet1x = []
@@ -170,26 +175,26 @@ for line in file10:
     Planet10z.append(float(values[2]))
 
     
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-Planet1, = ax.plot(Planet1x, Planet1y, Planet1z, label=("Sun"))
-Planet2, = ax.plot(Planet2x, Planet2y, Planet2z, label=("Mercury"))
-Planet3, = ax.plot(Planet3x, Planet3y, Planet3z, label=("Venus"))
-Planet4, = ax.plot(Planet4x, Planet4y, Planet4z, label=("Earth"))
-Planet5, = ax.plot(Planet5x, Planet5y, Planet5z, label=("Mars"))
-Planet6, = ax.plot(Planet6x, Planet6y, Planet6z, label=("Jupiter"))
-Planet7, = ax.plot(Planet7x, Planet7y, Planet7z, label=("Saturn"))
-Planet8, = ax.plot(Planet8x, Planet8y, Planet8z, label=("Uranus"))
-Planet9, = ax.plot(Planet9x, Planet9y, Planet9z, label=("Neptune"))
-Planet10, = ax.plot(Planet10x, Planet10y, Planet10z, label=("Pluto"))
+fig1 = plt.figure(1)
+ax1 = fig1.gca(projection='3d')
+Planet1, = ax1.plot(Planet1x, Planet1y, Planet1z, label=("Sun"))
+Planet2, = ax1.plot(Planet2x, Planet2y, Planet2z, label=("Mercury"))
+Planet3, = ax1.plot(Planet3x, Planet3y, Planet3z, label=("Venus"))
+Planet4, = ax1.plot(Planet4x, Planet4y, Planet4z, label=("Earth"))
+Planet5, = ax1.plot(Planet5x, Planet5y, Planet5z, label=("Mars"))
+Planet6, = ax1.plot(Planet6x, Planet6y, Planet6z, label=("Jupiter"))
+Planet7, = ax1.plot(Planet7x, Planet7y, Planet7z, label=("Saturn"))
+Planet8, = ax1.plot(Planet8x, Planet8y, Planet8z, label=("Uranus"))
+Planet9, = ax1.plot(Planet9x, Planet9y, Planet9z, label=("Neptune"))
+Planet10, = ax1.plot(Planet10x, Planet10y, Planet10z, label=("Pluto"))
 
-plt.title('Planets Orbits for '+str(int(Years))+' Years with '+str(int(numTimesteps))+' timesteps')
-ax.set_ylabel('Y coordinate [AU]')
-ax.set_label('X coordinate [AU]')
-ax.set_zlabel('Z coordinate [AU]')
+plt.title('Solar system simulation using Verlets method over '+str(int(3*Years))+' Years with '+str(int(numTimesteps))+' timesteps')
+ax1.set_ylabel('Y coordinate [AU]')
+ax1.set_xlabel('X coordinate [AU]')
+ax1.set_zlabel('Z coordinate [AU]')
 plt.legend(handles = [Planet1,Planet2,Planet3,Planet4,Planet5,Planet6,Planet7,Planet8,Planet9,Planet10])
-plt.savefig("Project_3"+"_Solar_System_verlet_"+str(Years)+"_"+str(numTimesteps)+".png")
-plt.close()
+#plt.savefig("Project_3"+"_Solar_System_verlet_"+str(Years)+"_"+str(numTimesteps)+".png")
+plt.show()
 file1.close()
 file2.close()
 file3.close()
@@ -213,8 +218,19 @@ os.system("rm "+"positions_solar_system7")
 os.system("rm "+"positions_solar_system8")
 os.system("rm "+"positions_solar_system9")
 
-##Runs the program which saves the positions of the planets to file
-## and then open the files and makes plots
+
+
+
+##################################################################################################################################################################################################
+##################################################################################################################################################################################################
+
+
+## Simulation of Mercury's Perihelion precession around the sun using Verlets method with GR corrections to the Newtonian Force over 100 years.
+
+
+
+
+
 os.system("./Project3 "+str(verlet_GR) + " " + "initial_data_mercury_perihelion.txt " + "positions_perihelion " + str(Years)+" "+str(numTimesteps)+" "+str(Sun)+" "+str(Mercury_GR))
 
 ## Need to add array's for each planet
@@ -245,20 +261,387 @@ for line in file2:
     Planet_mercuryy.append(float(values[1]))
     Planet_mercuryz.append(float(values[2]))
   
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-Planet1, = ax.plot(Planet_sunx, Planet_suny, Planet_sunz, label=("Sun"))
-Planet2, = ax.plot(Planet_mercuryx, Planet_mercuryy, Planet_mercuryz, label=("Mercury"))
-plt.title('Planets Orbits for '+str(int(Years))+' Years with '+str(int(numTimesteps))+' timesteps')
-ax.set_ylabel('Y coordinate [AU]')
-ax.set_label('X coordinate [AU]')
-ax.set_zlabel('Z coordinate [AU]')
+fig2 = plt.figure(2)
+ax2 = fig2.gca(projection='3d')
+Planet1, = ax2.plot(Planet_sunx, Planet_suny, Planet_sunz, label=("Sun"))
+Planet2, = ax2.plot(Planet_mercuryx, Planet_mercuryy, Planet_mercuryz, label=("Mercury"))
+plt.title('Sun Mercury system with GR corection factor over '+str(int(Years))+' Years with '+str(int(numTimesteps))+' timesteps')
+ax2.set_ylabel('Y coordinate [AU]')
+ax2.set_xlabel('X coordinate [AU]')
+ax2.set_zlabel('Z coordinate [AU]')
 plt.legend(handles = [Planet1,Planet2])
-plt.savefig("Project_3"+"_Mercur_GR_"+str(Years)+"_"+str(numTimesteps)+".png")
-plt.close
+#plt.savefig("Project_3"+"_Mercur_GR_"+str(Years)+"_"+str(numTimesteps)+".png")
+plt.show()
 file1.close()
 file2.close()
 
 os.system("rm "+"positions_perihelion0")
 os.system("rm "+"positions_perihelion1")
+
+
+##################################################################################################################################################################################################
+##################################################################################################################################################################################################
+
+
+## Simulation of earth sun system for perfect circular orbit initial conditions using Verlets method.
+
+
+os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years)+" "+str(numTimesteps)+" "+str(Sun)+" "+str(Earth_circular))
+
+## Need to add array's for each planet
+Planet_sun_circ_verlet_x = []
+Planet_sun_circ_verlet_y = []
+Planet_sun_circ_verlet_z = []
+Planet_earth_circ_verlet_x = []
+Planet_earth_circ_verlet_y = []
+Planet_earth_circ_verlet_z = []
+
+
+file1 = open("positions_circular_earth0",'r')
+file1.readline()
+
+for line in file1:
+    values = line.split()
+    Planet_sun_circ_verlet_x.append(float(values[0]))
+    Planet_sun_circ_verlet_y.append(float(values[1]))
+    Planet_sun_circ_verlet_z.append(float(values[2]))
+
+
+file2 = open("positions_circular_earth1",'r')
+file2.readline()
+
+for line in file2:
+    values = line.split()
+    Planet_earth_circ_verlet_x.append(float(values[0]))
+    Planet_earth_circ_verlet_y.append(float(values[1]))
+    Planet_earth_circ_verlet_z.append(float(values[2]))
+  
+fig3 = plt.figure(3)
+ax3 = fig3.gca(projection='3d')
+Planet1, = ax3.plot(Planet_sun_circ_verlet_x, Planet_sun_circ_verlet_y, Planet_sun_circ_verlet_z, label=("Sun"))
+Planet2, = ax3.plot(Planet_earth_circ_verlet_x, Planet_earth_circ_verlet_y, Planet_earth_circ_verlet_z, label=("Earth"))
+plt.title('Earth sun circular orbit using Verlets method over '+str(int(Years))+' Years with '+str(int(numTimesteps))+' timesteps')
+ax3.set_ylabel('Y coordinate [AU]')
+ax3.set_xlabel('X coordinate [AU]')
+ax3.set_zlabel('Z coordinate [AU]')
+plt.legend(handles = [Planet1,Planet2])
+#plt.savefig("Project_3"+"_Circ_Earth_verlet_"+str(Years)+"_"+str(numTimesteps)+".png")
+plt.show()
+file1.close()
+file2.close()
+
+os.system("rm "+"positions_circular_earth0")
+os.system("rm "+"positions_circular_earth1")
+
+
+
+##################################################################################################################################################################################################
+##################################################################################################################################################################################################
+
+
+## Simulation of earth sun system for perfect circular orbit initial conditions using Eulers method.
+
+
+
+
+os.system("./Project3 "+str(euler) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years)+" "+str(numTimesteps)+" "+str(Sun)+" "+str(Earth_circular))
+
+## Need to add array's for each planet
+Planet_sun_circ_euler_x = []
+Planet_sun_circ_euler_y = []
+Planet_sun_circ_euler_z = []
+Planet_earth_circ_euler_x = []
+Planet_earth_circ_euler_y = []
+Planet_earth_circ_euler_z = []
+
+
+file1 = open("positions_circular_earth0",'r')
+file1.readline()
+
+for line in file1:
+    values = line.split()
+    Planet_sun_circ_euler_x.append(float(values[0]))
+    Planet_sun_circ_euler_y.append(float(values[1]))
+    Planet_sun_circ_euler_z.append(float(values[2]))
+
+
+file2 = open("positions_circular_earth1",'r')
+file2.readline()
+
+for line in file2:
+    values = line.split()
+    Planet_earth_circ_euler_x.append(float(values[0]))
+    Planet_earth_circ_euler_y.append(float(values[1]))
+    Planet_earth_circ_euler_z.append(float(values[2]))
+  
+fig4 = plt.figure(4)
+ax4 = fig4.gca(projection='3d')
+Planet1, = ax4.plot(Planet_sun_circ_euler_x, Planet_sun_circ_euler_y, Planet_sun_circ_euler_z, label=("Sun"))
+Planet2, = ax4.plot(Planet_earth_circ_euler_x, Planet_earth_circ_euler_y, Planet_earth_circ_euler_z, label=("Earth"))
+plt.title('Earth sun circular orbit using Eulers method over '+str(int(Years))+' Years with '+str(int(numTimesteps))+' timesteps')
+ax4.set_ylabel('Y coordinate [AU]')
+ax4.set_xlabel('X coordinate [AU]')
+ax4.set_zlabel('Z coordinate [AU]')
+plt.legend(handles = [Planet1,Planet2])
+#plt.savefig("Project_3"+"_Circ_Earth_euler_"+str(Years)+"_"+str(numTimesteps)+".png")
+plt.show()
+file1.close()
+file2.close()
+
+os.system("rm "+"positions_circular_earth0")
+os.system("rm "+"positions_circular_earth1")
+
+##################################################################################################################################################################################################
+##################################################################################################################################################################################################
+
+
+## Simulation of earth sun system with initial velocity of earth of 0.0240 AU/day in y direction starting at 1 AU in x direction. Sun at rest in origo.
+
+
+
+os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years*10)+" "+str(numTimesteps*10)+" "+str(Sun)+" "+str(Earth_escape1))
+
+## Need to add array's for each planet
+Planet_sun_escape1_verlet_x = []
+Planet_sun_escape1_verlet_y = []
+Planet_sun_escape1_verlet_z = []
+Planet_earth_escape1_verlet_x = []
+Planet_earth_escape1_verlet_y = []
+Planet_earth_escape1_verlet_z = []
+
+
+file1 = open("positions_circular_earth0",'r')
+file1.readline()
+
+for line in file1:
+    values = line.split()
+    Planet_sun_escape1_verlet_x.append(float(values[0]))
+    Planet_sun_escape1_verlet_y.append(float(values[1]))
+    Planet_sun_escape1_verlet_z.append(float(values[2]))
+
+
+file2 = open("positions_circular_earth1",'r')
+file2.readline()
+
+for line in file2:
+    values = line.split()
+    Planet_earth_escape1_verlet_x.append(float(values[0]))
+    Planet_earth_escape1_verlet_y.append(float(values[1]))
+    Planet_earth_escape1_verlet_z.append(float(values[2]))
+  
+fig5 = plt.figure(5)
+ax5 = fig5.gca(projection='3d')
+Planet1, = ax5.plot(Planet_sun_escape1_verlet_x, Planet_sun_escape1_verlet_y, Planet_sun_escape1_verlet_z, label=("Sun"))
+Planet2, = ax5.plot(Planet_earth_escape1_verlet_x, Planet_earth_escape1_verlet_y, Planet_earth_escape1_verlet_z, label=("Earth"))
+plt.title('Earth sun Escape with 0.0240 AU/day initial velocity over '+str(int(Years*10))+' Years with '+str(int(numTimesteps*10))+' timesteps')
+ax5.set_ylabel('Y coordinate [AU]')
+ax5.set_xlabel('X coordinate [AU]')
+ax5.set_zlabel('Z coordinate [AU]')
+plt.legend(handles = [Planet1,Planet2])
+#plt.savefig("Project_3"+"_Escape6_Earth_verlet_"+str(Years*10)+"_"+str(numTimesteps*10)+".png")
+plt.show()
+file1.close()
+file2.close()
+
+os.system("rm "+"positions_circular_earth0")
+os.system("rm "+"positions_circular_earth1")
+
+
+
+
+
+##################################################################################################################################################################################################
+##################################################################################################################################################################################################
+
+
+## Simulation of earth sun system with initial velocity of earth of 0.0242 AU/day in y direction starting at 1 AU in x direction. Sun at rest in origo.
+
+
+os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years*10)+" "+str(numTimesteps*10)+" "+str(Sun)+" "+str(Earth_escape2))
+
+## Need to add array's for each planet
+Planet_sun_escape2_verlet_x = []
+Planet_sun_escape2_verlet_y = []
+Planet_sun_escape2_verlet_z = []
+Planet_earth_escape2_verlet_x = []
+Planet_earth_escape2_verlet_y = []
+Planet_earth_escape2_verlet_z = []
+
+
+file1 = open("positions_circular_earth0",'r')
+file1.readline()
+
+for line in file1:
+    values = line.split()
+    Planet_sun_escape2_verlet_x.append(float(values[0]))
+    Planet_sun_escape2_verlet_y.append(float(values[1]))
+    Planet_sun_escape2_verlet_z.append(float(values[2]))
+
+
+file2 = open("positions_circular_earth1",'r')
+file2.readline()
+
+for line in file2:
+    values = line.split()
+    Planet_earth_escape2_verlet_x.append(float(values[0]))
+    Planet_earth_escape2_verlet_y.append(float(values[1]))
+    Planet_earth_escape2_verlet_z.append(float(values[2]))
+  
+fig6 = plt.figure(6)
+ax6 = fig6.gca(projection='3d')
+Planet1, = ax6.plot(Planet_sun_escape2_verlet_x, Planet_sun_escape2_verlet_y, Planet_sun_escape2_verlet_z, label=("Sun"))
+Planet2, = ax6.plot(Planet_earth_escape2_verlet_x, Planet_earth_escape2_verlet_y, Planet_earth_escape2_verlet_z, label=("Earth"))
+plt.title('Earth sun Escape with 0.0242 AU/day initial velocity over '+str(int(Years*10))+' Years with '+str(int(numTimesteps*10))+' timesteps')
+ax6.set_ylabel('Y coordinate [AU]')
+ax6.set_xlabel('X coordinate [AU]')
+ax6.set_zlabel('Z coordinate [AU]')
+plt.legend(handles = [Planet1,Planet2])
+#plt.savefig("Project_3"+"_Escape5_Earth_verlet_"+str(Years*10)+"_"+str(numTimesteps*10)+".png")
+plt.show()
+file1.close()
+file2.close()
+
+os.system("rm "+"positions_circular_earth0")
+os.system("rm "+"positions_circular_earth1")
+
+
+
+##################################################################################################################################################################################################
+##################################################################################################################################################################################################
+
+
+## Simulation of earth sun system with initial velocity of earth of 0.0244 AU/day in y direction starting at 1 AU in x direction. Sun at rest in origo.
+
+
+os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years*10)+" "+str(numTimesteps*10)+" "+str(Sun)+" "+str(Earth_escape3))
+
+## Need to add array's for each planet
+Planet_sun_escape3_verlet_x = []
+Planet_sun_escape3_verlet_y = []
+Planet_sun_escape3_verlet_z = []
+Planet_earth_escape3_verlet_x = []
+Planet_earth_escape3_verlet_y = []
+Planet_earth_escape3_verlet_z = []
+
+
+file1 = open("positions_circular_earth0",'r')
+file1.readline()
+
+for line in file1:
+    values = line.split()
+    Planet_sun_escape3_verlet_x.append(float(values[0]))
+    Planet_sun_escape3_verlet_y.append(float(values[1]))
+    Planet_sun_escape3_verlet_z.append(float(values[2]))
+
+
+file2 = open("positions_circular_earth1",'r')
+file2.readline()
+
+for line in file2:
+    values = line.split()
+    Planet_earth_escape3_verlet_x.append(float(values[0]))
+    Planet_earth_escape3_verlet_y.append(float(values[1]))
+    Planet_earth_escape3_verlet_z.append(float(values[2]))
+  
+fig7 = plt.figure(7)
+ax7 = fig7.gca(projection='3d')
+Planet1, = ax7.plot(Planet_sun_escape3_verlet_x, Planet_sun_escape3_verlet_y, Planet_sun_escape3_verlet_z, label=("Sun"))
+Planet2, = ax7.plot(Planet_earth_escape3_verlet_x, Planet_earth_escape3_verlet_y, Planet_earth_escape3_verlet_z, label=("Earth"))
+plt.title('Earth sun Escape with 0.0244 AU/day initial velocity over '+str(int(Years*10))+' Years with '+str(int(numTimesteps*10))+' timesteps')
+ax7.set_ylabel('Y coordinate [AU]')
+ax7.set_xlabel('X coordinate [AU]')
+ax7.set_zlabel('Z coordinate [AU]')
+plt.legend(handles = [Planet1,Planet2])
+#plt.savefig("Project_3"+"_Escape5_Earth_verlet_"+str(Years*10)+"_"+str(numTimesteps*10)+".png")
+plt.show()
+file1.close()
+file2.close()
+
+os.system("rm "+"positions_circular_earth0")
+os.system("rm "+"positions_circular_earth1")
+
+
+##################################################################################################################################################################################################
+##################################################################################################################################################################################################
+
+
+## Simulation of earth sun system with circular orbit. Plots only the energies involved. Sun starts at rest in origo.
+
+
+os.system("./Project3 "+str(energy_euler) + " " + "initial_data_circular_earth.txt " + "energies " + str(Years)+" "+str(numTimesteps)+" "+str(Sun)+" "+str(Earth_circular))
+
+## Need to add array's for each planet
+Total_Energy_E = []
+Potential_energy_E = []
+Kinetic_energy_E = []
+
+
+file1 = open("energies",'r')
+file1.readline()
+
+for line in file1:
+    values = line.split()
+    Total_Energy_E.append(float(values[0]))
+    Kinetic_energy_E.append(float(values[1]))
+    Potential_energy_E.append(float(values[2]))
+
+
+x = np.linspace(0,Years,numTimesteps-2)
+    
+plt.figure(8)
+Tot, = plt.plot(x, Total_Energy_E, label=("Total Energy"))
+Pot, = plt.plot(x, Potential_energy_E, label=("Potential Energy"))
+Kin, = plt.plot(x, Kinetic_energy_E, label=("Kinetic Energy"))
+plt.title('Energies of the Earth-Sun system with circular orbit using Eulers method over '+str(int(Years))+' Years with '+str(int(numTimesteps))+' timesteps')
+plt.xlabel('Time [Years]')
+plt.ylabel('Energy')
+plt.legend(handles = [Tot,Kin,Pot])
+#plt.savefig("Project_3"+"_Escape5_Earth_verlet_"+str(Years*10)+"_"+str(numTimesteps*10)+".png")
+plt.show()
+file1.close()
+
+os.system("rm "+"energies")
+
+
+##################################################################################################################################################################################################
+##################################################################################################################################################################################################
+
+
+## Simulation of earth sun system with circular orbit. Plots only the energies involved. Sun starts at rest in origo.
+
+
+os.system("./Project3 "+str(energy_verlet) + " " + "initial_data_circular_earth.txt " + "energies " + str(Years)+" "+str(numTimesteps)+" "+str(Sun)+" "+str(Earth_circular))
+
+## Need to add array's for each planet
+Total_Energy_V = []
+Potential_energy_V = []
+Kinetic_energy_V = []
+
+
+file1 = open("energies",'r')
+file1.readline()
+
+for line in file1:
+    values = line.split()
+    Total_Energy_V.append(float(values[0]))
+    Kinetic_energy_V.append(float(values[1]))
+    Potential_energy_V.append(float(values[2]))
+
+
+
+    
+plt.figure(9)
+Tot, = plt.plot(x, Total_Energy_V, label=("Total Energy"))
+Pot, = plt.plot(x, Potential_energy_V, label=("Potential Energy"))
+Kin, = plt.plot(x, Kinetic_energy_V, label=("Kinetic Energy"))
+plt.title('Energies of the Earth-Sun system with circular orbit using Verlets method over '+str(int(Years))+' Years with '+str(int(numTimesteps))+' timesteps')
+plt.xlabel('Time [Years]')
+plt.ylabel('Energy')
+plt.legend(handles = [Tot,Kin,Pot])
+#plt.savefig("Project_3"+"_Escape5_Earth_verlet_"+str(Years*10)+"_"+str(numTimesteps*10)+".png")
+plt.show()
+file1.close()
+
+os.system("rm "+"energies")
+
 

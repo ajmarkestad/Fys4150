@@ -64,15 +64,14 @@ void Ensemble::calculateForces_GR()
 void Ensemble::calculateEnergy()
 {
     m_kineticEnergy = 0;
-    m_potentialEnergy = 0;
-    m_angularMomentum.zeros();
-    double mm_potentialEnergy = 0;
-    for(Particle &body : m_bodies) {
-        // Reset kinetic and potential energy on all bodies
-        body.kineticEnergy = 0;
-        body.potensialEnergy = 0;
+        m_potentialEnergy = 0;
+        m_angularMomentum.zeros();
+        double mm_potentialEnergy = 0;
+        for(Particle &body : m_bodies) {
+            // Reset kinetic and potential energy on all bodies
+            body.kineticEnergy = 0;
+            body.potensialEnergy = 0;
     }
-
     for(int i=0; i<numberOfBodies(); i++) {
         Particle &body1 = m_bodies[i];
         for(int j=i+1; j<numberOfBodies(); j++) {
@@ -122,6 +121,20 @@ void Ensemble::writeToFile(string filename)
         counter += 1;
     }
 }
+
+void Ensemble::writeEnergiesToFile(string filename)
+{
+    if(!m_file.good()){
+        m_file.open(filename.c_str(), ofstream::out);
+        if(!m_file.good()){
+            cout << "Bad Usage! " << endl;
+            terminate();
+        }
+    }
+    m_file << m_kineticEnergy + m_potentialEnergy << " " << m_kineticEnergy << " " << m_potentialEnergy << "\n";
+}
+
+
 
 vec3 Ensemble::angularMomentum() const
 {

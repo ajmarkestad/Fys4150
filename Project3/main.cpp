@@ -21,6 +21,7 @@ int main(int nargs, char **vargs)
         cout << "Incorrect usage!" << endl;
         cout << "Usage:$ ./Project3 <Choose method> <input file name> <output file name> <years> <numTimesteps> <planet1> <planet2> ..." << endl;
         cout << "Choose method: 0 for Euler, 1 for Verlet, 2 for Verlet with GR corrections" << endl;
+        cout << "3 for Energies using Euler, and 4 for energies using Verlet" << endl;
         cout << "For all bodies in initial_data.txt use <planet1> = 0" << endl;
         return 1;
     }
@@ -64,21 +65,28 @@ int main(int nargs, char **vargs)
             integrator.integrateOneStep(solarSystem);
             solarSystem.writeToFile(output_file);
         }
+    }else if (atoi(vargs[1]) == 3){
+        solarSystem.calculateEnergy();
+        Euler integrator(dt);
+        for(int timestep=0; timestep<numTimesteps; timestep++) {
+            integrator.integrateOneStep(solarSystem);
+            solarSystem.calculateEnergy();
+            solarSystem.writeEnergiesToFile(output_file);
+
+        }
+    }else if (atoi(vargs[1]) == 4){
+        solarSystem.calculateEnergy();
+        Verlet integrator(dt,solarSystem);
+        for(int timestep=0; timestep<numTimesteps; timestep++) {
+            integrator.integrateOneStep(solarSystem);
+            solarSystem.calculateEnergy();
+            solarSystem.writeEnergiesToFile(output_file);
+
+        }
     }else{
         cout << "Choose method: 0 for Euler, 1 for Verlet, 2 for Verlet with GR corrections" << endl;
         return 1;
     }
-
-
-
-    //Euler integrator(dt);
-    //Verlet integrator(dt,solarSystem);
-    //Verlet_GR integrator(dt,solarSystem);
-
-    //for(int timestep=0; timestep<numTimesteps; timestep++) {
-    //    integrator.integrateOneStep(solarSystem);
-    //    solarSystem.writeToFile(output_file);
-    //}
 
 
     cout << "The final positions are: " << endl;
@@ -86,8 +94,6 @@ int main(int nargs, char **vargs)
         Particle &body = bodies[i]; // Reference to this body
         cout << "Final status for particle with position: " << body.position << "length: " << body.position.length() << " and velociy: " << body.velocity << " and mass: " << body.mass << endl;
          }
-
-
 
      return 0;
 
