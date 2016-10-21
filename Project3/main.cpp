@@ -67,6 +67,7 @@ int main(int nargs, char **vargs)
         }
     }else if (atoi(vargs[1]) == 3){
         solarSystem.calculateEnergy();
+        solarSystem.writeEnergiesToFile(output_file);
         Euler integrator(dt);
         for(int timestep=0; timestep<numTimesteps; timestep++) {
             integrator.integrateOneStep(solarSystem);
@@ -76,6 +77,7 @@ int main(int nargs, char **vargs)
         }
     }else if (atoi(vargs[1]) == 4){
         solarSystem.calculateEnergy();
+        solarSystem.writeEnergiesToFile(output_file);
         Verlet integrator(dt,solarSystem);
         for(int timestep=0; timestep<numTimesteps; timestep++) {
             integrator.integrateOneStep(solarSystem);

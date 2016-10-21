@@ -261,6 +261,8 @@ for line in file2:
     Planet_mercuryy.append(float(values[1]))
     Planet_mercuryz.append(float(values[2]))
   
+
+
 fig2 = plt.figure(2)
 ax2 = fig2.gca(projection='3d')
 Planet1, = ax2.plot(Planet_sunx, Planet_suny, Planet_sunz, label=("Sun"))
@@ -586,7 +588,7 @@ for line in file1:
     Potential_energy_E.append(float(values[2]))
 
 
-x = np.linspace(0,Years,numTimesteps-2)
+x = np.linspace(0,Years,numTimesteps-1)
     
 plt.figure(8)
 Tot, = plt.plot(x, Total_Energy_E, label=("Total Energy"))
