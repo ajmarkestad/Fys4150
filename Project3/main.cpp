@@ -15,8 +15,8 @@ void createparticles(Ensemble &system,int nargs, char **vargs, string input_file
 
 int main(int nargs, char **vargs)
 {
-    double years =10;
-    int numTimesteps = 10000;
+    double years;
+    int numTimesteps;
     if(nargs<7){
         cout << "Incorrect usage!" << endl;
         cout << "Usage:$ ./Project3 <Choose method> <input file name> <output file name> <years> <numTimesteps> <planet1> <planet2> ..." << endl;
@@ -63,7 +63,10 @@ int main(int nargs, char **vargs)
         Verlet_GR integrator(dt,solarSystem);
         for(int timestep=0; timestep<numTimesteps; timestep++) {
             integrator.integrateOneStep(solarSystem);
-            solarSystem.writeToFile(output_file);
+
+            if(timestep%1000==0){
+                solarSystem.writeToFile(output_file);
+            }
         }
     }else if (atoi(vargs[1]) == 3){
         solarSystem.calculateEnergy();

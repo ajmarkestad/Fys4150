@@ -240,7 +240,7 @@ Planet_sunz = []
 Planet_mercuryx = []
 Planet_mercuryy = []
 Planet_mercuryz = []
-
+Planet_mercuryr = np.zeros(numTimesteps)
 
 file1 = open("positions_perihelion0",'r')
 file1.readline()
@@ -255,11 +255,15 @@ for line in file1:
 file2 = open("positions_perihelion1",'r')
 file2.readline()
 
+int i = 0
 for line in file2:
     values = line.split()
     Planet_mercuryx.append(float(values[0]))
     Planet_mercuryy.append(float(values[1]))
     Planet_mercuryz.append(float(values[2]))
+    Planet_mercuryr[i]=np.sqrt(float(values[0])**2+float(values[1])**2+float(values[2])**2)
+    i++
+
   
 fig2 = plt.figure(2)
 ax2 = fig2.gca(projection='3d')
@@ -274,6 +278,8 @@ plt.legend(handles = [Planet1,Planet2])
 plt.show()
 file1.close()
 file2.close()
+
+plt.plot(Planet_mercuryr)
 
 os.system("rm "+"positions_perihelion0")
 os.system("rm "+"positions_perihelion1")

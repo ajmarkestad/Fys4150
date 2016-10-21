@@ -52,8 +52,8 @@ void Ensemble::calculateForces_GR()
             Particle &body2 = m_bodies[j];
             vec3 deltaRVector = body1.position - body2.position;
             double dr = deltaRVector.length();
-            m_angularMomentum = deltaRVector.cross(body2.velocity);
-            force =pow(2*M_PI,2)*deltaRVector*(body1.mass*body2.mass/pow(dr,3))*(1 + (3* pow(m_angularMomentum.length(),2))/(pow(dr,3)*pow(c,2)));
+            m_angularMomentum = -1*deltaRVector.cross(body2.velocity);
+            force =pow(2*M_PI,2)*deltaRVector*(body1.mass*body2.mass/pow(dr,3))*(1 + (3*m_angularMomentum.lengthSquared())/(pow(dr,2)*pow(c,2)));
             body1.force -= force;
             body2.force += force;
         }
