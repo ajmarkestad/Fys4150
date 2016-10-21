@@ -78,7 +78,7 @@ void Ensemble::calculateEnergy()
             Particle &body2 = m_bodies[j];
             vec3 deltaRVector = body1.position - body2.position;
             double dr = deltaRVector.length();
-            mm_potentialEnergy = -body1.mass*body2.mass/dr;
+            mm_potentialEnergy = body1.mass*body2.mass/dr;
             body1.potensialEnergy += mm_potentialEnergy;
             body2.potensialEnergy += mm_potentialEnergy;
             m_potentialEnergy += mm_potentialEnergy;
