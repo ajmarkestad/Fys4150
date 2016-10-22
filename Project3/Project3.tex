@@ -224,10 +224,98 @@ where we can precalculate the $4\pi^2$ factor, $r^2$ gives 5 flops and leads to 
 	flops \propto N * (bodies)(bodies-1)^{bodies-1/2}
 \end{align}
 The time spent on the writing to files is not a specific part of the algorithm, but on a sidetrack we could potentially speed up the code by declaring a matrix for each planet to hold all the positions and velocities for each time-step and only at the end write to file. We speculate that this would have the advantage of a faster speed since we only have a workflow between the CPU and short term memory, while in the constant writing to file for each step would necessarily access the long term memory and such a process is inherently slower. On the other hand a disadvantage of such a way of saving the data would give some limitations on the number of planets and time steps as this stores all the data in the short term memory which is orders of magnitude smaller. In our implementation we chose to use the setup with writing in each step, as this already was implemented. 
+
+
+
 \section*{Results}
 
+We ran a simulation of a Earth-Sun system where the Sun starts at rest in the origin, with the Earth in a circular orbit at radius 1 AU \ref{circorbi} starting along the x-axis with initial velocity in the y-direction, for using both the forward Euler \ref{Euler} and velocity Verlet \ref{Verlet} methods. The simulation was run for a 100 year period with $10^{6}$ timesteps, and the results are shown in figure \ref{fig:verlet_vs_euler}. We see in subfigure \ref{fig:E_S_circular_euler} that for the forward Euler method we get an constantly increasing spiral orbit, arising from the error of the Euler method. While for the Verlet method, subfigure \ref{fig:E_S_circular_verlet}, We see a stable circular orbit over the same period.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[b]{1\textwidth}
+		\includegraphics[scale=0.3]{figure_4}
+		\caption{Earth-sun system with Sun initially at rest at origin and Earth at 1 AU in the x axis with circular orbit initial velocity. Calculated using the velocity Verlet method over 100 years with $10^{6}$ timesteps.}
+		\label{fig:E_S_circular_verlet}
+	\end{subfigure}
+	\begin{subfigure}[b]{1\textwidth}
+		\includegraphics[scale=0.3]{figure_5}
+		\caption{Earth-sun system with Sun initially at rest at origin and Earth at 1 AU in the x axis with circular orbit initial velocity. Calculated using the forward Euler method over 100 years with $10^{6}$ timesteps.}
+		\label{fig:E_S_circular_euler}
+	\end{subfigure}
+	\caption{Comparison between the numerical simulations of Earth-Sun system for circular Earth orbit using the velocity Verlet method and the forward Euler method.}
+	\label{fig:verlet_vs_euler}
+\end{figure}
+
+In these next figures \ref{fig:verlet_vs_euler_energies} we see the kinetic, potential and total energies of the same circular Earth-Sun system. Again we see the stability of the Verlet method fig \ref{fig:E_S_circular_verlet_energies} and the instability of the Euler method fig \ref{fig:E_S_circular_euler_energies}.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[b]{1\textwidth}
+		\includegraphics[scale=0.3]{figure_9}
+		\caption{Energies of the Earth-sun system with Sun initially at rest at origin and Earth at 1 AU in the x axis with circular orbit initial velocity. Calculated using the velocity Verlet method over 100 years with $10^{6}$ timesteps.}
+		\label{fig:E_S_circular_verlet_energies}
+	\end{subfigure}
+	\begin{subfigure}[b]{1\textwidth}
+		\includegraphics[scale=0.3]{figure_10}
+		\caption{Energies of the Earth-sun system with Sun initially at rest at origin and Earth at 1 AU in the x axis with circular orbit initial velocity. Calculated using the forward Euler method over 100 years with $10^{6}$ timesteps.}
+		\label{fig:E_S_circular_euler_energies}
+	\end{subfigure}
+	\caption{Comparison between the energies of the numerical simulations of Earth-Sun system for circular Earth orbit using the velocity Verlet method and the forward Euler method.}
+	\label{fig:verlet_vs_euler_energies}
+\end{figure}
 
 
+
+Further, we wanted to find an estimate of the escape velocity of the Earth starting a 1 AU from the Sun. In figure \ref{fig:E_S_escape} we see two initial velocities which gives some very extreme elliptical orbit with respectively 8.76 AU/year and 8.833 AU/year initial velocities. We see however, fig \ref{fig:E_S_escape3}, that if we increase the initial velocity to 8.906 AU/year, escape is achieved.
+
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[b]{1\textwidth}
+		\includegraphics[scale=0.3]{figure_6}
+		\caption{Earth-sun system with Sun initially at rest at origin and Earth at 1 AU in the x axis with 0.0240 AU/day or 8.76 AU/year initial velocity in the y direction. Calculated using the velocity Verlet method over 1000 years with $10^{6}$ timesteps. Notice the very elliptical orbit with y direction only varying with ~12 AU in the orbit while x varies with ~40 AU.}
+		\label{fig:E_S_escape1}
+	\end{subfigure}
+	\begin{subfigure}[b]{1\textwidth}
+		\includegraphics[scale=0.3]{figure_7}
+		\caption{Earth-sun system with Sun initially at rest at origin and Earth at 1 AU in the x axis with 0.0242 AU/day or 8.833 AU/year initial velocity in the y direction. Calculated using the velocity Verlet method over 1000 years with $10^{6}$ timesteps.Notice the very elliptical orbit with y direction only varying with ~20 AU in the orbit while x varies with ~80 AU.}
+		\label{fig:E_S_escape2}
+	\end{subfigure}
+	\caption{Comparison between Earth-Sun orbits with different initial velocities.}
+	\label{fig:E_S_escape}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.35]{figure_8}
+	\caption{Earth-sun system with Sun initially at rest at origin and Earth at 1 AU in the x axis with 0.0243 AU/day or 8.906 AU/year initial velocity in the y direction. Calculated using the velocity Verlet method over 1000 years with $10^{6}$ timesteps. Here we see that we have achieved escape velocity.}
+	\label{fig:E_S_escape3}
+\end{figure}
+
+
+From figure \ref{fig:verlet_vs_euler} we have seen the accuracy and stability of the velocity Verlet method, so we use it to simulate our Solar system, including Pluto. We ran the simulation for a period of 300 years to get the complete Pluto orbit, using $10^{6}$ timesteps. The result is seen in figure \ref{fig:solar_system}. We can't quite see the orbits of the innermost planets in this figure, but if we could we would see some very strange behavior for Mercury.
+
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.35]{figure_1}
+	\caption{Simulation of the Solar system using the Verlet method with all the planets, including Pluto, for 300 years to get Pluto's entire orbit with $10^{6}$ timesteps.}
+	\label{fig:solar_system}
+\end{figure}
+
+Since Mercury passes so close to the Sun it achieves some very large velocities, which gives errors when using the Verlet method when the timestep is too large. For the "small" number of timesteps $10^{6}$ that we have used previously we observe something that looks like an extreme perihelion precession over the 100 year time period, when we know that precession should be almost unobservable. So to get the correct behavior we increase the number of timesteps to 10 billion. Calculating the perihelion angle and plotting it in arc seconds vs. time we get figure \ref{fig:perihelion}.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.35]{figure_2}
+	\caption{The Perihelion angle in arc seconds over a century for the Sun-Mercury system where we have included the GR correction factor in the force for this calculation, see eq. \ref{2bodygrav_GR}. From our theory we would expect this plot to be a straight line, however we see a small kink that emerges from a lack of timesteps. These result were calculated with $10^{10}$ timesteps, with less timesteps we saw more kinks and when we increased to $10^{11}$ we started getting more kinks again and the final angle had a larger error compared to the actual perihelion angle after a century.}
+	\label{fig:perihelion}
+\end{figure}
+
+Observe the little kink in the plot in figure \ref{fig:perihelion}. From the theory we would expect this line to be straight, and this little kink is an indication that we still don't have a large enough number of time steps, as we see more kinks for less timesteps. However when we increase the number of timesteps by a factor of 10 we run into greater inaccuracies from loss of numerical precision. We would therefore need a different, more accurate method if we want to improve the results for Mercury. The final perihelion angle, after a century, was $43.196$ arc seconds.
 
 
 \section*{Conclusion}
