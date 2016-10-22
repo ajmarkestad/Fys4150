@@ -15,8 +15,8 @@ void createparticles(Ensemble &system,int nargs, char **vargs, string input_file
 
 int main(int nargs, char **vargs)
 {
-    double years =10;
-    int numTimesteps = 10000;
+    double years;
+    int numTimesteps;
     if(nargs<7){
         cout << "Incorrect usage!" << endl;
         cout << "Usage:$ ./Project3 <Choose method> <input file name> <output file name> <years> <numTimesteps> <planet1> <planet2> ..." << endl;
@@ -94,7 +94,7 @@ int main(int nargs, char **vargs)
             rPreviousPrevious 	= rPrevious;
             rPrevious		= rCurrent;
             previousPosition	= solarSystem.bodies()[1].position - solarSystem.bodies()[0].position;
-        }
+
     }else if (atoi(vargs[1]) == 3){
         solarSystem.calculateEnergy();
         solarSystem.writeEnergiesToFile(output_file);
