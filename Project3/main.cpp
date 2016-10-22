@@ -60,10 +60,40 @@ int main(int nargs, char **vargs)
             solarSystem.writeToFile(output_file);
         }
     }else if (atoi(vargs[1]) == 2){
-        Verlet_GR integrator(dt,solarSystem);
-        for(int timestep=0; timestep<numTimesteps; timestep++) {
+        // Set some helper variables before we start the time integration.
+        double rPreviousPrevious = 0;	// Mercury-Sun-distance two times steps ago.
+        double rPrevious = 0;	// Mercury-Sun-distance of the previous time step.
+        double angle = 0;
+
+        vec3   previousPosition(0,0,0);		// Mercury-Sun position vector of the previous time step.
+        Verlet_GR integrator(dt, solarSystem);
+        // This is the integration loop, in which you advance the solution (usually via a integrateOneStep()
+        // function located in an integrator object, e.g. the Verlet class).
+        for (int timeStep = 0; timeStep < numTimesteps; timeStep++) {
+
+            // Integrate the solution one step forward in time, using the GR corrected force calcuation
+            // and the Verlet algorithm.
             integrator.integrateOneStep(solarSystem);
-            solarSystem.writeToFile(output_file);
+
+            // Compute the current Mercury-Sun distance. This assumes there is a vector of planets,
+            // called m_bodies, available, in which the Sun is m_bodies[0] and Mercury is m_bodies[1].
+            double rCurrent = (solarSystem.bodies()[1].position - solarSystem.bodies()[0].position).length();
+
+            // Check if the *previous* time step was a minimum for the Mercury-Sun distance. I.e. check
+            // if the previous distance is smaller than the current one *and* the previous previous one.
+            if ( rCurrent > rPrevious && rPrevious < rPreviousPrevious ) {
+
+                // If we are perihelion, print *previous* angle (in radians) to terminal.
+                double x = previousPosition.x();
+                double y = previousPosition.y();
+                angle = atan2(y,x);
+                solarSystem.writeAngleToFile(output_file, angle);
+            }
+
+            // Update the helper variables (current, previous, previousPrevious).
+            rPreviousPrevious 	= rPrevious;
+            rPrevious		= rCurrent;
+            previousPosition	= solarSystem.bodies()[1].position - solarSystem.bodies()[0].position;
         }
     }else if (atoi(vargs[1]) == 3){
         solarSystem.calculateEnergy();

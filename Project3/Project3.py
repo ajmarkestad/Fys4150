@@ -7,7 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 Years = 100
-numTimesteps = 100000
+numTimesteps = 1000000
 Sun = 1 ##Always
 
 ## Entire solar system simulation (with pluto) planets are numbered by their position from the sun
@@ -219,128 +219,6 @@ os.system("rm "+"positions_solar_system8")
 os.system("rm "+"positions_solar_system9")
 
 
-
-
-##################################################################################################################################################################################################
-##################################################################################################################################################################################################
-
-
-## Simulation of Mercury's Perihelion precession around the sun using Verlets method with GR corrections to the Newtonian Force over 100 years.
-
-
-
-
-
-os.system("./Project3 "+str(verlet_GR) + " " + "initial_data_mercury_perihelion.txt " + "positions_perihelion " + str(Years)+" "+str(numTimesteps*10)+" "+str(Sun)+" "+str(Mercury_GR))
-
-## Need to add array's for each planet
-Planet_sunx = []
-Planet_suny = []
-Planet_sunz = []
-Planet_mercuryx = []
-Planet_mercuryy = []
-Planet_mercuryz = []
-
-
-file1 = open("positions_perihelion0",'r')
-file1.readline()
-
-for line in file1:
-    values = line.split()
-    Planet_sunx.append(float(values[0]))
-    Planet_suny.append(float(values[1]))
-    Planet_sunz.append(float(values[2]))
-
-
-file2 = open("positions_perihelion1",'r')
-file2.readline()
-
-for line in file2:
-    values = line.split()
-    Planet_mercuryx.append(float(values[0]))
-    Planet_mercuryy.append(float(values[1]))
-    Planet_mercuryz.append(float(values[2]))
-  
-
-
-fig2 = plt.figure(2)
-ax2 = fig2.gca(projection='3d')
-Planet1, = ax2.plot(Planet_sunx, Planet_suny, Planet_sunz, label=("Sun"))
-Planet2, = ax2.plot(Planet_mercuryx, Planet_mercuryy, Planet_mercuryz, label=("Mercury"))
-plt.title('Sun Mercury system with GR corection factor over '+str(int(Years))+' Years with '+str(int(numTimesteps))+' timesteps')
-ax2.set_ylabel('Y coordinate [AU]')
-ax2.set_xlabel('X coordinate [AU]')
-ax2.set_zlabel('Z coordinate [AU]')
-plt.legend(handles = [Planet1,Planet2])
-#plt.savefig("Project_3"+"_Mercur_GR_"+str(Years)+"_"+str(numTimesteps)+".png")
-plt.show()
-file1.close()
-file2.close()
-
-os.system("rm "+"positions_perihelion0")
-os.system("rm "+"positions_perihelion1")
-
-
-##################################################################################################################################################################################################
-##################################################################################################################################################################################################
-
-
-## Simulation of Mercury's Perihelion precession around the sun using Verlets method with GR corrections to the Newtonian Force over 100 years.
-
-
-
-
-
-os.system("./Project3 "+str(verlet) + " " + "initial_data_mercury_perihelion.txt " + "positions_perihelion " + str(Years)+" "+str(numTimesteps*10)+" "+str(Sun)+" "+str(Mercury_GR))
-
-## Need to add array's for each planet
-Planet_sun_x = []
-Planet_sun_y = []
-Planet_sun_z = []
-Planet_mercury_x = []
-Planet_mercury_y = []
-Planet_mercury_z = []
-
-
-file1 = open("positions_perihelion0",'r')
-file1.readline()
-
-for line in file1:
-    values = line.split()
-    Planet_sun_x.append(float(values[0]))
-    Planet_sun_y.append(float(values[1]))
-    Planet_sun_z.append(float(values[2]))
-
-
-file2 = open("positions_perihelion1",'r')
-file2.readline()
-
-for line in file2:
-    values = line.split()
-    Planet_mercury_x.append(float(values[0]))
-    Planet_mercury_y.append(float(values[1]))
-    Planet_mercury_z.append(float(values[2]))
-  
-
-
-fig2 = plt.figure(3)
-ax2 = fig2.gca(projection='3d')
-Planet1, = ax2.plot(Planet_sun_x, Planet_sun_y, Planet_sun_z, label=("Sun"))
-Planet2, = ax2.plot(Planet_mercury_x, Planet_mercury_y, Planet_mercury_z, label=("Mercury"))
-plt.title('Sun Mercury system without GR corection factor over '+str(int(Years))+' Years with '+str(int(numTimesteps))+' timesteps')
-ax2.set_ylabel('Y coordinate [AU]')
-ax2.set_xlabel('X coordinate [AU]')
-ax2.set_zlabel('Z coordinate [AU]')
-plt.legend(handles = [Planet1,Planet2])
-#plt.savefig("Project_3"+"_Mercur_GR_"+str(Years)+"_"+str(numTimesteps)+".png")
-plt.show()
-file1.close()
-file2.close()
-
-os.system("rm "+"positions_perihelion0")
-os.system("rm "+"positions_perihelion1")
-
-
 ##################################################################################################################################################################################################
 ##################################################################################################################################################################################################
 
@@ -461,7 +339,7 @@ os.system("rm "+"positions_circular_earth1")
 
 
 
-os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years*10)+" "+str(numTimesteps*10)+" "+str(Sun)+" "+str(Earth_escape1))
+os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years*10)+" "+str(numTimesteps)+" "+str(Sun)+" "+str(Earth_escape1))
 
 ## Need to add array's for each planet
 Planet_sun_escape1_verlet_x = []
@@ -495,7 +373,7 @@ fig5 = plt.figure(6)
 ax5 = fig5.gca(projection='3d')
 Planet1, = ax5.plot(Planet_sun_escape1_verlet_x, Planet_sun_escape1_verlet_y, Planet_sun_escape1_verlet_z, label=("Sun"))
 Planet2, = ax5.plot(Planet_earth_escape1_verlet_x, Planet_earth_escape1_verlet_y, Planet_earth_escape1_verlet_z, label=("Earth"))
-plt.title('Earth sun Escape with 0.0240 AU/day initial velocity over '+str(int(Years*10))+' Years with '+str(int(numTimesteps*10))+' timesteps')
+plt.title('Earth sun Escape with 0.0240 AU/day initial velocity over '+str(int(Years*10))+' Years with '+str(int(numTimesteps))+' timesteps')
 ax5.set_ylabel('Y coordinate [AU]')
 ax5.set_xlabel('X coordinate [AU]')
 ax5.set_zlabel('Z coordinate [AU]')
@@ -519,7 +397,7 @@ os.system("rm "+"positions_circular_earth1")
 ## Simulation of earth sun system with initial velocity of earth of 0.0242 AU/day in y direction starting at 1 AU in x direction. Sun at rest in origo.
 
 
-os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years*10)+" "+str(numTimesteps*10)+" "+str(Sun)+" "+str(Earth_escape2))
+os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years*10)+" "+str(numTimesteps)+" "+str(Sun)+" "+str(Earth_escape2))
 
 ## Need to add array's for each planet
 Planet_sun_escape2_verlet_x = []
@@ -553,7 +431,7 @@ fig6 = plt.figure(7)
 ax6 = fig6.gca(projection='3d')
 Planet1, = ax6.plot(Planet_sun_escape2_verlet_x, Planet_sun_escape2_verlet_y, Planet_sun_escape2_verlet_z, label=("Sun"))
 Planet2, = ax6.plot(Planet_earth_escape2_verlet_x, Planet_earth_escape2_verlet_y, Planet_earth_escape2_verlet_z, label=("Earth"))
-plt.title('Earth sun Escape with 0.0242 AU/day initial velocity over '+str(int(Years*10))+' Years with '+str(int(numTimesteps*10))+' timesteps')
+plt.title('Earth sun Escape with 0.0242 AU/day initial velocity over '+str(int(Years*10))+' Years with '+str(int(numTimesteps))+' timesteps')
 ax6.set_ylabel('Y coordinate [AU]')
 ax6.set_xlabel('X coordinate [AU]')
 ax6.set_zlabel('Z coordinate [AU]')
@@ -575,7 +453,7 @@ os.system("rm "+"positions_circular_earth1")
 ## Simulation of earth sun system with initial velocity of earth of 0.0244 AU/day in y direction starting at 1 AU in x direction. Sun at rest in origo.
 
 
-os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years*10)+" "+str(numTimesteps*10)+" "+str(Sun)+" "+str(Earth_escape3))
+os.system("./Project3 "+str(verlet) + " " + "initial_data_circular_earth.txt " + "positions_circular_earth " + str(Years*10)+" "+str(numTimesteps)+" "+str(Sun)+" "+str(Earth_escape3))
 
 ## Need to add array's for each planet
 Planet_sun_escape3_verlet_x = []
@@ -609,7 +487,7 @@ fig7 = plt.figure(8)
 ax7 = fig7.gca(projection='3d')
 Planet1, = ax7.plot(Planet_sun_escape3_verlet_x, Planet_sun_escape3_verlet_y, Planet_sun_escape3_verlet_z, label=("Sun"))
 Planet2, = ax7.plot(Planet_earth_escape3_verlet_x, Planet_earth_escape3_verlet_y, Planet_earth_escape3_verlet_z, label=("Earth"))
-plt.title('Earth sun Escape with 0.0244 AU/day initial velocity over '+str(int(Years*10))+' Years with '+str(int(numTimesteps*10))+' timesteps')
+plt.title('Earth sun Escape with 0.0244 AU/day initial velocity over '+str(int(Years*10))+' Years with '+str(int(numTimesteps))+' timesteps')
 ax7.set_ylabel('Y coordinate [AU]')
 ax7.set_xlabel('X coordinate [AU]')
 ax7.set_zlabel('Z coordinate [AU]')

@@ -28,7 +28,7 @@ void Ensemble::calculateForces()
             Particle &body2 = m_bodies[j];
             vec3 deltaRVector = body1.position - body2.position;
             double dr = deltaRVector.length();
-            force =pow(2*M_PI,2)*deltaRVector*(body1.mass*body2.mass/pow(dr,3));
+            force = k1*deltaRVector*(body1.mass*body2.mass/pow(dr,3));
             body1.force -= force;
             body2.force += force;
         }
@@ -53,7 +53,7 @@ void Ensemble::calculateForces_GR()
             vec3 deltaRVector = body1.position - body2.position;
             double dr = deltaRVector.length();
             m_angularMomentum = deltaRVector.cross(body2.velocity);
-            force =pow(2*M_PI,2)*deltaRVector*(body1.mass*body2.mass/pow(dr,3))*(1 + (3* pow(m_angularMomentum.length(),2))/(pow(dr,2)*pow(c,2)));
+            force = k1*deltaRVector*(body1.mass*body2.mass/pow(dr,3))*(1 + (3* pow(m_angularMomentum.length(),2))/(pow(dr,2)*pow(c,2)));
             body1.force -= force;
             body2.force += force;
         }
@@ -134,7 +134,17 @@ void Ensemble::writeEnergiesToFile(string filename)
     m_file << m_kineticEnergy + m_potentialEnergy << " " << m_kineticEnergy << " " << m_potentialEnergy << "\n";
 }
 
-
+void Ensemble::writeAngleToFile(string filename, double angle)
+{
+    if(!m_file.good()){
+        m_file.open(filename.c_str(), ofstream::out);
+        if(!m_file.good()){
+            cout << "Bad Usage! " << endl;
+            terminate();
+        }
+    }
+    m_file << angle << "\n";
+}
 
 vec3 Ensemble::angularMomentum() const
 {
