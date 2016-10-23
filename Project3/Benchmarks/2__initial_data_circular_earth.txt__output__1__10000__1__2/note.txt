@@ -1,0 +1,1 @@
+Perfect circular orbit means no minima means no output means no outputfile

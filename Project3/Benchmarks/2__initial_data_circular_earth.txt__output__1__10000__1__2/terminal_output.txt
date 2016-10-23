@@ -1,0 +1,5 @@
+Created a particle with initial position: [0, 0, 0];length: 0 and velociy: [0, 0, 0]; and mass: 1
+Created a particle with initial position: [1, 0, 0];length: 1 and velociy: [0, 6.28319, 0]; and mass: 3.00347e-06
+The final positions are: 
+Final status for particle with position: [2.08809e-15, 1.88712e-05, 0];length: 1.88712e-05 and velociy: [7.037e-10, 1.31203e-14, 0]; and mass: 1
+Final status for particle with position: [1, 5.61605e-05, 0];length: 1 and velociy: [-0.000234296, 6.28319, 0]; and mass: 3.00347e-06
