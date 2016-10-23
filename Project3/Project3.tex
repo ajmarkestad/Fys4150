@@ -108,7 +108,7 @@ $$\:$$
 		
 %---------------------------------------------------------------------------------------------------------------------------------------
 \begin{abstract}
-	In this paper we discuss the basic ideas behind numerical solutions to ordinary differential equations, and their limitations by applying two well known methods; the forward Euler and velocity Verlet methods, to the many-body problem of our solar system. We then use these methods to do some numerical experiments, namely escape velocity of earth from the sun, and testing a general relativity correction to the Newtonian gravitational force.
+	In this paper we discuss the basic ideas behind numerical solutions to ordinary differential equations, and their limitations by applying two well known methods; the forward Euler and velocity Verlet methods, to the many-body problem of our solar system. We then use these methods to do some numerical experiments, namely escape velocity of earth from the sun, and testing a general relativity correction to the Newtonian gravitational force. 
 \end{abstract}
 
 
@@ -225,11 +225,13 @@ where we can precalculate the $4\pi^2$ factor, $r^2$ gives 5 flops and leads to 
 \end{align}
 The time spent on the writing to files is not a specific part of the algorithm, but on a sidetrack we could potentially speed up the code by declaring a matrix for each planet to hold all the positions and velocities for each time-step and only at the end write to file. We speculate that this would have the advantage of a faster speed since we only have a workflow between the CPU and short term memory, while in the constant writing to file for each step would necessarily access the long term memory and such a process is inherently slower. On the other hand a disadvantage of such a way of saving the data would give some limitations on the number of planets and time steps as this stores all the data in the short term memory which is orders of magnitude smaller. In our implementation we chose to use the setup with writing in each step, as this already was implemented. 
 
+Our Github page for the calculations, program files and bechmarks is found on 
+
+\url{https://github.com/ajmarkestad/Fys4150/tree/master/Project3}
 
 
 \section*{Results}
-
-We ran a simulation of a Earth-Sun system where the Sun starts at rest in the origin, with the Earth in a circular orbit at radius 1 AU \ref{circorbi} starting along the x-axis with initial velocity in the y-direction, for using both the forward Euler \ref{Euler} and velocity Verlet \ref{Verlet} methods. The simulation was run for a 100 year period with $10^{6}$ timesteps, and the results are shown in figure \ref{fig:verlet_vs_euler}. We see in subfigure \ref{fig:E_S_circular_euler} that for the forward Euler method we get an constantly increasing spiral orbit, arising from the error of the Euler method. While for the Verlet method, subfigure \ref{fig:E_S_circular_verlet}, We see a stable circular orbit over the same period.
+The data used as initial conditions were collected from the Solar System Dynamics website from NASA\cite{NASA}. We ran a simulation of a Earth-Sun system where the Sun starts at rest in the origin, with the Earth in a circular orbit at radius 1 AU \ref{circorbi} starting along the x-axis with initial velocity in the y-direction, for using both the forward Euler \ref{Euler} and velocity Verlet \ref{Verlet} methods. The simulation was run for a 100 year period with $10^{6}$ timesteps, and the results are shown in figure \ref{fig:verlet_vs_euler}. We see in subfigure \ref{fig:E_S_circular_euler} that for the forward Euler method we get an constantly increasing spiral orbit, arising from the error of the Euler method. While for the Verlet method, subfigure \ref{fig:E_S_circular_verlet}, We see a stable circular orbit over the same period.
 
 \begin{figure}[H]
 	\centering
@@ -267,8 +269,15 @@ In these next figures \ref{fig:verlet_vs_euler_energies} we see the kinetic, pot
 
 
 
-Further, we wanted to find an estimate of the escape velocity of the Earth starting a 1 AU from the Sun. In figure \ref{fig:E_S_escape} we see two initial velocities which gives some very extreme elliptical orbit with respectively 8.76 AU/year and 8.833 AU/year initial velocities. We see however, fig \ref{fig:E_S_escape3}, that if we increase the initial velocity to 8.906 AU/year, escape is achieved.
-
+Further, we wanted to find an estimate of the escape velocity of the Earth starting a 1 AU from the Sun. In figure \ref{fig:E_S_escape} we see two initial velocities which gives some very extreme elliptical orbit with respectively 8.76 AU/year and 8.833 AU/year initial velocities. We see however, fig \ref{fig:E_S_escape3}, that if we increase the initial velocity to 8.906 AU/year, escape is achieved. We can do a quick analytical calculation to compare our simulation result. For a planet to escape we have the condition
+\begin{align}
+	E_k = E_p \to \frac{1}{2}m_E v_{escape}^2 = \frac{GM_{sun}M_E }{r_{initial}}
+\end{align}
+Rearranging and using our astronomical units this gives
+\begin{align}
+	v_{escape} = 2\pi \sqrt{2} AU/yr = 8.89 AU/yr
+\end{align}
+We see that this is equal to our numerical simulation results and validates our simulation method. 
 
 \begin{figure}[H]
 	\centering
@@ -315,11 +324,15 @@ Since Mercury passes so close to the Sun it achieves some very large velocities,
 	\label{fig:perihelion}
 \end{figure}
 
-Observe the little kink in the plot in figure \ref{fig:perihelion}. From the theory we would expect this line to be straight, and this little kink is an indication that we still don't have a large enough number of time steps, as we see more kinks for less timesteps. However when we increase the number of timesteps by a factor of 10 we run into greater inaccuracies from loss of numerical precision. We would therefore need a different, more accurate method if we want to improve the results for Mercury. The final perihelion angle, after a century, was $43.196$ arc seconds.
+Observe the little kink in the plot in figure \ref{fig:perihelion}. From the theory we would expect this line to be straight, and this little kink is an indication that we still don't have a large enough number of time steps, as we see more kinks for less timesteps. However when we increase the number of timesteps by a factor of 10 we run into greater inaccuracies from loss of numerical precision, which we expect comes from the calculation of $x_{i+1}$ which is of the form
+\begin{align}
+	x_{i+1} = x_i + C_1 + \frac{h^2}{2} C_2
+\end{align} 
+When the timesteps become smaller that $10^{-9}$ the term $h^2$ becomes on the order of machine persicion compared to the addition to $x_i$, and we would effectively loose this term in our calculation. We would therefore need a different, more accurate method if we want to improve the results for Mercury(or using 128 bit quad precision).  The final perihelion angle, after a century, was $43.196$ arc seconds.
 
 
 \section*{Conclusion}
-
+In this project we have simulated the solar system including all planets using two different differential equation solvers; forward Euler method and the velocity Verlet method. When comparing the two methods we show by simulation that the Euler method does not conserve energy when running up to 100 years with $10^6$ timesteps while the Verlet method does this to a high precision. The escape velocity for earth to leave the solar system was simulated to be 8.9 AU/year, which is in agreement with Newtonian calculations. As a historical discrepancy of Newtonian mechanics, the Mercury precession was simulated by adding a GR correction term, and by using the Verlet method the precession rate was found to be 43 arcsec per century which is in good agreement with the experimentally observed value. All these calculations shows the strength of the velocity Verlet method, which we found to be stable up to the order of $10^{10}$ timesteps. 
 
 
 
@@ -335,7 +348,9 @@ Observe the little kink in the plot in figure \ref{fig:perihelion}. From the the
 	\url{https://github.com/CompPhysics/ComputationalPhysics/blob/master/doc/Lectures/lectures2015.pdf}
 	
 	
-			
+	\bibitem{NASA}
+	\emph{Solar System Dynamics. Jet Propultion Laboratory, Caltech}
+	\url{http://ssd.jpl.nasa.gov/horizons.cgi#top}
 			
 			
 			
