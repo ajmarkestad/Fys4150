@@ -95,7 +95,7 @@ int main(int nargs, char **vargs)
             rPrevious		= rCurrent;
             previousPosition	= solarSystem.bodies()[1].position - solarSystem.bodies()[0].position;
 
-    }else if (atoi(vargs[1]) == 3){
+    }}else if (atoi(vargs[1]) == 3){
         solarSystem.calculateEnergy();
         solarSystem.writeEnergiesToFile(output_file);
         Euler integrator(dt);
