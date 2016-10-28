@@ -24,7 +24,7 @@ void read_input(int&, int&, double&, double&, double&);
 // Function to initialise energy and magnetization
 void initialize(int, double, int **, double&, double&);
 // The metropolis algorithm
-void Metropolis(int, long&, int **, double&, double&, double *);
+void Metropolis(int, int, long&, int **, double&, double&, double *);
 // prints to file the results of the calculations
 void output(int, int, double, double *);
 
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 {
     char *outfilename;
     long idum;
-    int **spin_matrix, n_spins, mcs;
+    int **spin_matrix, n_spins, mcs, n_spins_squared;
     double w[17], average[5], initial_temp, final_temp, E, M, temp_step;
 
     // Read in output file, abort if there are too few command-line arguments
@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
     //    Read in initial values such as size of lattice, temp and cycles
     read_input(n_spins, mcs, initial_temp, final_temp, temp_step);
     spin_matrix = (int**) matrix(n_spins, n_spins, sizeof(int));
+    n_spins_squared = pow(n_spins,2);
     idum = -1; // random starting point
     for ( double temperature = initial_temp; temperature <= final_temp; temperature+=temp_step){
         //    initialise energy and magnetization
@@ -112,23 +113,21 @@ void initialize(int n_spins, double temperature, int **spin_matrix,
     }
 }// end function initialise
 
-void Metropolis(int n_spins, long& idum, int **spin_matrix, double& E, double&M, double *w)
+void Metropolis(int n_spins, int n_spins_squared, long& idum, int **spin_matrix, double& E, double&M, double *w)
 {
     // loop over all spins
-    for(int y =0; y < n_spins; y++) {
-        for (int x= 0; x < n_spins; x++){
-            int ix = (int) (ran1(&idum)*(double)n_spins);
-            int iy = (int) (ran1(&idum)*(double)n_spins);
-            int deltaE =  2*spin_matrix[iy][ix]*
-                    (spin_matrix[iy][periodic(ix,n_spins,-1)]+
-                    spin_matrix[periodic(iy,n_spins,-1)][ix] +
-                    spin_matrix[iy][periodic(ix,n_spins,1)] +
-                    spin_matrix[periodic(iy,n_spins,1)][ix]);
-            if ( ran1(&idum) <= w[deltaE+8] ) {
-                spin_matrix[iy][ix] *= -1;  // flip one spin and accept new spin config
-                M += (double) 2*spin_matrix[iy][ix];
-                E += (double) deltaE;
-            }
+    for(int i =0; i < n_spins_squared; i++) {
+        int ix = (int) (ran1(&idum)*(double)n_spins);
+        int iy = (int) (ran1(&idum)*(double)n_spins);
+        int deltaE =  2*spin_matrix[iy][ix]*
+                (spin_matrix[iy][periodic(ix,n_spins,-1)]+
+                spin_matrix[periodic(iy,n_spins,-1)][ix] +
+                spin_matrix[iy][periodic(ix,n_spins,1)] +
+                spin_matrix[periodic(iy,n_spins,1)][ix]);
+        if ( ran1(&idum) <= w[deltaE+8] ) {
+            spin_matrix[iy][ix] *= -1;  // flip one spin and accept new spin config
+            M += (double) 2*spin_matrix[iy][ix];
+            E += (double) deltaE;
         }
     }
 } // end of Metropolis sampling over spins
