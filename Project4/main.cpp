@@ -48,7 +48,6 @@ int main(int argc, char* argv[])
     final_temp=atof(argv[5]);
     temp_step=atoi(argv[6]);
 
-
     //    Read in initial values such as size of lattice, temp and cycles
     spin_matrix = (int**) matrix(n_spins, n_spins, sizeof(int));
     n_spins_squared = pow(n_spins,2);
@@ -64,7 +63,7 @@ int main(int argc, char* argv[])
         initialize(n_spins, temperature, spin_matrix, E, M);
         // start Monte Carlo computation
         for (int cycles = 1; cycles <= mcs; cycles++){
-            Metropolis(n_spins, idum, spin_matrix, E, M, w);
+            Metropolis(n_spins, n_spins_squared, idum, spin_matrix, E, M, w);
             // update expectation values
             average[0] += E;    average[1] += E*E;
             average[2] += M;    average[3] += M*M; average[4] += fabs(M);
