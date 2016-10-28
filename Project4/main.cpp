@@ -19,8 +19,6 @@ ofstream ofile;
 inline int periodic(int i, int limit, int add) {
     return (i+limit+add) % (limit);
 }
-// Function to read in data from screen
-void read_input(int&, int&, double&, double&, double&);
 // Function to initialise energy and magnetization
 void initialize(int, double, int **, double&, double&);
 // The metropolis algorithm
@@ -36,17 +34,22 @@ int main(int argc, char* argv[])
     double w[17], average[5], initial_temp, final_temp, E, M, temp_step;
 
     // Read in output file, abort if there are too few command-line arguments
-    if( argc <= 1 ){
-        cout << "Bad Usage: " << argv[0] <<
-                " read also output file on same line" << endl;
+    if( argc <= 6 ){
+        cout << "Bad Usage: " << argv[0] << "\n" << endl;
+        cout << "Usage: <./main <outputfile> <int max number of metropolis cycles> <int spins in 1 dim> <double initial temperature> <double final temperature>" <<
+                "<int temperature steps>" << endl;
         exit(1);
     }
-    else{
-        outfilename=argv[1];
-    }
+    outfilename=argv[1];
     ofile.open(outfilename);
+    mcs = atoi(argv[2]);
+    n_spins=atoi(argv[3]);
+    initial_temp=atof(argv[4]);
+    final_temp=atof(argv[5]);
+    temp_step=atoi(argv[6]);
+
+
     //    Read in initial values such as size of lattice, temp and cycles
-    read_input(n_spins, mcs, initial_temp, final_temp, temp_step);
     spin_matrix = (int**) matrix(n_spins, n_spins, sizeof(int));
     idum = -1; // random starting point
     for ( double temperature = initial_temp; temperature <= final_temp; temperature+=temp_step){
@@ -72,23 +75,6 @@ int main(int argc, char* argv[])
     ofile.close();  // close output file
     return 0;
 }
-
-
-// read in input data
-void read_input(int& n_spins, int& mcs, double& initial_temp,
-                double& final_temp, double& temp_step)
-{
-    cout << "Number of Monte Carlo trials =";
-    cin >> mcs;
-    cout << "Lattice size or number of spins (x and y equal) =";
-    cin >> n_spins;
-    cout << "Initial temperature with dimension energy=";
-    cin >> initial_temp;
-    cout << "Final temperature with dimension energy=";
-    cin >> final_temp;
-    cout << "Temperature step with dimension energy=";
-    cin >> temp_step;
-} // end of function read_input
 
 
 // function to initialise energy, spin matrix and magnetization
