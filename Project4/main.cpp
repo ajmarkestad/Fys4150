@@ -63,10 +63,10 @@ int main(int argc, char* argv[])
 
 
 
-    int no_intervalls = mcs/numprocs;
-    int myloop_begin = my_rank*no_intervalls + 1;
-    int myloop_end = (my_rank+1)*no_intervalls;
-    if ( (my_rank == numprocs-1) &&( myloop_end < mcs) ) myloop_end = mcs;
+//    int no_intervalls = mcs/numprocs;
+//    int myloop_begin = my_rank*no_intervalls + 1;
+//    int myloop_end = (my_rank+1)*no_intervalls;
+//    if ( (my_rank == numprocs-1) &&( myloop_end < mcs) ) myloop_end = mcs;
 
     MPI_Bcast (&n_spins, 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast (&initial_temp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -98,17 +98,16 @@ int main(int argc, char* argv[])
         for( int i = 0; i < 5; i++) average[i] = 0.;
         initialize(n_spins, temperature, spin_matrix, E, M);
         // start Monte Carlo computation
-        for (int cycles = myloop_begin; cycles <= myloop_end; cycles++){
+        for (int cycles = 1; cycles <= mcs; cycles++){
             Metropolis(n_spins, n_spins_squared, idum, spin_matrix, E, M, w);
             // update expectation values
             average[0] += E;    average[1] += E*E;
             average[2] += M;    average[3] += M*M; average[4] += fabs(M);
         }
-        cout<< temperature << "  " << my_rank << endl;
         MPI_Reduce(&average, &total_average, 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         // print results
         if ( my_rank == 0) {
-            output(n_spins, mcs, temperature, total_average);
+            output(n_spins, mcs*numprocs, temperature, total_average);
         }
     }
     free_matrix((void **) spin_matrix); // free memory
