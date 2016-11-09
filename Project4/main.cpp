@@ -21,7 +21,9 @@ inline int periodic(int i, int limit, int add) {
     return (i+limit+add) % (limit);
 }
 // Function to initialise energy and magnetization
-void initialize(int, double, int **, double&, double&);
+void initialize(int, int, int **, double&, double&);
+// Function to initialise energy and magnetization
+void initializeRandom(int, long, int **, double&, double&);
 // The metropolis algorithm
 void Metropolis(int, int, long&, int **, double&, double&, double *);
 // prints to file the results of the calculations
@@ -31,14 +33,14 @@ int main(int argc, char* argv[])
 {
     char *outfilename;
     long idum;
-    int **spin_matrix, n_spins, mcs, n_spins_squared, my_rank, numprocs;
+    int **spin_matrix, n_spins, mcs, n_spins_squared, my_rank, numprocs, initializationParameter;
     double w[17], average[5], initial_temp, final_temp, E, M, temp_step, total_average[5] ;
 
 
     // Read in output file, abort if there are too few command-line arguments
     if( argc <= 6 ){
         cout << "Bad Usage: " << argv[0] << "\n" << endl;
-        cout << "Usage: <./main <outputfile> <int max number of metropolis cycles> <int spins in 1 dim> <double initial temperature> <double final temperature>" <<
+        cout << "Usage: <./main> <initalization type> <outputfile> <int max number of metropolis cycles> <int spins in 1 dim> <double initial temperature> <double final temperature>" <<
                 "<int temperature steps>" << endl;
         exit(1);
     }
@@ -55,11 +57,12 @@ int main(int argc, char* argv[])
         outfilename=argv[1];
         ofile.open(outfilename);
     }
-    mcs = atoi(argv[2]);
-    n_spins=atoi(argv[3]);
-    initial_temp=atof(argv[4]);
-    final_temp=atof(argv[5]);
-    temp_step=atof(argv[6]);
+    initializationParameter = atoi(argv[2]);
+    mcs = atoi(argv[3]);
+    n_spins=atoi(argv[4]);
+    initial_temp=atof(argv[5]);
+    final_temp=atof(argv[6]);
+    temp_step=atof(argv[7]);
 
 
 
@@ -96,7 +99,15 @@ int main(int argc, char* argv[])
         for( int de =-8; de <= 8; de+=4) w[de+8] = exp(-de/temperature);
         // initialise array for expectation values
         for( int i = 0; i < 5; i++) average[i] = 0.;
-        initialize(n_spins, temperature, spin_matrix, E, M);
+        if (initializationParameter == 0){
+            initialize(n_spins, n_spins_squared, spin_matrix, E, M);
+        }
+        else if (initializationParameter == 1){
+            initializeRandom(n_spins, idum, spin_matrix, E, M);
+        }
+        else{
+            cout << " Initialization Parameter should be either 0 for all spin up initial state or 1 for random initial state " << endl;
+        }
         // start Monte Carlo computation
         for (int cycles = 1; cycles <= mcs; cycles++){
             Metropolis(n_spins, n_spins_squared, idum, spin_matrix, E, M, w);
@@ -104,6 +115,7 @@ int main(int argc, char* argv[])
             average[0] += E;    average[1] += E*E;
             average[2] += M;    average[3] += M*M; average[4] += fabs(M);
         }
+        cout << temperature << "  "<< my_rank << endl;
         MPI_Reduce(&average, &total_average, 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         // print results
         if ( my_rank == 0) {
@@ -125,15 +137,42 @@ int main(int argc, char* argv[])
 }
 
 
-// function to initialise energy, spin matrix and magnetization
-void initialize(int n_spins, double temperature, int **spin_matrix,
-                double& E, double& M)
+// function to Randomly initialise energy, spin matrix and magnetization
+void initializeRandom(int n_spins, long& idum, int **spin_matrix, double& E, double& M)
 {
     // setup spin matrix and intial magnetization
     for(int y =0; y < n_spins; y++) {
         for (int x= 0; x < n_spins; x++){
-            spin_matrix[y][x] = 1; // spin orientation for the ground state
-            M +=  (double) spin_matrix[y][x];
+            if (ran2(&idum) < 0.5){
+                spin_matrix[y][x] = 1; // spin orientation for the ground state;
+                M += (double) spin_matrix[y][x];
+            }
+            else{
+                spin_matrix[y][x] = -1; // spin orientation for the ground state;
+                M += (double) spin_matrix[y][x];
+            }
+
+        }
+    }
+    // setup initial energy
+    for(int y =0; y < n_spins; y++) {
+        for (int x= 0; x < n_spins; x++){
+            E -=  (double) spin_matrix[y][x]*
+                    (spin_matrix[periodic(y,n_spins,-1)][x] +
+                    spin_matrix[y][periodic(x,n_spins,-1)]);
+        }
+    }
+}// end function initialise
+
+
+// function to initialise energy, spin matrix and magnetization
+void initialize(int n_spins, int n_spins_squared, int **spin_matrix, double& E, double& M)
+{
+    M = (double) n_spins_squared;
+    // setup spin matrix and intial magnetization
+    for(int y =0; y < n_spins; y++) {
+        for (int x= 0; x < n_spins; x++){
+            spin_matrix[y][x] = 1; // spin orientation for the ground state;
         }
     }
     // setup initial energy
@@ -150,14 +189,14 @@ void Metropolis(int n_spins, int n_spins_squared, long& idum, int **spin_matrix,
 {
     // loop over all spins
     for(int i =0; i < n_spins_squared; i++) {
-        int ix = (int) (ran1(&idum)*(double)n_spins);
-        int iy = (int) (ran1(&idum)*(double)n_spins);
+        int ix = (int) (ran2(&idum)*(double)n_spins);
+        int iy = (int) (ran2(&idum)*(double)n_spins);
         int deltaE =  2*spin_matrix[iy][ix]*
                 (spin_matrix[iy][periodic(ix,n_spins,-1)]+
                 spin_matrix[periodic(iy,n_spins,-1)][ix] +
                 spin_matrix[iy][periodic(ix,n_spins,1)] +
                 spin_matrix[periodic(iy,n_spins,1)][ix]);
-        if ( ran1(&idum) <= w[deltaE+8] ) {
+        if ( ran2(&idum) <= w[deltaE+8] ) {
             spin_matrix[iy][ix] *= -1;  // flip one spin and accept new spin config
             M += (double) 2*spin_matrix[iy][ix];
             E += (double) deltaE;
@@ -166,23 +205,24 @@ void Metropolis(int n_spins, int n_spins_squared, long& idum, int **spin_matrix,
 } // end of Metropolis sampling over spins
 
 
-void output(int n_spins, int mcs, double temperature, double *average)
+void output(int n_spins, int n_spins_squared, int mcs, double temperature, double *average)
 {
     double norm = 1/((double) (mcs));  // divided by total number of cycles
+    double spinnorm = 1/((double) (n_spins_squared));
     double Eaverage = average[0]*norm;
     double E2average = average[1]*norm;
     double Maverage = average[2]*norm;
     double M2average = average[3]*norm;
     double Mabsaverage = average[4]*norm;
     // all expectation values are per spin, divide by 1/n_spins/n_spins
-    double Evariance = (E2average- Eaverage*Eaverage)/n_spins/n_spins;
-    double Mvariance = (M2average - Mabsaverage*Mabsaverage)/n_spins/n_spins;
+    double Evariance = (E2average- Eaverage*Eaverage)*spinnorm;
+    double Mvariance = (M2average - Mabsaverage*Mabsaverage)*spinnorm;
     ofile << setiosflags(ios::showpoint | ios::uppercase);
     ofile << setw(15) << setprecision(8) << temperature;
-    ofile << setw(15) << setprecision(8) << Eaverage/n_spins/n_spins;
+    ofile << setw(15) << setprecision(8) << Eaverage*spinnorm;
     ofile << setw(15) << setprecision(8) << Evariance/temperature/temperature;
-    ofile << setw(15) << setprecision(8) << Maverage/n_spins/n_spins;
+    ofile << setw(15) << setprecision(8) << Maverage*spinnorm;
     ofile << setw(15) << setprecision(8) << Mvariance/temperature;
-    ofile << setw(15) << setprecision(8) << Mabsaverage/n_spins/n_spins << endl;
+    ofile << setw(15) << setprecision(8) << Mabsaverage*spinnorm << endl;
 } // end output function
 
