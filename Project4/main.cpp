@@ -23,17 +23,18 @@ inline int periodic(int i, int limit, int add) {
 // Function to initialise energy and magnetization
 void initialize(int, int, int **, double&, double&);
 // Function to initialise energy and magnetization
-void initializeRandom(int, long, int **, double&, double&);
+void initializeRandom(int, long&, int **, double&, double&);
 // The metropolis algorithm
-void Metropolis(int, int, long&, int **, double&, double&, double *);
+void Metropolis(int, int, int&, long&, int **, double&, double&, double *);
 // prints to file the results of the calculations
 void output(int, int, double, double *);
+void outputCycles(int, int, int, int, double, double *);
 
 int main(int argc, char* argv[])
 {
     char *outfilename;
     long idum;
-    int **spin_matrix, n_spins, mcs, n_spins_squared, my_rank, numprocs, initializationParameter;
+    int **spin_matrix, n_spins, mcs, n_spins_squared, my_rank, numprocs, initializationParameter, acceptanceCounter;
     double w[17], average[5], initial_temp, final_temp, E, M, temp_step, total_average[5] ;
 
 
@@ -64,75 +65,117 @@ int main(int argc, char* argv[])
     final_temp=atof(argv[6]);
     temp_step=atof(argv[7]);
 
+    acceptanceCounter = 0;
 
 
-//    int no_intervalls = mcs/numprocs;
-//    int myloop_begin = my_rank*no_intervalls + 1;
-//    int myloop_end = (my_rank+1)*no_intervalls;
-//    if ( (my_rank == numprocs-1) &&( myloop_end < mcs) ) myloop_end = mcs;
+    if (initializationParameter == 0){
+        MPI_Bcast (&n_spins, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast (&initial_temp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        MPI_Bcast (&final_temp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        MPI_Bcast (&temp_step, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    MPI_Bcast (&n_spins, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast (&initial_temp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast (&final_temp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast (&temp_step, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        //    Read in initial values such as size of lattice, temp and cycles
+        spin_matrix = (int**) matrix(n_spins, n_spins, sizeof(int));
+        n_spins_squared = n_spins*n_spins;
+        idum = -1-my_rank; // random starting point
 
-
-
-
-
-    //    Read in initial values such as size of lattice, temp and cycles
-    spin_matrix = (int**) matrix(n_spins, n_spins, sizeof(int));
-    n_spins_squared = n_spins*n_spins;
-    idum = -1-my_rank; // random starting point
+        double  TimeStart, TimeEnd, TotalTime;
+        TimeStart = MPI_Wtime();
 
 
-
-    double  TimeStart, TimeEnd, TotalTime;
-    TimeStart = MPI_Wtime();
-
-
-    for ( double temperature = initial_temp; temperature <= final_temp; temperature+=temp_step){
-        //    initialise energy and magnetization
-        E = M = 0.;
-        // setup array for possible energy changes
-        for( int de =-8; de <= 8; de++) w[de+8] = 0;
-        for( int de =-8; de <= 8; de+=4) w[de+8] = exp(-de/temperature);
-        // initialise array for expectation values
-        for( int i = 0; i < 5; i++) average[i] = 0.;
-        if (initializationParameter == 0){
+        for ( double temperature = initial_temp; temperature <= final_temp; temperature+=temp_step){
+            //    initialise energy and magnetization
+            E = M = 0.;
+            // setup array for possible energy changes
+            for( int de =-8; de <= 8; de++) w[de+8] = 0;
+            for( int de =-8; de <= 8; de+=4) w[de+8] = exp(-de/temperature);
+            // initialise array for expectation values
+            for( int i = 0; i < 5; i++) average[i] = 0.;
+            // start Monte Carlo computation
             initialize(n_spins, n_spins_squared, spin_matrix, E, M);
+            for (int cycles = 1; cycles <= mcs; cycles++){
+                Metropolis(n_spins, n_spins_squared, acceptanceCounter, idum, spin_matrix, E, M, w);
+                // update expectation values
+                average[0] += E;    average[1] += E*E;
+                average[2] += M;    average[3] += M*M; average[4] += fabs(M);
+            }
+            cout << temperature << "  "<< my_rank << endl;
+            MPI_Reduce(&average, &total_average, 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+            // print results
+            if ( my_rank == 0) {
+                output(n_spins, mcs*numprocs, temperature, total_average);
+            }
         }
-        else if (initializationParameter == 1){
-            initializeRandom(n_spins, idum, spin_matrix, E, M);
-        }
-        else{
-            cout << " Initialization Parameter should be either 0 for all spin up initial state or 1 for random initial state " << endl;
-        }
-        // start Monte Carlo computation
-        for (int cycles = 1; cycles <= mcs; cycles++){
-            Metropolis(n_spins, n_spins_squared, idum, spin_matrix, E, M, w);
-            // update expectation values
-            average[0] += E;    average[1] += E*E;
-            average[2] += M;    average[3] += M*M; average[4] += fabs(M);
-        }
-        cout << temperature << "  "<< my_rank << endl;
-        MPI_Reduce(&average, &total_average, 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-        // print results
+        free_matrix((void **) spin_matrix); // free memory
+
+        ofile.close();  // close output file
+        TimeEnd = MPI_Wtime();
+        TotalTime = TimeEnd-TimeStart;
         if ( my_rank == 0) {
-            output(n_spins, mcs*numprocs, temperature, total_average);
+            cout << "Time = " <<  TotalTime  << " on number of processors: "  << numprocs  << endl;
         }
-    }
-    free_matrix((void **) spin_matrix); // free memory
 
-    ofile.close();  // close output file
-    TimeEnd = MPI_Wtime();
-    TotalTime = TimeEnd-TimeStart;
-    if ( my_rank == 0) {
-        cout << "Time = " <<  TotalTime  << " on number of processors: "  << numprocs  << endl;
+        // End MPI
+        MPI_Finalize ();
+    }
+    else if (initializationParameter == 1){
+        //    Read in initial values such as size of lattice, temp and cycles
+        spin_matrix = (int**) matrix(n_spins, n_spins, sizeof(int));
+        n_spins_squared = n_spins*n_spins;
+        idum = -1; // random starting point
+
+        for ( double temperature = initial_temp; temperature <= final_temp; temperature+=temp_step){
+            //    initialise energy and magnetization
+            E = M = 0.;
+            // setup array for possible energy changes
+            for( int de =-8; de <= 8; de++) w[de+8] = 0;
+            for( int de =-8; de <= 8; de+=4) w[de+8] = exp(-de/temperature);
+            // initialise array for expectation values
+            for( int i = 0; i < 5; i++) average[i] = 0.;
+            // start Monte Carlo computation
+            initialize(n_spins, n_spins_squared, spin_matrix, E, M);
+            for (int cycles = 1; cycles <= mcs; cycles++){
+                Metropolis(n_spins, n_spins_squared, acceptanceCounter, idum, spin_matrix, E, M, w);
+                // update expectation values
+                average[0] += E;    average[4] += fabs(M);
+                outputCycles(n_spins_squared, mcs, cycles, acceptanceCounter, E, average);
+            }
+        }
+        free_matrix((void **) spin_matrix); // free memory
+
+        ofile.close();  // close output file
+    }
+    else if(initializationParameter == 2){
+        //    Read in initial values such as size of lattice, temp and cycles
+        spin_matrix = (int**) matrix(n_spins, n_spins, sizeof(int));
+        n_spins_squared = n_spins*n_spins;
+        idum = -1; // random starting point
+
+        for ( double temperature = initial_temp; temperature <= final_temp; temperature+=temp_step){
+            //    initialise energy and magnetization
+            E = M = 0.;
+            // setup array for possible energy changes
+            for( int de =-8; de <= 8; de++) w[de+8] = 0;
+            for( int de =-8; de <= 8; de+=4) w[de+8] = exp(-de/temperature);
+            // initialise array for expectation values
+            for( int i = 0; i < 5; i++) average[i] = 0.;
+            // start Monte Carlo computation
+            initializeRandom(n_spins, idum, spin_matrix, E, M);
+            for (int cycles = 1; cycles <= mcs; cycles++){
+                Metropolis(n_spins, n_spins_squared, acceptanceCounter, idum, spin_matrix, E, M, w);
+                // update expectation values
+                average[0] += E;    average[4] += fabs(M);
+                outputCycles(n_spins_squared, mcs, cycles, acceptanceCounter, E, average);
+            }
+        }
+        free_matrix((void **) spin_matrix); // free memory
+
+        ofile.close();  // close output file
+    }
+    else{
+        cout << " WRONG! " << endl;
     }
 
-    // End MPI
-    MPI_Finalize ();
     return 0;
 }
 
@@ -185,7 +228,7 @@ void initialize(int n_spins, int n_spins_squared, int **spin_matrix, double& E, 
     }
 }// end function initialise
 
-void Metropolis(int n_spins, int n_spins_squared, long& idum, int **spin_matrix, double& E, double&M, double *w)
+void Metropolis(int n_spins, int n_spins_squared, int &acceptanceCounter, long& idum, int **spin_matrix, double& E, double&M, double *w)
 {
     // loop over all spins
     for(int i =0; i < n_spins_squared; i++) {
@@ -200,12 +243,13 @@ void Metropolis(int n_spins, int n_spins_squared, long& idum, int **spin_matrix,
             spin_matrix[iy][ix] *= -1;  // flip one spin and accept new spin config
             M += (double) 2*spin_matrix[iy][ix];
             E += (double) deltaE;
+            acceptanceCounter += 1;
         }
     }
 } // end of Metropolis sampling over spins
 
 
-void output(int n_spins, int n_spins_squared, int mcs, double temperature, double *average)
+void output(int n_spins_squared, int mcs, double temperature, double *average)
 {
     double norm = 1/((double) (mcs));  // divided by total number of cycles
     double spinnorm = 1/((double) (n_spins_squared));
@@ -226,3 +270,16 @@ void output(int n_spins, int n_spins_squared, int mcs, double temperature, doubl
     ofile << setw(15) << setprecision(8) << Mabsaverage*spinnorm << endl;
 } // end output function
 
+void outputCycles(int n_spins_squared, int mcs, int mcsCounter, int acceptanceCounter, double E, double *average)
+{
+    double norm = 1/((double) (mcsCounter));  // divided by total number of cycles
+    double spinnorm = 1/((double) (n_spins_squared));
+    double Eaverage = average[0]*norm;
+    double Mabsaverage = average[4]*norm;
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+    ofile << setw(15) << setprecision(8) << mcsCounter;
+    ofile << setw(15) << setprecision(8) << acceptanceCounter;
+    ofile << setw(15) << setprecision(8) << E*spinnorm;
+    ofile << setw(15) << setprecision(8) << Eaverage*spinnorm;
+    ofile << setw(15) << setprecision(8) << Mabsaverage*spinnorm << endl;
+} // end output function
