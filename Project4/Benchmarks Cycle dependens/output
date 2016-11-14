@@ -1,0 +1,7 @@
+./Project4 BenchmarkForCycleDependence_50000Cycles_20x20Lattice_Temperature1_allspinupInitialState.txt 1 50000 20 1 2 5 
+
+./Project4 BenchmarkForCycleDependence_50000Cycles_20x20Lattice_Temperature2.4_allspinupInitialState.txt 1 50000 20 2.4 3 5
+
+/Project4 BenchmarkForCycleDependence_50000Cycles_20x20Lattice_Temperature1_randomInitialState.txt 2 50000 20 1 3 5
+
+./Project4 BenchmarkForCycleDependence_50000Cycles_20x20Lattice_Temperature2.4_randomInitialState.txt 2 50000 20 2.4 3 5
