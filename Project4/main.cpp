@@ -28,7 +28,7 @@ void initializeRandom(int, long&, int **, double&, double&);
 void Metropolis(int, int, int&, long&, int **, double&, double&, double *);
 // prints to file the results of the calculations
 void output(int, int, double, double *);
-void outputCycles(int, int, int, int, double, double *);
+void outputCycles(int, int, int, double, double *);
 
 int main(int argc, char* argv[])
 {
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
                 Metropolis(n_spins, n_spins_squared, acceptanceCounter, idum, spin_matrix, E, M, w);
                 // update expectation values
                 average[0] += E;    average[4] += fabs(M);
-                outputCycles(n_spins_squared, mcs, cycles, acceptanceCounter, E, average);
+                outputCycles(n_spins_squared, cycles, acceptanceCounter, E, average);
             }
         }
         free_matrix((void **) spin_matrix); // free memory
@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
                 Metropolis(n_spins, n_spins_squared, acceptanceCounter, idum, spin_matrix, E, M, w);
                 // update expectation values
                 average[0] += E;    average[4] += fabs(M);
-                outputCycles(n_spins_squared, mcs, cycles, acceptanceCounter, E, average);
+                outputCycles(n_spins_squared, cycles, acceptanceCounter, E, average);
             }
         }
         free_matrix((void **) spin_matrix); // free memory
@@ -270,7 +270,7 @@ void output(int n_spins_squared, int mcs, double temperature, double *average)
     ofile << setw(15) << setprecision(8) << Mabsaverage*spinnorm << endl;
 } // end output function
 
-void outputCycles(int n_spins_squared, int mcs, int mcsCounter, int acceptanceCounter, double E, double *average)
+void outputCycles(int n_spins_squared, int mcsCounter, int acceptanceCounter, double E, double *average)
 {
     double norm = 1/((double) (mcsCounter));  // divided by total number of cycles
     double spinnorm = 1/((double) (n_spins_squared));
