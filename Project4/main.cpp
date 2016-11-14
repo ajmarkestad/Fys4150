@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
             MPI_Reduce(&average, &total_average, 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
             // print results
             if ( my_rank == 0) {
-                output(n_spins, mcs*numprocs, temperature, total_average);
+                output(n_spins_squared, mcs*numprocs, temperature, total_average);
             }
         }
         free_matrix((void **) spin_matrix); // free memory
