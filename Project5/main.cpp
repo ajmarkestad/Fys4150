@@ -140,7 +140,7 @@ void initialize(double &listofAgents, int numberofAgents, long &idum, int &Hist,
         for(j=0;j<numberofBins;j++){
             Hist_prevous[j] = Hist[j];
         }
-        Transition(double &listofAgents, int numberofAgents, long &idum);
+        transaction_simple(double &listofAgents, int numberofAgents, long &idum);
 
         int Criterium;
         for(k=0;k<numberofBins;k++){
