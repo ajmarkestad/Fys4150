@@ -26,15 +26,14 @@ int main(int argc, char* argv[])
 {
     char *outfilename;
     long idum;
-    int **spin_matrix, n_spins, mcs, n_spins_squared, my_rank, numprocs, initializationParameter, acceptanceCounter;
-    double w[17], average[5], initial_temp, final_temp, E, M, temp_step, total_average[5] ;
+    int  my_rank, numprocs, total_runs;
+    double *agentlist;
 
 
     // Read in output file, abort if there are too few command-line arguments
-    if( argc <= 6 ){
+    if( argc <= 4 ){
         cout << "Bad Usage: " << argv[0] << "\n" << endl;
-        cout << "Usage: <./main> <initalization type> <outputfile> <int max number of metropolis cycles> <int spins in 1 dim> <double initial temperature> <double final temperature>" <<
-                "<int temperature steps>" << endl;
+        cout << "Usage: <./main> <initalization type> <outputfile> <int total number of runs> " << endl;
         exit(1);
     }
 
@@ -51,13 +50,8 @@ int main(int argc, char* argv[])
         ofile.open(outfilename);
     }
     initializationParameter = atoi(argv[2]);
-    mcs = atoi(argv[3]);
-    n_spins=atoi(argv[4]);
-    initial_temp=atof(argv[5]);
-    final_temp=atof(argv[6]);
-    temp_step=atof(argv[7]);
+    total_runs = atoi(argv[3]);
 
-    acceptanceCounter = 0;
 
 
     if (initializationParameter == 0){
@@ -67,29 +61,26 @@ int main(int argc, char* argv[])
         MPI_Bcast (&temp_step, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
         //    Read in initial values such as size of lattice, temp and cycles
-        n_spins_squared = n_spins*n_spins;
         idum = -1-my_rank; // random starting point
 
         double  TimeStart, TimeEnd, TotalTime;
         TimeStart = MPI_Wtime();
 
 
-        for ( double temperature = initial_temp; temperature <= final_temp; temperature+=temp_step){
+        for ( int run= 0; run<= total_runs; run++){
 
             // start Monte Carlo computation
-            initialize();
-            for (int cycles = 1; cycles <= mcs; cycles++){
-                // update expectation values
-                average[0] += E;    average[1] += E*E;
-                average[2] += M;    average[3] += M*M; average[4] += fabs(M);
+
+            for (int cycles = 1; cycles <= mcs; cycles++)
+            {
+                transaction_simple();
+
             }
-            cout << temperature << "  "<< my_rank << endl;
             MPI_Reduce(&average, &total_average, 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-            // print results
-            if ( my_rank == 0) {
-                output(e);
-            }
         }
+
+
+
         free_matrix((void **) spin_matrix); // free memory
 
         ofile.close();  // close output file
@@ -120,6 +111,18 @@ void transaction_simple(double * agentlist, int agents, long& idum)
     return 0;
 }
 
+
+void Histogram(int &Hist, double moneyBins, double listofAgents, int numberofAgents, int numberofBins)
+{
+    int i, j;
+    for(i=0;i<numberofBins;i++){
+        for(j=0;j<numberofAgents;j++){
+            if(listofAgents[j]<moneyBins[i+1] && listofAgents[j]>moneyBins[i]){
+                Hist[i] += 1;
+            }
+        }
+    }
+}
 
 
 void initialize()
