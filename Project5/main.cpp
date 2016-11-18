@@ -18,7 +18,7 @@ ofstream ofile;
 // Function to initialise energy and magnetization
 void initialize(int, int, int **, double&, double&);
 // prints to file the results of the calculations
-void output();
+void output(doubl*, int);
 void transaction_simple(double *, int, long&);
 
 
@@ -103,11 +103,13 @@ void transaction_simple(double * agentlist, int agents, long& idum)
 {
     int agent1 = (int) (ran2(&idum)*(double)agents);
     int agent2 = (int) (ran2(&idum)*(double)agents);
-    double transaction_rate = (double) (ran2(&idum));
-    double totalcash = agentlist[agent1]+agentlist[agent2];
-    agentlist[agent1]=transaction_rate*totalcash;
-    agentlist[agent2]=(1-transaction_rate)*totalcash;
-
+    if(agent1!=agent2)
+    {
+        double transaction_rate = (double) (ran2(&idum));
+        double totalcash = agentlist[agent1]+agentlist[agent2];
+        agentlist[agent1]=transaction_rate*totalcash;
+        agentlist[agent2]=(1-transaction_rate)*totalcash;
+    }
     return 0;
 }
 
@@ -131,8 +133,11 @@ void initialize()
 }
 
 
-void output()
+void output(double *histogram, int bins)
 {
-
+    for (int bin=0, bin<bins, bin++)
+    {
+        ofile << setw(15) << setprecision(8) << histogram[bin] << endl;
+    }
 }
 
