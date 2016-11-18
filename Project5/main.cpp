@@ -153,21 +153,21 @@ void Histogram(int &Hist, double moneyBins, double listofAgents, int numberofAge
 
 void initialize(double &listofAgents, int numberofAgents, long &idum, int &Hist, double moneyBins,, int numberofBins, double initialMoney, int epsilon, int MaxGate)
 {
-    for(i=0;i<numberofAgents;i++){
+    for(int i=0;i<numberofAgents;i++){
         listofAgents[i] = initialMoney;
     }
 
-    for(a=0;a<MaxGate;a++){
+    for(int a=0;a<MaxGate;a++){
         Histogram(Hist, moneyBins, listofAgents, numberofAgents, numberofBins);
         int Hist_prevous[numberofBins];
 
-        for(j=0;j<numberofBins;j++){
+        for(int j=0;j<numberofBins;j++){
             Hist_prevous[j] = Hist[j];
         }
         transaction_simple(double &listofAgents, int numberofAgents, long &idum);
 
         int Criterium;
-        for(k=0;k<numberofBins;k++){
+        for(int k=0;k<numberofBins;k++){
             Criterium += abs(Hist[k]-Hist_prevous[k]);
         }
         if(Criterium <= epsilon){
