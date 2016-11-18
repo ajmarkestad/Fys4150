@@ -19,8 +19,8 @@ ofstream ofile;
 void initialize(int, int, int **, double&, double&);
 // prints to file the results of the calculations
 void output(double*, int);
-void transaction_simple(double *, int, long&);
-void transaction_advanced(double *, int, long&);
+void transaction_simple(double *, int, long&, int);
+void transaction_advanced(double *, int, long&, int);
 
 
 int main(int argc, char* argv[])
@@ -68,21 +68,43 @@ int main(int argc, char* argv[])
 
     //    double  TimeStart, TimeEnd, TotalTime;
     //        TimeStart = MPI_Wtime();
+    //INITIALIZATION
+    for(int i=0;i<numberofAgents;i++){
+        listofAgents[i] = initialMoney;
+    }
 
+    for(int a=0;a<MaxGate;a++){
+        Histogram(Hist, moneyBins, listofAgents, numberofAgents, numberofBins);
+        int Hist_prevous[numberofBins];
 
+        for(int j=0;j<numberofBins;j++){
+            Hist_prevous[j] = Hist[j];
+        }
+
+        if(initializationParameter==0){
+            transaction_simple();
+        }else if(initializationParameter==1){
+            transaction_advanced();
+        }
+
+        int Criterium;
+        for(int k=0;k<numberofBins;k++){
+            Criterium += abs(Hist[k]-Hist_prevous[k]);
+        }
+        if(Criterium <= epsilon){
+            cout << "Steady state reached!" << endl;
+            break
+        }
+    }
+
+    //MAIN LOOP
     for ( int run= 0; run<= total_runs; run++){
 
         // start Monte Carlo computation
         if(initializationParameter==0){
-            for (int cycle = 1; cycle <= cycles_per_run; cycle++)
-            {
-                transaction_simple();
-            }
+            transaction_simple();
         }else if(initializationParameter==1){
-            for (int cycle = 1; cycle <= cycles_per_run; cycle++)
-            {
-                transaction_advanced();
-            }
+            transaction_advanced();
         }
 
         //cumulative histogram?
@@ -112,29 +134,35 @@ int main(int argc, char* argv[])
 }
 
 
-void transaction_simple(double * agentlist, int agents, long& idum)
+void transaction_simple(double * agentlist, int agents, long& idum, int total_transactions)
 {
-    int agent1 = (int) (ran2(&idum)*(double)agents);
-    int agent2 = (int) (ran2(&idum)*(double)agents);
-    if(agent1!=agent2)
+    for (int i=0; i<total_transactions; i++)
     {
-        double transaction_rate = (double) (ran2(&idum));
-        double totalcash = agentlist[agent1]+agentlist[agent2];
-        agentlist[agent1]=transaction_rate*totalcash;
-        agentlist[agent2]=(1-transaction_rate)*totalcash;
+        int agent1 = (int) (ran2(&idum)*(double)agents);
+        int agent2 = (int) (ran2(&idum)*(double)agents);
+        if(agent1!=agent2)
+        {
+            double transaction_rate = (double) (ran2(&idum));
+            double totalcash = agentlist[agent1]+agentlist[agent2];
+            agentlist[agent1]=transaction_rate*totalcash;
+            agentlist[agent2]=(1-transaction_rate)*totalcash;
+        }
     }
 }
 
-void transaction_advanced(double * agentlist, int agents, long& idum)
+void transaction_advanced(double * agentlist, int agents, long& idum, int total_transactions)
 {
-    int agent1 = (int) (ran2(&idum)*(double)agents);
-    int agent2 = (int) (ran2(&idum)*(double)agents);
-    if(agent1!=agent2)
+    for (int i=0; i<total_transactions; i++)
     {
-        double transaction_rate = (double) (ran2(&idum));
-        double totalcash = agentlist[agent1]+agentlist[agent2];
-        agentlist[agent1]=transaction_rate*totalcash;
-        agentlist[agent2]=(1-transaction_rate)*totalcash;
+        int agent1 = (int) (ran2(&idum)*(double)agents);
+        int agent2 = (int) (ran2(&idum)*(double)agents);
+        if(agent1!=agent2)
+        {
+            double transaction_rate = (double) (ran2(&idum));
+            double totalcash = agentlist[agent1]+agentlist[agent2];
+            agentlist[agent1]=transaction_rate*totalcash;
+            agentlist[agent2]=(1-transaction_rate)*totalcash;
+        }
     }
 }
 
@@ -149,34 +177,6 @@ void Histogram(int &Hist, double moneyBins, double listofAgents, int numberofAge
         }
     }
 }
-
-
-void initialize(double &listofAgents, int numberofAgents, long &idum, int &Hist, double moneyBins,, int numberofBins, double initialMoney, int epsilon, int MaxGate)
-{
-    for(int i=0;i<numberofAgents;i++){
-        listofAgents[i] = initialMoney;
-    }
-
-    for(int a=0;a<MaxGate;a++){
-        Histogram(Hist, moneyBins, listofAgents, numberofAgents, numberofBins);
-        int Hist_prevous[numberofBins];
-
-        for(int j=0;j<numberofBins;j++){
-            Hist_prevous[j] = Hist[j];
-        }
-        transaction_simple(double &listofAgents, int numberofAgents, long &idum);
-
-        int Criterium;
-        for(int k=0;k<numberofBins;k++){
-            Criterium += abs(Hist[k]-Hist_prevous[k]);
-        }
-        if(Criterium <= epsilon){
-            cout << "Steady state reached!" << endl;
-            break
-        }
-    }
-}
-
 
 void output(double *histogram, int bins)
 {
