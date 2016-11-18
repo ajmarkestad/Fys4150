@@ -27,8 +27,8 @@ int main(int argc, char* argv[])
 {
     char *outfilename;
     long idum;
-    int  my_rank, numprocs, total_runs, initializationParameter, cycles_per_run;
-    double *agentlist;
+    int  my_rank, numprocs, total_runs, initializationParameter, cycles_per_run, *Hist[numberofBins], numberofAgents, numberofBins, total_transactions, initialMoney;
+    double *agentlist[numberofAgents], moneyBins[numberofBins];
 
 
     // Read in output file, abort if there are too few command-line arguments
@@ -56,6 +56,14 @@ int main(int argc, char* argv[])
     cycles_per_run = atoi(argv[4]);
     my_rank = 0;
 
+    double step = initialMoney*numberofAgents/numberofBins;
+    for (int h = 0; h<numberofBins; h++){
+        moneyBins[h] = h*step;
+    }
+
+
+
+
 
     //    if (initializationParameter == 0){
     //        MPI_Bcast (&n_spins, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -74,7 +82,7 @@ int main(int argc, char* argv[])
     }
 
     for(int a=0;a<MaxGate;a++){
-        Histogram(Hist, moneyBins, listofAgents, numberofAgents, numberofBins);
+        Histogram(Hist, moneyBins, agentlist, numberofAgents, numberofBins);
         int Hist_prevous[numberofBins];
 
         for(int j=0;j<numberofBins;j++){
@@ -82,9 +90,9 @@ int main(int argc, char* argv[])
         }
 
         if(initializationParameter==0){
-            transaction_simple();
+            transaction_simple(agentlist, numberofAgents, idum, total_transactions);
         }else if(initializationParameter==1){
-            transaction_advanced();
+            transaction_advanced(agentlist, numberofAgents, idum, total_transactions);
         }
 
         int Criterium;
@@ -102,9 +110,9 @@ int main(int argc, char* argv[])
 
         // start Monte Carlo computation
         if(initializationParameter==0){
-            transaction_simple();
+            transaction_simple(agentlist, numberofAgents, idum, total_transactions);
         }else if(initializationParameter==1){
-            transaction_advanced();
+            transaction_advanced(agentlist, numberofAgents, idum, total_transactions);
         }
 
         //cumulative histogram?
