@@ -11,90 +11,103 @@
 #include <fstream>
 #include <iomanip>
 #include "lib.h"
-#include "mpi.h"
+//#include "mpi.h"
 using namespace  std;
 
 ofstream ofile;
 // Function to initialise energy and magnetization
 void initialize(int, int, int **, double&, double&);
 // prints to file the results of the calculations
-void output(doubl*, int);
+void output(double*, int);
 void transaction_simple(double *, int, long&);
+void transaction_advanced(double *, int, long&);
 
 
 int main(int argc, char* argv[])
 {
     char *outfilename;
     long idum;
-    int  my_rank, numprocs, total_runs;
+    int  my_rank, numprocs, total_runs, initializationParameter, cycles_per_run;
     double *agentlist;
 
 
     // Read in output file, abort if there are too few command-line arguments
-    if( argc <= 4 ){
+    if( argc <= 5 ){
         cout << "Bad Usage: " << argv[0] << "\n" << endl;
-        cout << "Usage: <./main> <initalization type> <outputfile> <int total number of runs> " << endl;
+        cout << "Usage: <./main> <initalization type> <outputfile> <int total number of runs> <int cycles per run> " << endl;
         exit(1);
     }
 
-    MPI_Init (&argc, &argv);
-    MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
-    MPI_Comm_rank (MPI_COMM_WORLD, &my_rank);
-    if (my_rank == 0 && argc <= 1) {
-        cout << "Bad Usage: " << argv[0] <<
-                " read output file" << endl;
-        exit(1);
-    }
-    if (my_rank == 0 && argc > 1) {
-        outfilename=argv[1];
-        ofile.open(outfilename);
-    }
+    //    MPI_Init (&argc, &argv);
+    //    MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
+    //    MPI_Comm_rank (MPI_COMM_WORLD, &my_rank);
+    //    if (my_rank == 0 && argc <= 1) {
+    //        cout << "Bad Usage: " << argv[0] <<
+    //                " read output file" << endl;
+    //        exit(1);
+    //    }
+    //    if (my_rank == 0 && argc > 1) {
+
+    //    }
+    outfilename=argv[1];
+    ofile.open(outfilename);
     initializationParameter = atoi(argv[2]);
     total_runs = atoi(argv[3]);
+    cycles_per_run = atoi(argv[4]);
+    my_rank = 0;
 
 
+    //    if (initializationParameter == 0){
+    //        MPI_Bcast (&n_spins, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    //        MPI_Bcast (&initial_temp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    //        MPI_Bcast (&final_temp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    //        MPI_Bcast (&temp_step, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    if (initializationParameter == 0){
-        MPI_Bcast (&n_spins, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast (&initial_temp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        MPI_Bcast (&final_temp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        MPI_Bcast (&temp_step, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    //    Read in initial values such as size of lattice, temp and cycles
+    idum = -1-my_rank; // random starting point
 
-        //    Read in initial values such as size of lattice, temp and cycles
-        idum = -1-my_rank; // random starting point
-
-        double  TimeStart, TimeEnd, TotalTime;
-        TimeStart = MPI_Wtime();
+    //    double  TimeStart, TimeEnd, TotalTime;
+    //        TimeStart = MPI_Wtime();
 
 
-        for ( int run= 0; run<= total_runs; run++){
+    for ( int run= 0; run<= total_runs; run++){
 
-            // start Monte Carlo computation
-
-            for (int cycles = 1; cycles <= mcs; cycles++)
+        // start Monte Carlo computation
+        if(initializationParameter==0){
+            for (int cycle = 1; cycle <= cycles_per_run; cycle++)
             {
                 transaction_simple();
-
             }
-            MPI_Reduce(&average, &total_average, 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        }else if(initializationParameter==1){
+            for (int cycle = 1; cycle <= cycles_per_run; cycle++)
+            {
+                transaction_advanced();
+            }
         }
 
+        //cumulative histogram?
 
-
-        free_matrix((void **) spin_matrix); // free memory
-
-        ofile.close();  // close output file
-        TimeEnd = MPI_Wtime();
-        TotalTime = TimeEnd-TimeStart;
-        if ( my_rank == 0) {
-            cout << "Time = " <<  TotalTime  << " on number of processors: "  << numprocs  << endl;
-        }
-
-        // End MPI
-        MPI_Finalize ();
     }
 
+    //output
+    output(histogram, bins);
+    //            MPI_Reduce(&average, &total_average, 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
+    free_matrix((void *) histogram); // free memory
+
+
+    //        TimeEnd = MPI_Wtime();
+    //        TotalTime = TimeEnd-TimeStart;
+    //        if ( my_rank == 0) {
+    //            cout << "Time = " <<  TotalTime  << " on number of processors: "  << numprocs  << endl;
+    //        }
+
+    // End MPI
+    //        MPI_Finalize ();
+    //    }
+
+
+    ofile.close();  // close output file
     return 0;
 }
 
@@ -110,9 +123,20 @@ void transaction_simple(double * agentlist, int agents, long& idum)
         agentlist[agent1]=transaction_rate*totalcash;
         agentlist[agent2]=(1-transaction_rate)*totalcash;
     }
-    return 0;
 }
 
+void transaction_advanced(double * agentlist, int agents, long& idum)
+{
+    int agent1 = (int) (ran2(&idum)*(double)agents);
+    int agent2 = (int) (ran2(&idum)*(double)agents);
+    if(agent1!=agent2)
+    {
+        double transaction_rate = (double) (ran2(&idum));
+        double totalcash = agentlist[agent1]+agentlist[agent2];
+        agentlist[agent1]=transaction_rate*totalcash;
+        agentlist[agent2]=(1-transaction_rate)*totalcash;
+    }
+}
 
 void Histogram(int &Hist, double moneyBins, double listofAgents, int numberofAgents, int numberofBins)
 {
