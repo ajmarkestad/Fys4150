@@ -106,6 +106,18 @@ int main(int argc, char* argv[])
 }
 
 
+void Histogram(int &Hist, double moneyBins, double listofAgents, int numberofAgents, int numberofBins)
+{
+    int i, j;
+    for(i=0;i<numberofBins;i++){
+        for(j=0;j<numberofAgents;j++){
+            if(listofAgents[j]<moneyBins[i+1] && listofAgents[j]>moneyBins[i]){
+                Hist[i] += 1;
+            }
+        }
+    }
+}
+
 
 void initialize()
 {
