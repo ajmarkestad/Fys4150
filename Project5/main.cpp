@@ -19,6 +19,8 @@ ofstream ofile;
 void initialize(int, int, int **, double&, double&);
 // prints to file the results of the calculations
 void output();
+void transaction_simple(double *, int, long&);
+
 
 int main(int argc, char* argv[])
 {
@@ -101,6 +103,19 @@ int main(int argc, char* argv[])
         MPI_Finalize ();
     }
 
+
+    return 0;
+}
+
+
+void transaction_simple(double * agentlist, int agents, long& idum)
+{
+    int agent1 = (int) (ran2(&idum)*(double)agents);
+    int agent2 = (int) (ran2(&idum)*(double)agents);
+    double transaction_rate = (double) (ran2(&idum));
+    double totalcash = agentlist[agent1]+agentlist[agent2];
+    agentlist[agent1]=transaction_rate*totalcash;
+    agentlist[agent2]=(1-transaction_rate)*totalcash;
 
     return 0;
 }
