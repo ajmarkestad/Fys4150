@@ -21,20 +21,20 @@ void initialize(int, int, int **, double&, double&);
 void output(double*, int);
 void transaction_simple(double *, int, long&, int);
 void transaction_advanced(double *, int, long&, int);
+void Histogram(int *, double , double , int , int );
 
 
 int main(int argc, char* argv[])
 {
     char *outfilename;
     long idum;
-    int  my_rank, numprocs, total_runs, initializationParameter, cycles_per_run, *Hist[numberofBins], numberofAgents, numberofBins, total_transactions, initialMoney;
-    double *agentlist[numberofAgents], moneyBins[numberofBins];
-
+    int  my_rank, numprocs, total_runs, initializationParameter, cycles_per_run, numberofAgents, numberofBins, total_transactions;
+    double initialMoney;
 
     // Read in output file, abort if there are too few command-line arguments
-    if( argc <= 5 ){
+    if( argc <= 6 ){
         cout << "Bad Usage: " << argv[0] << "\n" << endl;
-        cout << "Usage: <./main> <initalization type> <outputfile> <int total number of runs> <int cycles per run> " << endl;
+        cout << "Usage: <./main> <initalization type> <outputfile> <int total number of runs> <int cycles per run> <int number of histogram bins> <int number of agents>" << endl;
         exit(1);
     }
 
@@ -54,14 +54,19 @@ int main(int argc, char* argv[])
     initializationParameter = atoi(argv[2]);
     total_runs = atoi(argv[3]);
     cycles_per_run = atoi(argv[4]);
+    numberofBins = atoi(argv[5]);
+    numberofAgents = atoi(argv[6]);
     my_rank = 0;
+
+    double moneyBins[numberofBins], *agentlist[numberofAgents];
+    int *Hist[numberofBins];
 
     double step = initialMoney*numberofAgents/numberofBins;
     for (int h = 0; h<numberofBins; h++){
         moneyBins[h] = h*step;
     }
 
-
+    initialMoney = 1;
 
 
 
@@ -78,9 +83,10 @@ int main(int argc, char* argv[])
     //        TimeStart = MPI_Wtime();
     //INITIALIZATION
     for(int i=0;i<numberofAgents;i++){
-        listofAgents[i] = initialMoney;
+        *agentlist[i] = initialMoney;
     }
 
+    int MaxGate = 1000;
     for(int a=0;a<MaxGate;a++){
         Histogram(Hist, moneyBins, agentlist, numberofAgents, numberofBins);
         int Hist_prevous[numberofBins];
@@ -122,8 +128,6 @@ int main(int argc, char* argv[])
     //output
     output(histogram, bins);
     //            MPI_Reduce(&average, &total_average, 5, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-
-    free_matrix((void *) histogram); // free memory
 
 
     //        TimeEnd = MPI_Wtime();
