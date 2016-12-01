@@ -48,7 +48,7 @@ file1 = open('propersimple','r')
 count = []
 bins = []
 
-file2 = open('propersimple','r')
+file2 = open('propersimpleinit','r')
 variance = []
 for line in file2:
     variance.append(float(line))
