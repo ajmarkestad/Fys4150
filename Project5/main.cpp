@@ -11,17 +11,16 @@
 #include <fstream>
 #include <iomanip>
 #include "lib.h"
-//#include "mpi.h"
 using namespace  std;
 
 ofstream ofile;
 
 // prints to file the results of the calculations
-void output(double*, int, int, int);
-void Output_M(int, double);
+void output(int *, int, int, int);
+void Output_M(int, double *);
 void transaction_simple(double *, int, long&, int);
 void transaction_advanced(double *, int, long&, int);
-void Histogram(int &, double , double , int , int );
+void Histogram(int *, double*, double* , int , int );
 
 
 int main(int argc, char* argv[])
@@ -44,8 +43,11 @@ int main(int argc, char* argv[])
     numberofAgents = atoi(argv[6]);
     tall = atoi(argv[7]);
 
-    double moneyBins[numberofBins], *agentlist[numberofAgents];
-    int *Hist[numberofBins];
+    double *moneyBins, *agentlist;
+    int *Hist;
+    moneyBins = new double[numberofBins];
+    agentlist = new double[numberofAgents];
+    Hist = new int[numberofBins];
 
     double step = initialMoney*numberofAgents/numberofBins;
     for (int h = 0; h<numberofBins; h++){
@@ -54,9 +56,8 @@ int main(int argc, char* argv[])
 
     initialMoney = 1;
     idum = -1;
-
-            for(int i=0;i<numberofAgents;i++){
-        *agentlist[i] = initialMoney;
+    for(int i=0;i<numberofAgents;i++){
+        agentlist[i] = initialMoney;
     }
 
     int MaxGate = 1000;
@@ -133,7 +134,7 @@ void transaction_advanced(double * agentlist, int agents, long& idum, int total_
     }
 }
 
-void Histogram(int &Hist, double moneyBins, double listofAgents, int numberofAgents, int numberofBins)
+void Histogram(int *Hist, double *moneyBins, double *listofAgents, int numberofAgents, int numberofBins)
 {
     int i, j;
     for(i=0;i<numberofBins;i++){
@@ -155,13 +156,13 @@ void output(double *histogram, int bins, int total_runs, int tall)
 }
 
 
-void Output_M(int numberofAgents, double agentlist)
+void Output_M(int numberofAgents, double *agentlist)
 {
     int snittM2 = 0;
-for(int i = 0;i < numberofAgents;i++){
-    snittM2 += (agentlist[i])*agentlist[i];
-}
-double norm = 1/numberofAgents;
-double variance = snittM2*norm-1;
-ofile << setw(15) << setprecision(8) << variance<< endl;
+    for(int i = 0;i < numberofAgents;i++){
+        snittM2 += (agentlist[i])*agentlist[i];
+    }
+    double norm = 1/numberofAgents;
+    double variance = snittM2*norm-1;
+    ofile << setw(15) << setprecision(8) << variance<< endl;
 }
