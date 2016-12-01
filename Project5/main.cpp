@@ -90,7 +90,6 @@ int main(int argc, char* argv[])
 void transaction(double *agentlist, int agents, long& idum, int total_transactions, double lambda, double gamma, double alpha, double normalization)
 {
     double cash_exchange;
-    double cash_difference;
     double transaction_probability;
     for (int i=0; i<total_transactions; i++)
     {
@@ -99,7 +98,7 @@ void transaction(double *agentlist, int agents, long& idum, int total_transactio
         double transaction_rate = (double) (ran2(&idum));
         if(agent1!=agent2)
         {
-            transition_probability = pow(abs(agentlist[agent1]-agentlist[agent2]),-alpha)/normalization;
+            transaction_probability = pow(abs(agentlist[agent1]-agentlist[agent2]),-alpha)/normalization;
             if (transaction_probability>1){
                 transaction_probability=1.0;
             }
