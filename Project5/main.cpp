@@ -30,9 +30,9 @@ int main(int argc, char* argv[])
     double initialMoney;
 
     // Read in output file, abort if there are too few command-line arguments
-    if( argc <= 6 ){
+    if( argc <= 7 ){
         cout << "Bad Usage: " << argv[0] << "\n" << endl;
-        cout << "Usage: <./main> <outputfile> <int initalization type> <int total number of runs>  <int number of histogram bins> <int number of agents><int initial cycles>" << endl;
+        cout << "Usage: <./main> <outputfile> <int initalization type> <int total number of runs>  <int number of histogram bins> <int number of agents><int initial cycles><int transactions per run>" << endl;
         exit(1);
     }
     string outfilename=argv[1];
@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
     numberofBins = atoi(argv[4]);
     numberofAgents = atoi(argv[5]);
     initial_cycles= atoi(argv[6]);
+    total_transactions = atoi(argv[7]);
 
     double *moneyBins, *agentlist;
     int *Hist;
@@ -48,7 +49,6 @@ int main(int argc, char* argv[])
     agentlist = new double[numberofAgents];
     Hist = new int[numberofBins];
 
-    total_transactions = 1;
     initialMoney = 1;
     idum = -1;
     for(int i=0;i<numberofAgents;i++){
