@@ -59,15 +59,6 @@ int main(int argc, char* argv[])
         *agentlist[i] = initialMoney;
     }
 
-    int MaxGate = 1000;
-    for(int a=0;a<MaxGate;a++){
-        Histogram(Hist, moneyBins, agentlist, numberofAgents, numberofBins);
-        int Hist_prevous[numberofBins];
-        for(int j=0;j<numberofBins;j++){
-            Hist_prevous[j] = Hist[j];
-        }
-    }
-
 
 
     ofile.open(outfilename+"init");
@@ -101,7 +92,7 @@ int main(int argc, char* argv[])
 }
 
 
-void transaction_simple(double * agentlist, int agents, long& idum, int total_transactions)
+void transaction_simple(double &agentlist, int agents, long& idum, int total_transactions)
 {
     for (int i=0; i<total_transactions; i++)
     {
@@ -117,7 +108,7 @@ void transaction_simple(double * agentlist, int agents, long& idum, int total_tr
     }
 }
 
-void transaction_advanced(double * agentlist, int agents, long& idum, int total_transactions)
+void transaction_advanced(double &agentlist, int agents, long& idum, int total_transactions)
 {
     for (int i=0; i<total_transactions; i++)
     {
@@ -145,7 +136,7 @@ void Histogram(int &Hist, double moneyBins, double listofAgents, int numberofAge
     }
 }
 
-void output(double *histogram, int bins, int total_runs, int tall)
+void output(double &histogram, int bins, int total_runs, int tall)
 {
     double norm = 1/(total_runs-tall);
     for (int bin=0; bin<bins; bin++)
@@ -158,10 +149,10 @@ void output(double *histogram, int bins, int total_runs, int tall)
 void Output_M(int numberofAgents, double agentlist)
 {
     int snittM2 = 0;
-for(int i = 0;i < numberofAgents;i++){
-    snittM2 += (agentlist[i])*agentlist[i];
-}
-double norm = 1/numberofAgents;
-double variance = snittM2*norm-1;
-ofile << setw(15) << setprecision(8) << variance<< endl;
+    for(int i = 0;i < numberofAgents;i++){
+        snittM2 += agentlist[i]*agentlist[i];
+    }
+    double norm = 1/numberofAgents;
+    double variance = snittM2*norm-1;
+    ofile << setw(15) << setprecision(8) << variance<< endl;
 }
