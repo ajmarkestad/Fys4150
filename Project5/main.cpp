@@ -18,14 +18,14 @@ ofstream ofile;
 
 // prints to file the results of the calculations
 void output(double*, int, int, int);
+void Output_M(int, double);
 void transaction_simple(double *, int, long&, int);
 void transaction_advanced(double *, int, long&, int);
-void Histogram(int *, double , double , int , int );
+void Histogram(int &, double , double , int , int );
 
 
 int main(int argc, char* argv[])
 {
-    char *outfilename;
     long idum;
     int  total_runs, initializationParameter, cycles_per_run, numberofAgents, numberofBins, total_transactions, tall;
     double initialMoney;
@@ -36,16 +36,13 @@ int main(int argc, char* argv[])
         cout << "Usage: <./main> <initalization type> <outputfile> <int total number of runs> <int cycles per run> <int number of histogram bins> <int number of agents><tall>" << endl;
         exit(1);
     }
-
-    outfilename=argv[1];
-    ofile.open(outfilename);
+    string outfilename=argv[1];
     initializationParameter = atoi(argv[2]);
     total_runs = atoi(argv[3]);
     cycles_per_run = atoi(argv[4]);
     numberofBins = atoi(argv[5]);
     numberofAgents = atoi(argv[6]);
     tall = atoi(argv[7]);
-    my_rank = 0;
 
     double moneyBins[numberofBins], *agentlist[numberofAgents];
     int *Hist[numberofBins];
@@ -56,9 +53,9 @@ int main(int argc, char* argv[])
     }
 
     initialMoney = 1;
-    idum = -1
+    idum = -1;
 
-    for(int i=0;i<numberofAgents;i++){
+            for(int i=0;i<numberofAgents;i++){
         *agentlist[i] = initialMoney;
     }
 
@@ -71,27 +68,31 @@ int main(int argc, char* argv[])
         }
     }
 
+
+
+    ofile.open(outfilename+"init");
     //MAIN LOOP
     for ( int run= 0; run<= total_runs; run++){
 
         // start Monte Carlo computation
         if(initializationParameter==0){
-            transaction_simple(agentlist, numberofAgents, idum, total_transactions);                  
+            transaction_simple(agentlist, numberofAgents, idum, total_transactions);
         }else if(initializationParameter==1){
             transaction_advanced(agentlist, numberofAgents, idum, total_transactions);
         }
         if(run>= tall){
-        Histogram(Hist, moneyBins, agentlist, numberofAgent, numberofBins);
+            Histogram(Hist, moneyBins, agentlist, numberofAgents, numberofBins);
         }
         else{
-            Output_M;
+            Output_M(numberofAgents,agentlist);
         }
         //cumulative histogram?
 
     }
-
+    ofile.close();
+    ofile.open(outfilename);
     //output
-    output(histogram, bins, total_runs, tall);
+    output(Hist, numberofBins, total_runs, tall);
 
 
 
@@ -155,9 +156,12 @@ void output(double *histogram, int bins, int total_runs, int tall)
 
 
 void Output_M(int numberofAgents, double agentlist)
-        for(int i = 0;i < numberofAgents;i++){
-            snittM2 += (agentlist[i])^2;
-        }
-        double norm = 1/numberofAgents;
-        double variance = snittM*norm-1;
-        ofile << setw(15) << setprecision(8) << variance<< endl;
+{
+    int snittM2 = 0;
+for(int i = 0;i < numberofAgents;i++){
+    snittM2 += (agentlist[i])*agentlist[i];
+}
+double norm = 1/numberofAgents;
+double variance = snittM2*norm-1;
+ofile << setw(15) << setprecision(8) << variance<< endl;
+}
