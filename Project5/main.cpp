@@ -105,8 +105,8 @@ void transaction(double *agentlist, int agents, long& idum, int total_transactio
             int transaction_random = (double) (ran2(&idum));
             if(transaction_random<transaction_probability){
                 cash_exchange = (1-lambda)*(transaction_rate*agentlist[agent1]-(1-transaction_rate)*agentlist[agent2]);
-                agentlist[agent1]+=cash_exchange;
-                agentlist[agent2]-=cash_exchange;
+                agentlist[agent1]-=cash_exchange;
+                agentlist[agent2]+=cash_exchange;
             }
         }
     }
