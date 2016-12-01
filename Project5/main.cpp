@@ -26,22 +26,21 @@ void Histogram(int *, double*, double* , int , int );
 int main(int argc, char* argv[])
 {
     long idum;
-    int  total_runs, initializationParameter, cycles_per_run, numberofAgents, numberofBins, total_transactions, tall;
+    int  total_runs, initializationParameter, numberofAgents, numberofBins, total_transactions, initial_cycles;
     double initialMoney;
 
     // Read in output file, abort if there are too few command-line arguments
-    if( argc <= 7 ){
+    if( argc <= 6 ){
         cout << "Bad Usage: " << argv[0] << "\n" << endl;
-        cout << "Usage: <./main> <initalization type> <outputfile> <int total number of runs> <int cycles per run> <int number of histogram bins> <int number of agents><tall>" << endl;
+        cout << "Usage: <./main> <outputfile> <int initalization type> <int total number of runs>  <int number of histogram bins> <int number of agents><int initial cycles>" << endl;
         exit(1);
     }
     string outfilename=argv[1];
     initializationParameter = atoi(argv[2]);
     total_runs = atoi(argv[3]);
-    cycles_per_run = atoi(argv[4]);
-    numberofBins = atoi(argv[5]);
-    numberofAgents = atoi(argv[6]);
-    tall = atoi(argv[7]);
+    numberofBins = atoi(argv[4]);
+    numberofAgents = atoi(argv[5]);
+    initial_cycles= atoi(argv[6]);
 
     double *moneyBins, *agentlist;
     int *Hist;
@@ -65,25 +64,23 @@ int main(int argc, char* argv[])
     //MAIN LOOP
     for ( int run= 0; run<= total_runs; run++){
 
-        // start Monte Carlo computation
         if(initializationParameter==0){
             transaction_simple(agentlist, numberofAgents, idum, total_transactions);
         }else if(initializationParameter==1){
             transaction_advanced(agentlist, numberofAgents, idum, total_transactions);
         }
-        if(run>= tall){
+        if(run>= initial_cycles){
             Histogram(Hist, moneyBins, agentlist, numberofAgents, numberofBins);
         }
         else{
             Output_M(numberofAgents,agentlist);
         }
-        //cumulative histogram?
 
     }
     ofile.close();
     ofile.open(outfilename);
     //output
-    output(Hist, numberofBins, total_runs, tall);
+    output(Hist, numberofBins, total_runs, initial_cycles);
 
 
 
