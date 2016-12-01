@@ -11,7 +11,12 @@ numberofbins = 400
 numberofagens = 400
 initialcycles = 10000
 transactions = 1
-command = "./Project5"+ " " + 'test' + " " + "0"+ " " + str(totalruns)+ " " + str(numberofbins) + " " + str(numberofagens) + " " + str(initialcycles)+ " " + str(transactions)
+inputlambda = 0
+inputgamma = 0
+inputalpha = 0
+normalization = 0.001
+command = "./Project5"+ " " + 'test' + " " + str(totalruns)+ " " + str(numberofbins) + " " + str(numberofagens) + " " + str(initialcycles)+ " " + str(transactions)+ " " + str(inputlambda)+ " " + str(inputgamma)+ " " + str(inputalpha)+ " " + str(normalization)
+
 print(command)
 os.system(command)
 file1 = open('testinit','r')
@@ -33,7 +38,12 @@ numberofbins = 400
 numberofagens = 400
 initialcycles = 2000
 transactions = 10
-command = "./Project5"+ " " + 'propersimple' + " " + "0"+ " " + str(totalruns)+ " " + str(numberofbins) + " " + str(numberofagens) + " " + str(initialcycles)+ " " + str(transactions)
+transactions = 1
+lambdainput = 0
+gammainput = 0
+alphainput = 0
+normalization = 1
+command = "./Project5"+ " " + 'propersimple' + " " + str(totalruns)+ " " + str(numberofbins) + " " + str(numberofagens) + " " + str(initialcycles)+ " " + str(transactions)+ " " + str(inputlambda)+ " " + str(inputgamma)+ " " + str(inputalpha)+ " " + str(normalization)
 print(command)
 os.system(command)
 file1 = open('propersimple','r')
@@ -49,4 +59,5 @@ plt.ylabel('Count')
 plt.savefig("Proper_simple_transaction.png")
 plt.close()
 os.system("rm "+"propersimpleinit")
-#os.system('rm '+'test')
+
+

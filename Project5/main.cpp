@@ -18,30 +18,32 @@ ofstream ofile;
 // prints to file the results of the calculations
 void output(int *,double *, int, int, int);
 void Output_M(int , double *);
-void transaction_simple(double *, int, long&, int);
-void transaction_advanced(double *, int, long&, int);
+void transaction(double *, int, long&, int, double, double, double, double);
 void Histogram(int *, double*, double* , int , int );
 
 
 int main(int argc, char* argv[])
 {
     long idum;
-    int  total_runs, initializationParameter, numberofAgents, numberofBins, total_transactions, initial_cycles;
-    double initialMoney;
+    int  total_runs, numberofAgents, numberofBins, total_transactions, initial_cycles;
+    double initialMoney, lambda, gamma, alpha, normalization;
 
     // Read in output file, abort if there are too few command-line arguments
-    if( argc <= 7 ){
+    if( argc <= 10 ){
         cout << "Bad Usage: " << argv[0] << "\n" << endl;
-        cout << "Usage: <./main> <outputfile> <int initalization type> <int total number of runs>  <int number of histogram bins> <int number of agents><int initial cycles><int transactions per run>" << endl;
+        cout << "Usage: <./main> <outputfile> <int total number of runs>  <int number of histogram bins> <int number of agents><int initial cycles><int transactions per run><double lambda><double gamma><double alpha><double normalization>" << endl;
         exit(1);
     }
     string outfilename=argv[1];
-    initializationParameter = atoi(argv[2]);
-    total_runs = atoi(argv[3]);
-    numberofBins = atoi(argv[4]);
-    numberofAgents = atoi(argv[5]);
-    initial_cycles= atoi(argv[6]);
-    total_transactions = atoi(argv[7]);
+    total_runs = atoi(argv[2]);
+    numberofBins = atoi(argv[3]);
+    numberofAgents = atoi(argv[4]);
+    initial_cycles= atoi(argv[5]);
+    total_transactions = atoi(argv[6]);
+    lambda = atof(argv[7]);
+    gamma = atof(argv[8]);
+    alpha = atof(argv[9]);
+    normalization = atof(argv[10]);
 
     double *moneyBins, *agentlist;
     int *Hist;
@@ -65,11 +67,7 @@ int main(int argc, char* argv[])
     //MAIN LOOP
     for ( int run= 0; run<= total_runs; run++){
 
-        if(initializationParameter==0){
-            transaction_simple(agentlist, numberofAgents, idum, total_transactions);
-        }else if(initializationParameter==1){
-            transaction_advanced(agentlist, numberofAgents, idum, total_transactions);
-        }
+        transaction(agentlist, numberofAgents, idum, total_transactions, lambda, gamma, alpha,normalization);
         if(run>= initial_cycles){
             Histogram(Hist, moneyBins, agentlist, numberofAgents, numberofBins);
         }
@@ -90,37 +88,32 @@ int main(int argc, char* argv[])
 }
 
 
-void transaction_simple(double *agentlist, int agents, long& idum, int total_transactions)
+void transaction(double *agentlist, int agents, long& idum, int total_transactions, double lambda, double gamma, double alpha, double normalization)
 {
+    double cash_exchange;
+    double cash_difference;
+    double transaction_probability;
     for (int i=0; i<total_transactions; i++)
     {
         int agent1 = (int) (ran2(&idum)*(double)agents);
         int agent2 = (int) (ran2(&idum)*(double)agents);
+        double transaction_rate = (double) (ran2(&idum));
         if(agent1!=agent2)
         {
-            double transaction_rate = (double) (ran2(&idum));
-            double totalcash = agentlist[agent1]+agentlist[agent2];
-            agentlist[agent1]=transaction_rate*totalcash;
-            agentlist[agent2]=(1-transaction_rate)*totalcash;
+            transition_probability = pow(abs(agentlist[agent1]-agentlist[agent2]),-alpha)/normalization;
+            if (transaction_probability>1){
+                transaction_probability=1.0;
+            }
+            int transaction_random = (double) (ran2(&idum));
+            if(transaction_random<transaction_probability){
+                cash_exchange = (1-lambda)*(transaction_rate*agentlist[agent1]-(1-transaction_rate)*agentlist[agent2]);
+                agentlist[agent1]+=cash_exchange;
+                agentlist[agent2]-=cash_exchange;
+            }
         }
     }
 }
 
-void transaction_advanced(double *agentlist, int agents, long& idum, int total_transactions)
-{
-    for (int i=0; i<total_transactions; i++)
-    {
-        int agent1 = (int) (ran2(&idum)*(double)agents);
-        int agent2 = (int) (ran2(&idum)*(double)agents);
-        if(agent1!=agent2)
-        {
-            double transaction_rate = (double) (ran2(&idum));
-            double totalcash = agentlist[agent1]+agentlist[agent2];
-            agentlist[agent1]=transaction_rate*totalcash;
-            agentlist[agent2]=(1-transaction_rate)*totalcash;
-        }
-    }
-}
 
 void Histogram(int *Hist, double *moneyBins, double *listofAgents, int numberofAgents, int numberofBins)
 {
