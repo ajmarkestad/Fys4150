@@ -16,7 +16,7 @@ using namespace  std;
 ofstream ofile;
 
 // prints to file the results of the calculations
-void output(int *, int, int, int);
+void output(int *,double *, int, int, int);
 void Output_M(int , double *);
 void transaction_simple(double *, int, long&, int);
 void transaction_advanced(double *, int, long&, int);
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     agentlist = new double[numberofAgents];
     Hist = new int[numberofBins];
 
-
+    total_transactions = 100000;
     initialMoney = 1;
     idum = -1;
     for(int i=0;i<numberofAgents;i++){
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     ofile.close();
     ofile.open(outfilename);
     //output
-    output(Hist, numberofBins, total_runs, initial_cycles);
+    output(Hist, moneyBins,numberofBins, total_runs, initial_cycles);
 
 
 
@@ -133,12 +133,14 @@ void Histogram(int *Hist, double *moneyBins, double *listofAgents, int numberofA
     }
 }
 
-void output(int *histogram, int bins, int total_runs, int tall)
+void output(int *histogram, double *moneyBins,int bins, int total_runs, int tall)
 {
     double norm = 1/(double)(total_runs-tall);
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
     for (int bin=0; bin<bins; bin++)
     {
-        ofile << setw(15) << setprecision(8) << ((double)histogram[bin])*norm << endl;
+        ofile << setw(15) << setprecision(8) << ((double)histogram[bin])*norm;
+        ofile << setw(15) << setprecision(8) << moneyBins[bin] << endl;
     }
 }
 
