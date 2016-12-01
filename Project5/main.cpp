@@ -49,10 +49,6 @@ int main(int argc, char* argv[])
     agentlist = new double[numberofAgents];
     Hist = new int[numberofBins];
 
-    double step = initialMoney*numberofAgents/numberofBins;
-    for (int h = 0; h<numberofBins; h++){
-        moneyBins[h] = h*step;
-    }
 
     initialMoney = 1;
     idum = -1;
@@ -60,7 +56,10 @@ int main(int argc, char* argv[])
         agentlist[i] = initialMoney;
     }
 
-
+    double step = (double)initialMoney*(double)numberofAgents/(double)numberofBins;
+    for (int h = 0; h<numberofBins; h++){
+        moneyBins[h] = h*step;
+    }
 
     ofile.open(outfilename+"init");
     //MAIN LOOP
@@ -137,23 +136,23 @@ void Histogram(int *Hist, double *moneyBins, double *listofAgents, int numberofA
     }
 }
 
-void output(double *histogram, int bins, int total_runs, int tall)
+void output(int *histogram, int bins, int total_runs, int tall)
 {
-    double norm = 1/(total_runs-tall);
+    double norm = 1/(double)(total_runs-tall);
     for (int bin=0; bin<bins; bin++)
     {
-        ofile << setw(15) << setprecision(8) << histogram[bin]*norm << endl;
+        ofile << setw(15) << setprecision(8) << ((double)histogram[bin])*norm << endl;
     }
 }
 
 
 void Output_M(int numberofAgents, double *agentlist)
 {
-    int snittM2 = 0;
+    double snittM2 = 0;
     for(int i = 0;i < numberofAgents;i++){
         snittM2 += agentlist[i]*agentlist[i];
     }
-    double norm = 1/numberofAgents;
-    double variance = snittM2*norm-1;
+    double norm = 1/(double)numberofAgents;
+    double variance = snittM2*norm-1.0;
     ofile << setw(15) << setprecision(8) << variance<< endl;
 }
