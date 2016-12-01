@@ -17,7 +17,7 @@ ofstream ofile;
 
 // prints to file the results of the calculations
 void output(int *, int, int, int);
-void Output_M(int, double *);
+void Output_M(int , double *);
 void transaction_simple(double *, int, long&, int);
 void transaction_advanced(double *, int, long&, int);
 void Histogram(int *, double*, double* , int , int );
@@ -60,15 +60,6 @@ int main(int argc, char* argv[])
         agentlist[i] = initialMoney;
     }
 
-    int MaxGate = 1000;
-    for(int a=0;a<MaxGate;a++){
-        Histogram(Hist, moneyBins, agentlist, numberofAgents, numberofBins);
-        int Hist_prevous[numberofBins];
-        for(int j=0;j<numberofBins;j++){
-            Hist_prevous[j] = Hist[j];
-        }
-    }
-
 
 
     ofile.open(outfilename+"init");
@@ -102,7 +93,7 @@ int main(int argc, char* argv[])
 }
 
 
-void transaction_simple(double * agentlist, int agents, long& idum, int total_transactions)
+void transaction_simple(double *agentlist, int agents, long& idum, int total_transactions)
 {
     for (int i=0; i<total_transactions; i++)
     {
@@ -118,7 +109,7 @@ void transaction_simple(double * agentlist, int agents, long& idum, int total_tr
     }
 }
 
-void transaction_advanced(double * agentlist, int agents, long& idum, int total_transactions)
+void transaction_advanced(double *agentlist, int agents, long& idum, int total_transactions)
 {
     for (int i=0; i<total_transactions; i++)
     {
@@ -160,7 +151,7 @@ void Output_M(int numberofAgents, double *agentlist)
 {
     int snittM2 = 0;
     for(int i = 0;i < numberofAgents;i++){
-        snittM2 += (agentlist[i])*agentlist[i];
+        snittM2 += agentlist[i]*agentlist[i];
     }
     double norm = 1/numberofAgents;
     double variance = snittM2*norm-1;
