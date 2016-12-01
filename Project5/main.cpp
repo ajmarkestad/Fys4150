@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     agentlist = new double[numberofAgents];
     Hist = new int[numberofBins];
 
-    total_transactions = 100000;
+    total_transactions = 1;
     initialMoney = 1;
     idum = -1;
     for(int i=0;i<numberofAgents;i++){
