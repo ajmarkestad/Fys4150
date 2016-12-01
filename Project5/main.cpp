@@ -51,7 +51,6 @@ int main(int argc, char* argv[])
     agentlist = new double[numberofAgents];
     Hist = new int[numberofBins];
 
-
     initialMoney = 1;
     idum = -1;
     for(int i=0;i<numberofAgents;i++){
