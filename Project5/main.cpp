@@ -18,7 +18,7 @@ ofstream ofile;
 // prints to file the results of the calculations
 void output(int *,double *, int, int, int);
 void Output_M(int , double *);
-void transaction(double *, int, long&, int, double, double, double, double);
+void transaction(double **,double *, int, long&, int, double, double, double, double, double &);
 void Histogram(int *, double*, double* , int , int );
 
 
@@ -43,14 +43,21 @@ int main(int argc, char* argv[])
     lambda = atof(argv[7]);
     gamma = atof(argv[8]);
     alpha = atof(argv[9]);
-    normalization = atof(argv[10]);
+    normalization = 1/atof(argv[10]);
 
-    double *moneyBins, *agentlist;
+
+    double *moneyBins, *agentlist, **previous_interaction_counter;
     int *Hist;
     moneyBins = new double[numberofBins];
     agentlist = new double[numberofAgents];
     Hist = new int[numberofBins];
-
+    previous_interaction_counter = (double**) matrix(numberofAgents, numberofAgents, sizeof(double));
+    for(int y =0; y < numberofAgents; y++) {
+            for (int x= 0; x < numberofAgents; x++){
+                previous_interaction_counter[y][x] = 0; // spin orientation for the ground state;
+            }
+        }
+    double max = 0.0;
     initialMoney = 1;
     idum = -1;
     for(int i=0;i<numberofAgents;i++){
@@ -66,7 +73,7 @@ int main(int argc, char* argv[])
     //MAIN LOOP
     for ( int run= 0; run<= total_runs; run++){
 
-        transaction(agentlist, numberofAgents, idum, total_transactions, lambda, gamma, alpha,normalization);
+        transaction(previous_interaction_counter,agentlist, numberofAgents, idum, total_transactions, lambda, gamma, alpha,normalization, max);
         if(run>= initial_cycles){
             Histogram(Hist, moneyBins, agentlist, numberofAgents, numberofBins);
         }
@@ -79,15 +86,13 @@ int main(int argc, char* argv[])
     ofile.open(outfilename);
     //output
     output(Hist, moneyBins,numberofBins, total_runs, initial_cycles);
-
-
-
+    free_matrix((void **) previous_interaction_counter); // free memory
     ofile.close();  // close output file
     return 0;
 }
 
 
-void transaction(double *agentlist, int agents, long& idum, int total_transactions, double lambda, double gamma, double alpha, double normalization)
+void transaction(double **previous_interaction_counter,double *agentlist, int agents, long& idum, int total_transactions, double lambda, double gamma, double alpha, double normalization, double &max)
 {
     double cash_exchange;
     double transaction_probability;
@@ -98,7 +103,7 @@ void transaction(double *agentlist, int agents, long& idum, int total_transactio
         double transaction_rate = (double) (ran2(&idum));
         if(agent1!=agent2)
         {
-            transaction_probability = pow(abs(agentlist[agent1]-agentlist[agent2]),-alpha)/normalization;
+            transaction_probability = ((pow(previous_interaction_counter[agent1][agent2] +1,gamma)*pow(abs(agentlist[agent1]-agentlist[agent2]),-alpha))*normalization)/(1.0+max);
             if (transaction_probability>1){
                 transaction_probability=1.0;
             }
@@ -107,6 +112,11 @@ void transaction(double *agentlist, int agents, long& idum, int total_transactio
                 cash_exchange = (1-lambda)*(transaction_rate*agentlist[agent1]-(1-transaction_rate)*agentlist[agent2]);
                 agentlist[agent1]-=cash_exchange;
                 agentlist[agent2]+=cash_exchange;
+                previous_interaction_counter[agent1][agent2] += 0.01;
+                previous_interaction_counter[agent2][agent1] += 0.01;
+                if(fabs(previous_interaction_counter[agent1][agent2]) > max){
+                    max = fabs(previous_interaction_counter[agent1][agent2]);
+                }
             }
         }
     }
