@@ -72,7 +72,6 @@ int main(int argc, char* argv[])
     ofile.open(outfilename+"init");
     //MAIN LOOP
     for ( int run= 0; run<= total_runs; run++){
-
         transaction(previous_interaction_counter,agentlist, numberofAgents, idum, total_transactions, lambda, gamma, alpha,normalization, max);
         if(run>= initial_cycles){
             Histogram(Hist, moneyBins, agentlist, numberofAgents, numberofBins);

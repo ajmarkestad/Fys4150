@@ -155,7 +155,7 @@ file.close()
 totalruns = 20000*multiplier
 numberofbins = 2000*multiplier_bins
 numberofagens = 500
-initialcycles = 800*multiplier_initial
+initialcycles = 800
 transactions = 20*multiplier_transactions
 gammainput = 0
 alphainput = [0.5,1.0,1.5,2.0]
@@ -263,7 +263,7 @@ file.close()
 #N=1000
 numberofbins = 4000*multiplier_bins
 numberofagens = 1000
-initialcycles = 800*multiplier_initial
+initialcycles = 800
 transactions = 20*multiplier_transactions
 gammainput = 0
 alphainput = [0.5,1.0,1.5,2.0]
@@ -368,11 +368,11 @@ file.close()
 
 
 
-#Previous interactions
+#Previous agents preferred
 numberofbins = 4000*multiplier_bins
 numberofagens = 1000
-initialcycles = 800
-transactions = 20
+initialcycles = 800*multiplier_initial
+transactions = 20*multiplier_transactions
 gammainput = [0.0,1.0,2.0,3.0,4.0]
 normalization = 10.0
 handles = []
