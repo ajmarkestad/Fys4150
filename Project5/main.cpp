@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
                 previous_interaction_counter[y][x] = 0; // spin orientation for the ground state;
             }
         }
-    double max = 0.0;
+    double max = 0.0001;
     initialMoney = 1;
     idum = -1;
     for(int i=0;i<numberofAgents;i++){
@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
 void transaction(double **previous_interaction_counter,double *agentlist, int agents, long& idum, int total_transactions, double lambda, double gamma, double alpha, double normalization, double &max)
 {
     double cash_exchange;
+    double normalization_intercounter;
     double transaction_probability;
     for (int i=0; i<total_transactions; i++)
     {
@@ -103,19 +104,21 @@ void transaction(double **previous_interaction_counter,double *agentlist, int ag
         double transaction_rate = (double) (ran2(&idum));
         if(agent1!=agent2)
         {
-            transaction_probability = ((pow(previous_interaction_counter[agent1][agent2] +1,gamma)*pow(abs(agentlist[agent1]-agentlist[agent2]),-alpha))*normalization)/(1.0+max);
+            normalization_intercounter = pow(previous_interaction_counter[agent1][agent2] +1,gamma);
+            transaction_probability = pow(abs(agentlist[agent1]-agentlist[agent2]),-alpha)*normalization_intercounter*(normalization/max);
             if (transaction_probability>1){
                 transaction_probability=1.0;
             }
-            int transaction_random = (double) (ran2(&idum));
+            double transaction_random = (double) (ran2(&idum));
             if(transaction_random<transaction_probability){
                 cash_exchange = (1-lambda)*(transaction_rate*agentlist[agent1]-(1-transaction_rate)*agentlist[agent2]);
                 agentlist[agent1]-=cash_exchange;
                 agentlist[agent2]+=cash_exchange;
                 previous_interaction_counter[agent1][agent2] += 0.01;
                 previous_interaction_counter[agent2][agent1] += 0.01;
-                if(fabs(previous_interaction_counter[agent1][agent2]) > max){
-                    max = fabs(previous_interaction_counter[agent1][agent2]);
+                normalization_intercounter = pow(previous_interaction_counter[agent1][agent2] +1,gamma);
+                if(normalization_intercounter> max){
+                    max = normalization_intercounter;
                 }
             }
         }
