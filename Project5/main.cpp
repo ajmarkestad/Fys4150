@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
         else{
             Output_M(numberofAgents,agentlist);
         }
-
+        cout << "Current run: " << run << endl;
     }
     ofile.close();
     ofile.open(outfilename);

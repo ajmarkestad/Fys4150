@@ -9,101 +9,11 @@ multiplier_transactions = 1
 multiplier_initial = 1
 
 plotmax = 40*multiplier_bins    #scales the length of the plot
-def powerlaw(x,a,alpha,c):
-    return a*np.power(x,alpha)+c
 
-def findpowerlaw(x,y):
-     from scipy.optimize import curve_fit
-     start = int(np.argmax(y)+1)
-     end = np.nonzero(y)[0][-1]
-     xarray = np.array(x[start:end])
-     yarray = np.array(y[start:end])
-     guess = (100,-1,0)
-     print(end)
-     print(start)
-     coeffs,error = curve_fit(powerlaw, xarray,yarray,  p0=guess)
-     xvals = np.linspace(x[start],x[end],1000)
-     yext = powerlaw(xvals,coeffs[0],coeffs[1],coeffs[2])
-     #plt.plot(xarray,yarray,'ko')
-     #plt.plot(xvals,yext)
-     #plt.savefig('test1.png')
-     #plt.close()
-     return coeffs, xvals, yext
+from functions import * #functions required 
 
 
-#Initialization test
-totalruns = 4000
-numberofbins = 2000
-numberofagens = 1000
-initialcycles = 4000
-transactions = 10
-inputlambda = 0
-inputgamma = 0
-inputalpha = 0
-normalization = 1
-command = "./Project5"+ " " + 'test' + " " + str(totalruns)+ " " + str(numberofbins) + " " + str(numberofagens) + " " + str(initialcycles)+ " " + str(transactions)+ " " + str(inputlambda)+ " " + str(inputgamma)+ " " + str(inputalpha)+ " " + str(normalization)
 
-print(command)
-os.system(command)
-file1 = open('testinit','r')
-variance = []
-for line in file1:
-    variance.append(float(line))
-file1.close()
-plt.plot(variance)
-plt.xlabel('Transactions')
-plt.ylabel('Variance')
-plt.savefig("testinit.png")
-plt.close()
-os.system("rm "+"testinit")
-os.system('rm '+'test')
-
-#Proper run for simple transactions
-totalruns = 10000*multiplier
-numberofagens = 500
-numberofbins = 2000*multiplier_bins
-initialcycles = 400
-transactions = 20*multiplier_transactions
-gammainput = 0
-alphainput = 0
-normalization = 1.0
-command = "./Project5"+ " " + 'propersimple' + " " + str(totalruns)+ " " + str(numberofbins) + " " + str(numberofagens) + " " + str(initialcycles)+ " " + str(transactions)+ " " + str(inputlambda)+ " " + str(inputgamma)+ " " + str(inputalpha)+ " " + str(normalization)
-print(command)
-os.system(command)
-
-
-file2 = open('propersimpleinit','r')
-variance = []
-for line in file2:
-    variance.append(float(line))
-file2.close()
-plt.plot(variance)
-plt.xlabel('Transactions')
-plt.ylabel('Variance')
-plt.savefig('propersimpleinit.png')
-plt.close()
-
-file1 = open('propersimple','r')
-count = []
-bins = []
-for line in file1:
-    count.append(float(line.split()[0]))
-    bins.append(float(line.split()[1]))
-file1.close()
-plt.plot(bins[0:50],count[0:50])
-plt.xlabel('Money')
-plt.ylabel('Count')
-plt.savefig("Proper_simple_transaction.png")
-plt.close()
-os.system("rm "+"propersimpleinit")
-
-#logplot
-logs = np.log(count[0:50])
-plt.plot(np.log(bins[0:50]),logs)
-plt.xlabel('Money')
-plt.ylabel('log(Count)')
-plt.savefig("Proper_simple_transaction_log.png")
-plt.close()
 
 
 #Savings included(lambda model)
@@ -114,8 +24,8 @@ numberofbins = int(2000*multiplier_bins)
 initialcycles = 800
 transactions = 20*multiplier_transactions
 lambdainput = [0,0.25,0.9]
-gammainput = 0
-alphainput = 0
+inputgamma = 0
+inputalpha = 0
 normalization = 1.0
 handles = []
 power = []

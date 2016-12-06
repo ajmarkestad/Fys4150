@@ -148,30 +148,81 @@ for all timesteps:
 \section*{Results}
 \verbatiminput{saving.txt}
 
-
+\subsection{5a}
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.5]{testinit}
-	\caption{Variance as the system approaches the equilibrium}
+	\caption{Variance as the system approaches the equilibrium. We see that the system quickly goes to the equilibrium situation after approximately 10000 transactions.  1000 agents, 10 transactions per run, $\gamma=\alpha=\lambda = 0$,  20000 bins  }
 	\label{fig:testinit}
 \end{figure}
+
+\subsection{5b}
+
+
 
 
 \begin{figure}[H]
 	\centering
-	\begin{subfigure}[b]{0.4\textwidth}
+	\begin{subfigure}[t]{0.45\textwidth}
 		\includegraphics[scale=0.4]{propersimpleinit}
-		\caption{Variance of the initial 40000 transactions, where we see that we get to the equilibrium. }
+		\caption{Variance of the initial 100 runs, where we see that we get to the equilibrium after the first few run.}
 		\label{fig:propersimpleinit}
 	\end{subfigure}
-	\begin{subfigure}[b]{0.4\textwidth}
+	\begin{subfigure}[t]{0.45\textwidth}
 		\includegraphics[scale=0.4]{Proper_simple_transaction_log}
-		\caption{Logarithm of the histogram. }
+		\caption{Loglog plot of the distribution of money. }
 		\label{fig:Proper_simple_transaction_log}
 	\end{subfigure}
-	\caption{Simple transaction, $\lambda=0$, $\alpha=0$, $\gamma=0$}
+	\caption{Simple transaction, with 500 agens, 2000 total runs, $2\cdot 10^{6}$ transactions per run and  $\lambda=0$, $\alpha=0$, $\gamma=0$, 20000 bins, 100 initial runs}
 	\label{fig:simple}
 \end{figure}
+
+
+\subsection{5c. Lambda models}
+
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[t]{0.45\textwidth}
+		\includegraphics[scale=0.4]{savinginit}
+		\caption{Variance of the initial 100 runs, where we see that we get to the equilibrium before we start sampling data}
+		\label{fig:savinginit}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.45\textwidth}
+		\includegraphics[scale=0.4]{Saving}
+		\caption{Introducing a savings amount $\lambda$ affects the wealth distribution of the agens to a large degree where we see that with a higher savings fraction the distribution becomes to a larger degree gaussian}
+		\label{fig:Saving}
+	\end{subfigure}
+	\caption{Savings models, with 500 agents, 10000 total runs, $2\cdot 10^{6}$ transactions per run and  $\lambda=[0,0.25,0.9]$, $\alpha=0$, $\gamma=0$,20000 bins}
+	\label{fig:savings}
+\end{figure}
+
+We use a scipy.curve_fit to fit the observed data to an exponential of the form
+\begin{align}
+	count (money) = Ax^{-1-\nu} + C
+\end{align}
+which is equal to the equation in REFERANSE. 
+
+\begin{table}[h]
+\caption{default}
+\begin{center}
+\begin{tabular}{|c|c|}
+$\lambda$ & 0 & 0.25 & 0.9 \\
+$\nu$ & 
+\end{tabular}
+\end{center}
+\label{default}
+\end{table}%
+
+
+
+\subsection{5d.Nearest neighbor interactions}
+
+
+
+
+
+
 
 
 \begin{figure}[H]
