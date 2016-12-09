@@ -107,7 +107,7 @@ $$\:$$
 		
 %---------------------------------------------------------------------------------------------------------------------------------------
 \begin{abstract}
-	In this project we look at some simple agent based models for financial transactions and wealth distribution. We base ourselves on the models presented by Marco Patriarca, Anirban Chakraborti, Kimmo Kaski \cite{GibbsVsnon-Gibbs}, which has a savings component in the transactions but random transactions, and the models by Sanchari Goswami, Parongama Sen \cite{AgentBasedModels} which has interaction preferences. We spend some time analyzing the relations the models of \cite{AgentBasedModels} and the lack of information in this paper, make some changes and do in part our own analysis.
+	In this project we look at some simple agent based models for financial transactions and wealth distribution. We base ourselves on the models presented by Marco Patriarca, Anirban Chakraborti, Kimmo Kaski \cite{GibbsVsnon-Gibbs}, which has a savings component in the transactions but random transactions, and the models by Sanchari Goswami, Parongama Sen \cite{AgentBasedModels} which has interaction preferences. We spend some time analyzing the relations the models of \cite{AgentBasedModels} and the lack of information in this paper, make some changes and do in part our own analysis. We reproduce the distributions of said papers, find the power law fit to the tail end of the distributions, as well as plot the variance to see when the steady state is reached and how large fluctuations are present in said steady states. We also produce distributions with different normalizations, which is lacking in ref. \cite{AgentBasedModels}, and show their effect. Lastly we see the interplay between the free parameters of the most complicated models, not only in the distributions but also in the variance plots where we see that some models never quite seem to reach a steady state, or the steady states have massive fluctuations, to the point were they are no longer steady.
 	
 \end{abstract}
 
@@ -121,7 +121,7 @@ The field of Financial physics can be said to start in 1897 when V. Pareto \cite
  w_m \propto m^{-1-\nu}
  \label{powerLaw}
  \end{equation}
-with $\nu \in [1,2]$. This will be the criteria by which all our distributions will be measured, as they will then be considered possibly realistic. The goal of our analysis will be more along the line of seeing how simple changes/additions to the interactions change the wealth distribution. An interesting step further would be to take the distributions which we produce and compare with modern empirical distribution using standard statistical analysis tools of physics today such as hypothesis testing and goodness of fit etc. In this project we concern ourselves with producing the distributions. We start with the models of \cite{GibbsVsnon-Gibbs} and present the theory of them, produce the distributions ourselves, and compare with their results. Next analyze the models of \cite{AgentBasedModels} and critic them. With slightly expanded models we produce new distributions, compare with their results, and discuss.
+with $\nu \in [1,2]$. This will be the criteria by which all our distributions will be measured, as they will then be considered possibly realistic. The goal of our analysis will be more along the line of seeing how simple changes/additions to the interactions change the wealth distribution. An interesting step further would be to take the distributions which we produce and compare with modern empirical distribution using standard statistical analysis tools of physics today such as hypothesis testing and goodness of fit etc. In this project we concern ourselves with producing the distributions. We start with the models of \cite{GibbsVsnon-Gibbs} and \cite{AgentBasedModels}, present the theory of them, analyze the models of  and critic them, produce the distributions ourselves, find their $\nu$ value to check the distributions realism, and compare with their results. We also plot the variance as a function of the possible transactions, allowing us to see when a steady state is reached or if it is even reached. Lastly we also comment on how to expand this project, or what other models could be interesting to look at.
 
 
 
@@ -257,7 +257,7 @@ double alpha, double normalization, double &max)
 
 \section*{Results}
 
-We begin with a simple system to test how we see that the system goes towards equilibrium. We calculate the variance of the wealth distribution for every run, which in figure \ref{fig::testinit} has 10000 transactions per run. We see that there is a clear leveling off for the variance, and we will interpret and use this as a check that the system is in a equilibrium situation where we start to sample data just after the last datapoint. We then change gears in figure \ref{fig:simple} where we have just a simple interaction with extra effects that we model. Here we have upped the transactions per run to $2\cdot 10^6$ to and 2000 total runs to gather more data and we see that the log-log curve \ref{fig:Proper_simple_transaction_log} is a very skewed distribution where a few people have much more money than the bulk. We are interested in how this could be affected by introducing various effects to the model and the first we want to look at is the savings model. 
+We begin with a simple system to test how we see that the system goes towards equilibrium. We calculate the variance of the wealth distribution for every run, which in figure \ref{fig:testinit} has 10000 transactions per run. We see that there is a clear leveling off for the variance, and we will interpret and use this as a check that the system is in a equilibrium situation where we start to sample data just after the last data point. We then change gears in figure \ref{fig:simple} where we have just a simple interaction with extra effects that we model. Here we have upped the transactions per run to $2\cdot 10^6$ to and 2000 total runs to gather more data and we see that the log-log curve \ref{fig:Proper_simple_transaction_log} is a very skewed distribution where a few people have much more money than the bulk. We are interested in how this could be affected by introducing various effects to the model and the first we want to look at is the savings model. 
 
 \begin{figure}[H]
 	\centering
@@ -275,7 +275,7 @@ We begin with a simple system to test how we see that the system goes towards eq
 	\end{subfigure}
 	\begin{subfigure}[t]{0.45\textwidth}
 		\includegraphics[scale=0.4]{Proper_simple_transaction_log}
-		\caption{Plot of the distribution of money. }
+		\caption{Loglog plot of the distribution of money. }
 		\label{fig:Proper_simple_transaction_log}
 	\end{subfigure}
 	\caption{Simple transaction, with 500 agens, 2000 total runs, $2\cdot 10^{6}$ transactions per run and  $\lambda=0$, $\alpha=0$, $\gamma=0$, 20000 bins, 100 initial runs, norm = 1.0}
@@ -289,9 +289,9 @@ We begin with a simple system to test how we see that the system goes towards eq
 
 
 \subsection{Savings models}
-As discussed in the theory section a simplified model of savings is included for each transaction. We see in figure \ref{fig:savings} that this has a big effect on the wealth distribution, where we see that increased savings will give a more even distribution resembling a gaussian one and less equal to a Gibbs distribution which has a higher frequency of low income persons. 
+As discussed in the theory section, a simplified model of savings is included for each transaction. We see in figure \ref{fig:savings} that this has a big effect on the wealth distribution, where we see that increased savings will give a more even distribution resembling a Gaussian one and less equal to a Gibbs distribution which has a higher frequency of low income persons. We see from figure \ref{fig:savings} the same Gaussian distribution that are portrayed in ref. \cite{GibbsVsnon-Gibbs}.
 
-TODO: compare with paper
+
 
 
 We can compare this to a power law on the type
@@ -310,14 +310,14 @@ which is equal to the equation in \ref{powerLaw} an use a scipy curve fit to fit
 	\end{subfigure}
 	\begin{subfigure}[t]{0.45\textwidth}
 		\includegraphics[scale=0.4]{Saving}
-		\caption{Introducing a savings amount $\lambda$ affects the wealth distribution of the agents to a large degree where we see that with a higher savings fraction the distribution becomes to a larger degree gaussian}
+		\caption{Introducing a savings amount $\lambda$ affects the wealth distribution of the agents to a large degree where we see that with a higher savings fraction the distribution becomes to a larger degree Gaussian}
 		\label{fig:Saving}
 	\end{subfigure}
 	\caption{Savings models, with 500 agents, 10000 total runs, 100 initial cycles,  $2\cdot 10^{6}$ transactions per run and  $\lambda=[0,0.25,0.9]$, $\alpha=0$, $\gamma=0$,20000 bins, norm = 10.0}
 	\label{fig:savings}
 \end{figure}
 
-
+Interesting are the result of the power law fit, suggesting that the savings model gives distributions that do not match with empirical distributions, as mentioned in ref. \cite{AgentBasedModels}.
 
 \begin{table}[h]
 \caption{Power law of the tail of the distribution after the maxima. See figure \ref{fig:savings} for parameters}
@@ -332,7 +332,7 @@ $\nu$ & $3.74\pm 0.03$ & $4.23\pm 0.04$ & $7.1\pm0.3$
 
 
 \subsection{Normalization dependence}
-We skip ahead and investigate the effect of the normalisation constant we include in our calculations. We use a set of normalisations values $[0.03,0.3,3,30]$ which we run for non-trivial coefficients for all the models we have included in our studies. In figure \ref{fig:norm} we see that we reach the equilibrium quite rapidly but the distribution depends to a great extent of the value we choose. This is because we need to set an upper limit in the probability, and we choose to always accept probabilities that are greater that 1. The scaling with the normalisation will affect this such that with a very small normalisation all values will be accepted and we won't see any effects of the additional factors we have included(i.e. the nearest neighbour effect). The proper way of handling this is then to have a large normalisation constant such that we will see all the relative effects of the underlying models without making any dramatic cuts. The only side-effect of this is that actual transactions will be rare and we therefore have to be careful to check wether our model actually has reached the equilibrium before we start sampling. This choice of a high normalisation is reflected in the rest of the results where we chose norm = 10 or norm = 3. 
+We investigate the effect of the normalization constant we include in our calculations. We use a set of normalizations values $[0.03,0.3,3,30]$ which we run for non-trivial coefficients for all the models we have included in our studies. In figure \ref{fig:norm} we see that we reach the equilibrium quite rapidly but the distribution depends to a great extent of the value we choose. This is because we need to set an upper limit in the probability, and we choose to always accept probabilities that are greater that 1. The scaling with the normalization will affect this such that with a very small normalization all values will be accepted and we won't see any effects of the additional factors we have included(i.e. the nearest neighbor effect). The proper way of handling this is then to have a large normalization constant such that we will see all the relative effects of the underlying models without making any dramatic cuts. The only side-effect of this is that actual transactions will be rare and we therefore have to be careful to check whether our model actually has reached the equilibrium before we start sampling. This choice of a high normalization is reflected in the rest of the results where we chose norm = 10 or norm = 3. 
 
 \begin{figure}[H]
 	\centering
@@ -353,7 +353,7 @@ We skip ahead and investigate the effect of the normalisation constant we includ
 
 
 
-\subsection{Nearest neighbour interactions}
+\subsection{Nearest neighbor interactions}
 People often adapt their spending according to their income, and by this we would expect people with similar income to have a higher probability to interact. As introduced in the theory section we model this effect by a parameter $\alpha$ which increases this effect as we increase the value. We have manually seen that all the simulations have reached equilibrium, so we do not include those plots but present the distributions in figure \ref{fig:alpha_n500} and \ref{fig:alpha_n1000}. Without the savings we see that we are in effect back to the distribution we found in the simple model with the most probable person having no money and increasing the $\alpha$ concentrates the wealth towards the lower end, but with even more people having the least amount of money. If we then look at the models with savings we have a more fair distribution which resembles the Gibbs distribution to a high degree, and if we compare to kinetic theories of gases there is a inverse correspondence between $\alpha$ and the temperature. The power laws that we extract from the observed distributions are reported in table \ref{tab:closepartner} where we see that we clearly get higher $\nu$ values for higher $\alpha$ which coincides with that we see visually. 
 
 \begin{figure}[H]
@@ -368,7 +368,7 @@ People often adapt their spending according to their income, and by this we woul
 		\caption{$\lambda = 0.5$, $N=500$}
 		\label{fig:0.5_500}
 	\end{subfigure}
-	\caption{Savings with a nearest neighbour weighted  model, with 500 agents, 5000 total runs,200 initial runs,  $5\cdot 10^{6}$ transactions per run and  $norm=10.0$,$\lambda=[0,0.5]$, $\alpha=[0.5,1.0,1.5,2.0]$, $\gamma=0$,20000 bins}
+	\caption{Savings with a nearest neighbor weighted  model, with 500 agents, 5000 total runs,200 initial runs,  $5\cdot 10^{6}$ transactions per run and  $norm=10.0$,$\lambda=[0,0.5]$, $\alpha=[0.5,1.0,1.5,2.0]$, $\gamma=0$,20000 bins}
 	\label{fig:alpha_n500}
 \end{figure}
 
@@ -385,9 +385,12 @@ People often adapt their spending according to their income, and by this we woul
 		\caption{$\lambda = 0.5$, $N=1000$}
 		\label{fig:0.5_1000}
 	\end{subfigure}
-	\caption{Savings with a nearest neighbour weighted  model, with 1000 agents, 5000 total runs,200 initial runs,  $5\cdot 10^{6}$ transactions per run and  $norm=10.0$,$\lambda=[0,0.5]$, $\alpha=[0.5,1.0,1.5,2.0]$, $\gamma=0$,20000 bins}
+	\caption{Savings with a nearest neighbor weighted  model, with 1000 agents, 5000 total runs,200 initial runs,  $5\cdot 10^{6}$ transactions per run and  $norm=10.0$,$\lambda=[0,0.5]$, $\alpha=[0.5,1.0,1.5,2.0]$, $\gamma=0$,20000 bins}
 	\label{fig:alpha_n1000}
 \end{figure}
+
+
+While we see very little difference in the distributions when we double the number of agents, only a slight increase in all values across the board,but we do see a difference between our distributions and the ones presented in figure 1 of ref \cite{AgentBasedModels}. Of course, ref \cite{AgentBasedModels} uses a $\lambda = 0$ model for their data and we see that the plot has a lot of the same behavior as our equivalent plot, with some significant changes. The point where the models intersect is shifted to around $\sim -1.5$ in our data from $\sim 10$ in theirs. Also, our $\alpha$ distributions all end at the same point while theirs end at different points, notably their $0.5$ value ends first while ours has the largest value for high money amounts. As previously state, ref \cite{AgentBasedModels} does not provide us with enough information to reproduce their results. We note that they normalize with the with the number of agents as well, which we don't and they plot longer in the x axis, however the curves should still match if we had the same normalization of the probability and initial conditions, which they fail to provide. So instead of trying parameters until we make the plots fit, we decided to work with parameters that we felt gave a good spread of these probability values between 0 and 1, as we have done onwards.  
 
 
 \begin{table}[h]
@@ -411,7 +414,7 @@ $\nu_{N=1000, \lambda=0.5}$ & $3.64\pm0.05$ & $2.84\pm 0.04$ & $2.10\pm 0.04$ & 
 
 
 \subsection{History of earlier interactions}
-We also know that customers tend to not be that exploratory in which brands they buy, and usually stick with the same counter-party and the bond increases over time.  Again as explained in the theory section we can control this effect with a $\gamma$ parameter and we have used instead of an addition of 1 as suggested in the project details we used the value 0.01 to get a more continuous change in the parameter $C_{ij}$. When running this for over 24 hours we still do not get to equilibrium for certain cases as seen in figure \ref{fig:equi} where we have some strange effects especially in figure a where we see that for $\gamma=4$ we actually have something that looks like a lower activity per possible transaction, which would stem from some pair having so many more transactions that others are normalized out and will rarely transact. This would potentially be self enhancing and would be a type of transition of the system where some agents are left behind, which does in some cases model real world behaviour where companies go under. For the b plot we see the same effect for $\gamma=4$ but for the other curves we have some weird equilibrium moves that are very sharp and does not look very much like the noise we have seen earlier when the steady state has been reached. 
+We also know that customers tend to not be that exploratory in which brands they buy, and usually stick with the same counter-party and the bond increases over time.  Again as explained in the theory section we can control this effect with a $\gamma$ parameter and we have used instead of an addition of 1 as suggested in the project details we used the value 0.01 to get a more continuous change in the parameter $C_{ij}$. When running this for over 24 hours we still do not get to equilibrium for certain cases as seen in figure \ref{fig:equi} where we have some strange effects especially in figure a where we see that for $\gamma=4$ we actually have something that looks like a lower activity per possible transaction, which would stem from some pair having so many more transactions that others are normalized out and will rarely transact. This would potentially be self enhancing and would be a type of transition of the system where some agents are left behind, which does in some cases model real world behavior where companies go under. For the b plot we see the same effect for $\gamma=4$ but for the other curves we have some weird equilibrium moves that are very sharp and does not look very much like the noise we have seen earlier when the steady state has been reached. 
 \begin{figure}[H]
 	\centering
 	\begin{subfigure}[t]{0.45\textwidth}
@@ -428,9 +431,7 @@ We also know that customers tend to not be that exploratory in which brands they
 	\label{fig:equi}
 \end{figure}
 
-We then look at the distributions of wealth in the figure \ref{fig:history_lambda=0_0} and \ref{fig:history_lambda=0_5} where we see the cooling of the system as mentioned above in 9a. Otherwise we see in general that the distributions are similar across the parameter space that we have sampled, with the most important difference is the 9a again where we see that we have a transition from a distribution with a zero count at the lowers money-amount to the maximum at this point. Otherwise the tail-distribution is more interesting to look at and we see in table \ref{tab:hist} that the 
-
-TODO: Insert some comment after inserting the values of $\nu$ and compare
+We then look at the distributions of wealth in the figure \ref{fig:history_lambda=0_0} and \ref{fig:history_lambda=0_5} where we see the cooling of the system as mentioned above in 9a. Otherwise we see in general that the distributions are similar across the parameter space that we have sampled, with the most important difference is the 9a again where we see that we have a transition from a distribution with a zero count at the lowers money-amount to the maximum at this point. Otherwise the tail-distribution is more interesting to look at and we see in table \ref{tab:hist} that only the models with high $\gamma$ manage to approximately reproduce the experimental data with an appropriate power law, which suggest that such a model with preferred interactions with historic partners might have something to it.  In figure \ref{fig:historic_lambda=0_5_alpha=2} we see some high spikes for the high $\gamma=4.0$ model. Looking at the log(count) value we see that as it is $\approx 0$ an possible explanation is that we have rich people which have stopped to interact with others. 
 
 
 \begin{figure}[H]
@@ -475,7 +476,7 @@ $\gamma$ & 0.0 & 1.0 & 2.0 & 3.0 & 4.0  \\
 $\nu_{\alpha=1, \lambda=0.0}$ & $2.85\pm 0.04$ & $3.03\pm 0.04$ & $2.88\pm 0.04$ & $2.48\pm 0.06$ & $1.2\pm0.2$\\
 $\nu_{\alpha=2, \lambda=0.0}$ & $-1 \pm 1$ & $-0.4\pm 0.8$ & $0\pm 2$ & $0\pm 3$ & $10\pm 6$ \\
 $\nu_{\alpha=1, \lambda=0.5}$ & $2.89\pm 0.05$ & $2.95\pm 0.05$ & $2.57\pm 0.04$ & $1.43\pm 0.08$ &$0.4\pm0.6$  \\
-$\nu_{\alpha=2, \lambda=0.5}$ & -0.7 & -0.1 & 3.4 & 0 & 12
+$\nu_{\alpha=2, \lambda=0.5}$ & $3.07\pm 0.03$ & $3.43\pm 0.03$ & $3.01\pm 0.03$ & $2.71\pm 0.05$ & $1.4\pm 0.2$
 \end{tabular}
 \end{center}
 \label{tab:hist}
@@ -485,7 +486,9 @@ $\nu_{\alpha=2, \lambda=0.5}$ & -0.7 & -0.1 & 3.4 & 0 & 12
 
 
 \section*{Conclusion}
-In our studies we have seen that we are able to simulate agents that make transitions based on different models and get different wealth distributions when making small changes to the mechanisms that underly the interactions. When keeping a simple model we get a Gibbs distribution of the wealth, and if we include a saving in each transaction the distribution becomes a gaussian one. We then include the preferred interaction(parametrised by $\alpha$) with agents that have similar income and this produces Gibbs distributions(when the saving is non-zero) with a inverse behaviour of $\alpha$ wrt temperature in comparison to a kinetic gas model energy distribution. At last we include the effect that interacting with an agents that has previously been interacted with is preferred, and while this has no large effect for the parameters we investigate this can potentially introduce a phase transition where we get the possibility of freezing out agents that never will interact. 
+In our studies we have seen that we are able to simulate agents that make transitions based on different models and get different wealth distributions when making small changes to the mechanisms that underly the interactions. When keeping a simple model we get a Gibbs distribution of the wealth, and if we include a saving in each transaction the distribution becomes a Gaussian one. We then include the preferred interaction(parametrized by $\alpha$) with agents that have similar income and this produces Gibbs distributions(when the saving is non-zero) with a inverse behavior of $\alpha$ wrt temperature in comparison to a kinetic gas model energy distribution. At last we include the effect that interacting with an agents that has previously been interacted with is preferred, and while this has no large effect for the parameters we investigate this can potentially introduce a phase transition where we get the possibility of freezing out agents that never will interact. \\
+
+There are a couple of additions/new models that can be quite interesting to look at for future versions of this project. The obvious is to, as we have done, look deeper into what the normalization of these probability methods means, and unlike us actually have the amount the $c_{ij}$ matrix element increases with as a free parameter as to test its importance contra the $\gamma$ and whether having both as free parameters is superficial. Second is to include a government agent which redistributes its value among the agents either fairly, for a workers utopia, or preferentially of some kind, to the damned bourgeoisie. The first model would most likely not have a tail that fits a power law of the kind one would want for a realistic distribution but it would be a fun exercise. The second one could conceivably give a more realistic distribution and a comparison of these models with some of the simple ones that we have used, capitalist swine we are. Lastly, there is an interesting variant on the $\lambda$ model proposed in \textit{Pareto law in a kinetic model of market with random saving propensity} by Chatterjee et al. \url{http://www.sciencedirect.com/science/article/pii/S0378437103011142}, where they have the value of $\lambda$ be agent specific and distributed between 0 and 1. This means that one recovers the correct tail like behavior for the distribution that is lost with the simpler $\lambda$ model. These \emph{heterogeneous} agents are in contrast to our \emph{homogeneous} agents, and there are many more possible models which potentially could be interesting when this is the case. As a short example we could investigate where in the wealth distribution the different agents tend to end up based on their savings amount.  
 
 
 
